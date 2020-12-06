@@ -19,6 +19,8 @@
         <java.version>14</java.version>
         <swagger-annotations-version>1.6.2</swagger-annotations-version>
         <karate.version>0.9.6</karate.version>
+        <openapi-generator.version>4.3.1</openapi-generator.version>
+        <openapitools-jackson.version>0.2.1</openapitools-jackson.version>
     </properties>
 
     <dependencies>
@@ -58,14 +60,14 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>openapi-generator-maven-plugin</artifactId>
-            <version>4.3.1</version>
+            <version>${openapi-generator.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.1</version>
+            <version>${openapitools-jackson.version}</version>
         </dependency>
 
         <!-- Test Dependencies https://github.com/intuit/karate -->
