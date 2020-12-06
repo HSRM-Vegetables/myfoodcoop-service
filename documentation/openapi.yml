@@ -1,0 +1,40 @@
+openapi: "3.0.0"
+info:
+    description: |-
+        This is the specification for the Stadtgemüse Service.
+    version: "0.0.1-SNAPSHOT"
+    title: "Stadtgemüse Service"
+
+servers:
+    -   url: "https://veg-service.herokuapp.com/"
+        description: "Production"
+
+tags:
+    -   name: "Hello World"
+        description: "A first welcome to all developers"
+
+paths:
+    /hello-world:
+        get:
+            tags:
+                - "Hello World"
+            summary: "Get a warm welcome from our service"
+            description: "This is just a quick sample route which wants to say hello"
+            operationId: "helloWorld"
+            responses:
+                '200':
+                    description: >-
+                        In case of success the capacity data is returned.\
+                          If no capacity data is available, an empty array is returned.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/hello-world-response'
+
+components:
+    schemas:
+        hello-world-response:
+            description: A nice message form our service
+            properties:
+                message:
+                    type: string
