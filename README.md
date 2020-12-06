@@ -24,7 +24,7 @@ When all dependencies were downloaded and installed, run
 `mvn spring-boot:run`
 
 in order to build the project and start it. Alternatively, you can run `mvn package` to generate build the service and manually run it with java
-API F
+
 
 ## API Specification
 
