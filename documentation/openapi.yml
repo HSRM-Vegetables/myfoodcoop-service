@@ -6,7 +6,7 @@ info:
     title: "Stadtgemüse Service"
 
 servers:
-    -   url: "https://veg-service.herokuapp.com/"
+    -   url: "https://veg-service.herokuapp.com/v1"
         description: "Production"
 
 tags:
