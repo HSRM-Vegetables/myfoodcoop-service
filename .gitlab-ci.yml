@@ -36,8 +36,23 @@ cache:
   except:
     - master
 
-# Verify merge requests using JDK8
+# Verify merge requests using JDK11
 verify:jdk11:
   <<: *verify
+
+deploy:
+    type: deploy
+    stage: deploy
+    tags:
+        - docker
+    image: ruby:latest
+    script:
+        - apt-get update -qy
+        - apt-get install -y ruby-dev
+        - gem install dpl
+        - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
+    only:
+        - master
+
 
 
