@@ -43,8 +43,6 @@ verify:jdk14:
 deploy:
     type: deploy
     stage: deploy
-    tags:
-        - docker
     image: ruby:latest
     script:
         - apt-get update -qy
