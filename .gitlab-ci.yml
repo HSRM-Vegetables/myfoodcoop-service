@@ -19,7 +19,7 @@ variables:
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
 # This template uses jdk8 for verifying and deploying images
-image: maven:3-openjdk-11
+image: maven:3-adoptopenjdk-14
 
 # Cache downloaded dependencies and plugins between builds.
 # To keep cache across branches add 'key: "$CI_JOB_NAME"'
@@ -37,7 +37,7 @@ cache:
     - master
 
 # Verify merge requests using JDK11
-verify:jdk11:
+verify:jdk14:
   <<: *verify
 
 deploy:
