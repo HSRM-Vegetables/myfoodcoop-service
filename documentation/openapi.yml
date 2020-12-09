@@ -10,31 +10,62 @@ servers:
         description: "Production"
 
 tags:
-    -   name: "Hello World"
-        description: "A first welcome to all developers"
+    -   name: "Balance"
+        description: "Handles balance requests"
 
 paths:
-    /hello-world:
+    /balance/{name}:
         get:
             tags:
-                - "Hello World"
-            summary: "Get a warm welcome from our service"
-            description: "This is just a quick sample route which wants to say hello"
-            operationId: "helloWorld"
+                - "Balance"
+            summary: "Gets the current balance of the user"
+            description: "Gets the current balance of the user, 0 if the user is not known"
+            operationId: "balanceGet"
+            parameters:
+                - in: path
+                  name: name
+                  schema:
+                      type: string
+                  required: true
+                  description: The name of the user
             responses:
                 '200':
-                    description: >-
-                        In case of success the capacity data is returned.\
-                          If no capacity data is available, an empty array is returned.
+                    description: The current balance
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/hello-world-response'
+                                $ref: '#/components/schemas/balance-get-response'
+        post:
+            tags:
+                - "Balance"
+            summary: "Sets the balance"
+            operationId: "balancePost"
+            parameters:
+                - in: path
+                  name: name
+                  schema:
+                      type: string
+                  required: true
+                  description: The name of the user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/balance-post-request'
+            responses:
+                '201':
+                    description: Created
 
 components:
     schemas:
-        hello-world-response:
+        balance-get-response:
             description: A nice message form our service
             properties:
-                message:
-                    type: string
+                balance:
+                    type: number
+        balance-post-request:
+            description: A nice message form our service
+            properties:
+                balance:
+                    type: number
