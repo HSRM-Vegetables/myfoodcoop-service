@@ -1,7 +1,6 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
-import de.hsrm.vegetables.Stadtgemuese_Backend.api.HelloWorldApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
