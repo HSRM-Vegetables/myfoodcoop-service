@@ -64,8 +64,10 @@ components:
             properties:
                 balance:
                     type: number
+                    format: float
         balance-post-request:
             description: A nice message form our service
             properties:
                 balance:
                     type: number
+                    format: float

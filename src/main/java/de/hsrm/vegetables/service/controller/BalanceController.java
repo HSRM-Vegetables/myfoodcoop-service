@@ -16,7 +16,7 @@ import java.util.HashMap;
 @CrossOrigin(origins = "*")
 public class BalanceController implements BalanceApi {
 
-    private final HashMap<String, BigDecimal> balances;
+    private final HashMap<String, Float> balances;
 
     public BalanceController() {
         this.balances = new HashMap<>();
@@ -29,8 +29,8 @@ public class BalanceController implements BalanceApi {
         if (balances.containsKey(name)) {
             response.balance(balances.get(name));
         } else {
-            balances.put(name, new BigDecimal(0));
-            response.balance(new BigDecimal(0));
+            balances.put(name, 0f);
+            response.balance(0f);
         }
 
         return ResponseEntity.ok(response);
