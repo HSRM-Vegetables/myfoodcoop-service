@@ -29,6 +29,7 @@ public class BalanceController implements BalanceApi {
         if (balances.containsKey(name)) {
             response.balance(balances.get(name));
         } else {
+            balances.put(name, new BigDecimal(0));
             response.balance(new BigDecimal(0));
         }
 
