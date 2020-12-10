@@ -38,7 +38,17 @@ public class BalanceController implements BalanceApi {
 
     @Override
     public ResponseEntity<Void> balancePost(String name, BalancePostRequest request) {
-        balances.put(name, request.getBalance());
+        if (request.getBalance() != null && request.getBalanceDifference() != null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (request.getBalance() != null) {
+            balances.put(name, request.getBalance());
+        } else if (request.getBalanceDifference() != null) {
+            Float currentBalance = balances.get(name);
+            Float newBalance = currentBalance + request.getBalanceDifference();
+            balances.put(name, newBalance);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

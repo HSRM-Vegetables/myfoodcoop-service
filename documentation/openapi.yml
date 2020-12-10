@@ -19,7 +19,7 @@ paths:
             tags:
                 - "Balance"
             summary: "Gets the current balance of the user"
-            description: "Gets the current balance of the user, 0 if the user is not known"
+            description: "Gets the current balance of the user, or 0 if the user is currently not known"
             operationId: "balanceGet"
             parameters:
                 - in: path
@@ -27,10 +27,10 @@ paths:
                   schema:
                       type: string
                   required: true
-                  description: The name of the user
+                  description: "The unique name of the user"
             responses:
                 '200':
-                    description: The current balance
+                    description: "The current value of the balance for the specified user"
                     content:
                         application/json:
                             schema:
@@ -38,7 +38,7 @@ paths:
         post:
             tags:
                 - "Balance"
-            summary: "Sets the balance"
+            summary: "Sets the balance for the specified user"
             operationId: "balancePost"
             parameters:
                 - in: path
@@ -46,7 +46,7 @@ paths:
                   schema:
                       type: string
                   required: true
-                  description: The name of the user
+                  description: "The unique name of the user"
             requestBody:
                 required: true
                 content:
@@ -54,20 +54,31 @@ paths:
                         schema:
                             $ref: '#/components/schemas/balance-post-request'
             responses:
-                '201':
-                    description: Created
+                '200':
+                    description: "Updated the balance for the user successfully"
+                '400':
+                    description: "Both values were set, only one at a time allowed"
 
 components:
     schemas:
         balance-get-response:
-            description: A nice message form our service
+            description: "Contains data about the current balance"
             properties:
                 balance:
+                    description: "The current balance"
+                    example: 10
                     type: number
                     format: float
         balance-post-request:
-            description: A nice message form our service
+            description: "Contains data about how to update the balance"
             properties:
+                balanceDifference:
+                    description: "Relative number to be added to the current balance"
+                    example: -2.4
+                    type: number
+                    format: float
                 balance:
+                    description: "Absolute balance to be applied instead of the current balance"
+                    example: 60
                     type: number
                     format: float

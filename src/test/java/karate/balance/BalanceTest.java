@@ -1,4 +1,4 @@
-package karate.helloWorld;
+package karate.balance;
 
 import com.intuit.karate.junit5.Karate;
 import de.hsrm.vegetables.service.Application;
@@ -15,7 +15,7 @@ import org.springframework.test.context.TestPropertySource;
                 "server.port: 8090"
         }
 )
-class HelloWorldTest {
+class BalanceTest {
 
     @Karate.Test
     Karate testAll() {
