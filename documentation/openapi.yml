@@ -1,84 +1,128 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-    description: |-
-        This is the specification for the Stadtgemüse Service.
-    version: "0.0.1-SNAPSHOT"
-    title: "Stadtgemüse Service"
-
+    description: This is the specification for the Stadtgemüse Service.
+    version: 0.0.1-SNAPSHOT
+    title: Stadtgemüse Service
+    contact: {}
 servers:
-    -   url: "https://veg-service.herokuapp.com/"
-        description: "Production"
-
+    - url: 'https://veg-service.herokuapp.com/'
+      description: Production
 tags:
-    -   name: "Balance"
-        description: "Handles balance requests"
-
+    - name: Balance
+      description: Handles balance requests
 paths:
-    /balance/{name}:
+    '/balance/{name}':
         get:
             tags:
-                - "Balance"
-            summary: "Gets the current balance of the user"
-            description: "Gets the current balance of the user, or 0 if the user is currently not known"
-            operationId: "balanceGet"
+                - Balance
+            summary: Gets the current balance of the user
+            description: 'Gets the current balance of the user, or 0 if the user is currently not known'
+            operationId: balanceGet
             parameters:
-                - in: path
-                  name: name
-                  schema:
-                      type: string
-                  required: true
-                  description: "The unique name of the user"
+                - $ref: '#/components/parameters/username'
             responses:
                 '200':
-                    description: "The current value of the balance for the specified user"
+                    description: The current value of the balance for the specified user
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/balance-get-response'
-        post:
+        patch:
             tags:
-                - "Balance"
-            summary: "Sets the balance for the specified user"
-            operationId: "balancePost"
+                - Balance
+            summary: Changes the balance for the specified user
+            operationId: balancePatch
             parameters:
-                - in: path
-                  name: name
-                  schema:
-                      type: string
-                  required: true
-                  description: "The unique name of the user"
+                - $ref: '#/components/parameters/username'
             requestBody:
                 required: true
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/balance-post-request'
+                            $ref: '#/components/schemas/balance-patch-request'
             responses:
                 '200':
-                    description: "Updated the balance for the user successfully"
-                '400':
-                    description: "Both values were set, only one at a time allowed"
-
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-get-response'
+    '/balance/{name}/topup':
+        post:
+            tags:
+                - Balance
+            summary: Topup the balance for the specified user
+            operationId: balanceTopup
+            parameters:
+                - $ref: '#/components/parameters/username'
+            requestBody:
+                description: 'Top up the balance with the amount, containing a positive value'
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/balance-amount-request'
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-get-response'
+    '/balance/{name}/withdraw':
+        post:
+            tags:
+                - Balance
+            summary: Withdraw the balance for the specified user
+            operationId: balanceWithdraw
+            parameters:
+                - $ref: '#/components/parameters/username'
+            requestBody:
+                description: 'Withdraw the amount from the balance, containing a positive value'
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/balance-amount-request'
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-get-response'
 components:
     schemas:
         balance-get-response:
-            description: "Contains data about the current balance"
+            description: Contains data about the current balance
             properties:
                 balance:
-                    description: "The current balance"
+                    description: The current balance
                     example: 10
                     type: number
                     format: float
-        balance-post-request:
-            description: "Contains data about how to update the balance"
+        balance-patch-request:
+            description: Contains data about how to change the balance
             properties:
-                balanceDifference:
-                    description: "Relative number to be added to the current balance"
-                    example: -2.4
-                    type: number
-                    format: float
                 balance:
-                    description: "Absolute balance to be applied instead of the current balance"
+                    description: Absolute balance to be applied instead of the current balance
                     example: 60
                     type: number
                     format: float
+        balance-amount-request:
+            description: Contains data about the amount you want to change the balance
+            properties:
+                amount:
+                    description: Realative amount to be applied to the balance
+                    example: 60
+                    minimum: 0
+                    type: number
+                    format: float
+    parameters:
+        username:
+            in: path
+            name: name
+            schema:
+                type: string
+            required: true
+            description: The unique name of the user
