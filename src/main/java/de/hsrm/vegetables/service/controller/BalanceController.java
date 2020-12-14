@@ -2,17 +2,15 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceGetResponse;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
+
 import java.util.HashMap;
-import javax.validation.Valid;
-import org.springframework.http.HttpStatus;
+
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
+import de.hsrm.vegetables.service.exception.ErrorCode;
+import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1")
@@ -26,52 +24,45 @@ public class BalanceController implements BalanceApi {
     }
 
     @Override
-    public ResponseEntity<BalanceGetResponse> balanceGet(String name) {
-        BalanceGetResponse response = getBalanceResponse(name);
+    public ResponseEntity<BalanceResponse> balanceGet(String name) {
+        BalanceResponse response = getBalanceResponse(name);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    @Valid
-    public ResponseEntity<BalanceGetResponse> balancePatch(
-            @PathVariable("name") String name,
-            @Valid @RequestBody BalancePatchRequest request) {
-        if (request.getBalance() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
+    public ResponseEntity<BalanceResponse> balancePatch(String name, BalancePatchRequest request) {
         balances.put(name, request.getBalance());
 
-        BalanceGetResponse response = getBalanceResponse(name);
+        BalanceResponse response = getBalanceResponse(name);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<BalanceGetResponse> balanceTopup(String name, BalanceAmountRequest request) {
-        if (request.getAmount() == null || !balances.containsKey(name) || request.getAmount() < 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<BalanceResponse> balanceTopup(String name, BalanceAmountRequest request) {
+        if (!balances.containsKey(name)) {
+            throw new NotFoundError("The balance for the given name was not found", ErrorCode.NO_BALANCE_FOUND);
         }
 
         balances.put(name, balances.get(name) + request.getAmount());
 
-        BalanceGetResponse response = getBalanceResponse(name);
+        BalanceResponse response = getBalanceResponse(name);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<BalanceGetResponse> balanceWithdraw(String name, BalanceAmountRequest request) {
-        if (request.getAmount() == null || !balances.containsKey(name) || request.getAmount() < 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<BalanceResponse> balanceWithdraw(String name, BalanceAmountRequest request) {
+        if (!balances.containsKey(name)) {
+            throw new NotFoundError("The balance for the given name was not found", ErrorCode.NO_BALANCE_FOUND);
         }
 
         balances.put(name, balances.get(name) - request.getAmount());
 
-        BalanceGetResponse response = getBalanceResponse(name);
+        BalanceResponse response = getBalanceResponse(name);
         return ResponseEntity.ok(response);
     }
 
-    private BalanceGetResponse getBalanceResponse(String name) {
-        BalanceGetResponse response = new BalanceGetResponse();
+    private BalanceResponse getBalanceResponse(String name) {
+        BalanceResponse response = new BalanceResponse();
 
         if (balances.containsKey(name)) {
             response.balance(balances.get(name));

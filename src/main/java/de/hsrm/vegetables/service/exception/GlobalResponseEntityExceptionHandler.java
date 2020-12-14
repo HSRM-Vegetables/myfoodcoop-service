@@ -4,6 +4,7 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
 import de.hsrm.vegetables.service.exception.errors.BaseError;
 import de.hsrm.vegetables.service.exception.errors.ExampleError;
+import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -49,6 +50,11 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     @ExceptionHandler(ExampleError.class)
     public ResponseEntity<Object> handleExampleError(ExampleError error) {
         return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NotFoundError.class)
+    public ResponseEntity<Object> handleNotFoundError(NotFoundError error) {
+        return this.createException(error, HttpStatus.NOT_FOUND);
     }
 
     // Handles all BaseErrors that were not specifically mapped here

@@ -9,11 +9,12 @@ Feature: Balance Tests
     Then status 200
     Then assert response.balance == 0
 
-  Scenario: POST allows to set the balance for MaxMuster
+  Scenario: PATCH allows to set the balance for MaxMuster
     Given path '/balance/MaxMuster'
     And request { balance: 5 }
     When method PATCH
     Then status 200
+    And assert response.balance == 5
 
   Scenario: GET returns 5 for user MaxMuster
     Given path '/balance/MaxMuster'
@@ -50,9 +51,46 @@ Feature: Balance Tests
     And request { amount: -3 }
     When method POST
     Then status 400
+    And assert response.errorCode == 400005
 
-  Scenario: POST withdraw with negativ value should fail
+  Scenario: POST withdraw with negative value should fail
     Given path '/balance/MaxMuster/withdraw'
     And request { amount: -3 }
     When method POST
     Then status 400
+    And assert response.errorCode == 400005
+
+  Scenario: PATCH with invalid body returns error
+    Given path '/balance/MaxMuster'
+    And request { foo: -3 }
+    When method PATCH
+    Then status 400
+    And assert response.errorCode == 400005
+
+  Scenario: POST topup with invalid body fails
+    Given path '/balance/MaxMuster/topup'
+    And request { foo: -3 }
+    When method POST
+    Then status 400
+    And assert response.errorCode == 400005
+
+  Scenario: POST withdraw with invalid body fails
+    Given path '/balance/MaxMuster/withdraw'
+    And request { foo: -3 }
+    When method POST
+    Then status 400
+    And assert response.errorCode == 400005
+
+  Scenario: POST withdraw with unknown user fails
+    Given path '/balance/YouDontKnowMe/withdraw'
+    And request { amount: 10 }
+    When method POST
+    Then status 404
+    And assert response.errorCode == 404002
+
+  Scenario: POST topup with unknown user fails
+    Given path '/balance/YouDontKnowMe/withdraw'
+    And request { amount: 10 }
+    When method POST
+    Then status 404
+    And assert response.errorCode == 404002
