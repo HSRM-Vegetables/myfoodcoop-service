@@ -145,6 +145,10 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
      * @param errorCode The specific ErrorCode for this error
      */
     private ResponseEntity<Object> createException(String errorMessage, HttpStatus status, ErrorCode errorCode) {
+        if (errorMessage == null) {
+            errorMessage = "";
+        }
+
         logger.error(status + " || " + errorCode.getValue() + " || " + errorMessage);
 
         // Create response object
