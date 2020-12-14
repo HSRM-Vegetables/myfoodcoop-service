@@ -1,10 +1,15 @@
 package de.hsrm.vegetables.service.exception;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
+import de.hsrm.vegetables.service.exception.errors.BaseError;
+import de.hsrm.vegetables.service.exception.errors.ExampleError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +33,40 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @ControllerAdvice
-//@Component
-//@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     Logger logger = LoggerFactory.getLogger(GlobalResponseEntityExceptionHandler.class);
 
+    /*
+     Handler for own errors
+     */
+
+    @ExceptionHandler(ExampleError.class)
+    public ResponseEntity<Object> handleExampleError(ExampleError error) {
+        return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // Handles all BaseErrors that were not specifically mapped here
+    @ExceptionHandler(BaseError.class)
+    public ResponseEntity<Object> handleBaseError(BaseError error) {
+        // Mask all BaseErrors that don't have a specific mapping
+        error.setMessage("An Internal Server Error occurred");
+        return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /*
+     Handler for Spring-Related errors
+     */
+
+    // All errors not specifically mapped
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleException(Exception exception) {
-        return this.createException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_EXCEPTION);
+        return this.createException("An Internal Server Error occurred", HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_EXCEPTION);
     }
 
     @Override
@@ -103,7 +132,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     @Override
     @NonNull
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.METHOD_ARGUMENT_NOT_VALID);
+        return this.createException(ex, status, ErrorCode.METHOD_ARGUMENT_NOT_VALID);
     }
 
     @Override
@@ -133,8 +162,17 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     @Override
     @NonNull
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.INTERNAL_EXCEPTION);
+        // print stack trace on internal errors for debugging
+        ex.printStackTrace();
+        // Do not respond with any message concerning internal errors
+        return this.createException("An Internal Server Error occurred", status, ErrorCode.INTERNAL_EXCEPTION);
     }
+
+
+    /*
+     Helper functions to create the proper responses
+     */
+
 
     /**
      * Returns a ResponseEntity containing an Error Object
@@ -156,6 +194,50 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
         errorResponse.setErrorCode(errorCode.getValue());
         errorResponse.setStatus(status.value());
         errorResponse.setErrorMessage(errorMessage);
+
+        // Set response headers
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/problem+json");
+
+        return new ResponseEntity<Object>(errorResponse, httpHeaders, status);
+    }
+
+    private ResponseEntity<Object> createException(BaseError error, HttpStatus status) {
+        logger.error(status + " || " + error.getErrorCode().getValue() + " || " +  error.getMessage());
+
+        // Create response object
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(error.getErrorCode().getValue());
+        errorResponse.setStatus(status.value());
+        errorResponse.setErrorMessage(error.getMessage());
+
+        // Set response headers
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/problem+json");
+
+        return new ResponseEntity<Object>(errorResponse, httpHeaders, status);
+    }
+
+    private ResponseEntity<Object> createException(MethodArgumentNotValidException exception, HttpStatus status, ErrorCode errorCode) {
+        logger.error(status + " || " + errorCode.getValue() + " || Validation failed for: " + exception.getParameter());
+
+        List<ErrorDetail> details = exception
+                .getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(fieldError -> {
+                    ErrorDetail detail = new ErrorDetail();
+                    detail.setMessage("Invalid parameter or body member: " + fieldError.getField());
+                    detail.setDetail("The value " + fieldError.getRejectedValue() + (fieldError.isBindingFailure() ? " was rejected. Please check the specification" : " does not match the specification"));
+                    return detail;
+                })
+                .collect(Collectors.toList());
+
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(errorCode.getValue());
+        errorResponse.setStatus(status.value());
+        errorResponse.setErrorMessage("Validation failed for: " + exception.getParameter());
+        errorResponse.setDetails(details);
 
         // Set response headers
         HttpHeaders httpHeaders = new HttpHeaders();

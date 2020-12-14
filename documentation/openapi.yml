@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
     description: This is the specification for the Stadtgemüse Service.
     version: 0.0.1-SNAPSHOT
@@ -26,9 +26,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/balance-get-response'
+                                $ref: '#/components/schemas/balance-response'
                 default:
-                    $ref: '#/components/schemas/error-response'
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
         patch:
             tags:
                 - Balance
@@ -48,9 +52,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/balance-get-response'
+                                $ref: '#/components/schemas/balance-response'
                 default:
-                    $ref: '#/components/schemas/error-response'
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
     '/balance/{name}/topup':
         post:
             tags:
@@ -72,9 +80,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/balance-get-response'
+                                $ref: '#/components/schemas/balance-response'
                 default:
-                    $ref: '#/components/schemas/error-response'
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
     '/balance/{name}/withdraw':
         post:
             tags:
@@ -96,13 +108,27 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/balance-get-response'
+                                $ref: '#/components/schemas/balance-response'
                 default:
-                    $ref: '#/components/schemas/error-response'
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 components:
     schemas:
+
+        #
+        # Error Schemas
+        #
+
         error-response:
             description: "Contains details about the occurred error"
+            type: object
+            required:
+                - errorCode
+                - status
+                - errorMessage
             properties:
                 errorCode:
                     description: "Number, that can be referenced to a specific error"
@@ -114,16 +140,29 @@ components:
                     type: integer
                 errorMessage:
                     description: "A detailed error message"
-                    example: "Unauthorized access"
+                    example: "Validation failed"
                     type: string
-        balance-get-response:
-            description: Contains data about the current balance
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/error-detail'
+        error-detail:
+            description: A more precise explaination of an error
+            type: object
             properties:
-                balance:
-                    description: The current balance
-                    example: 10
-                    type: number
-                    format: float
+                message:
+                    description: A message relating to the error detail
+                    type: string
+                    example: "Invalid request parameter: balance"
+                detail:
+                    description: A detailed message of the error
+                    type: string
+                    example: "The value null does not match the Specification"
+
+        #
+        # Request Schemas
+        #
+
         balance-patch-request:
             type: object
             description: Contains data about how to change the balance
@@ -137,6 +176,9 @@ components:
                     format: float
         balance-amount-request:
             description: Contains data about the amount you want to change the balance
+            type: object
+            required:
+                - amount
             properties:
                 amount:
                     description: Realative amount to be applied to the balance
@@ -144,6 +186,21 @@ components:
                     minimum: 0
                     type: number
                     format: float
+
+        #
+        # Response Schemas
+        #
+
+        balance-response:
+            description: Contains data about the current balance
+            type: object
+            properties:
+                balance:
+                    description: The current balance
+                    example: 10
+                    type: number
+                    format: float
+
     parameters:
         username:
             in: path
