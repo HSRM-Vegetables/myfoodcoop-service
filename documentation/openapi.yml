@@ -3,13 +3,13 @@ info:
     description: This is the specification for the Stadtgemüse Service.
     version: 0.0.1-SNAPSHOT
     title: Stadtgemüse Service
-    contact: {}
+    contact: { }
 servers:
-    - url: 'https://veg-service.herokuapp.com/'
-      description: Production
+    -   url: 'https://veg-service.herokuapp.com/'
+        description: Production
 tags:
-    - name: Balance
-      description: Handles balance requests
+    -   name: Balance
+        description: Handles balance requests
 paths:
     '/balance/{name}':
         get:
@@ -19,7 +19,7 @@ paths:
             description: 'Gets the current balance of the user, or 0 if the user is currently not known'
             operationId: balanceGet
             parameters:
-                - $ref: '#/components/parameters/username'
+                -   $ref: '#/components/parameters/username'
             responses:
                 '200':
                     description: The current value of the balance for the specified user
@@ -27,13 +27,15 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/balance-get-response'
+                default:
+                    $ref: '#/components/schemas/error-response'
         patch:
             tags:
                 - Balance
             summary: Changes the balance for the specified user
             operationId: balancePatch
             parameters:
-                - $ref: '#/components/parameters/username'
+                -   $ref: '#/components/parameters/username'
             requestBody:
                 required: true
                 content:
@@ -47,6 +49,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/balance-get-response'
+                default:
+                    $ref: '#/components/schemas/error-response'
     '/balance/{name}/topup':
         post:
             tags:
@@ -54,7 +58,7 @@ paths:
             summary: Topup the balance for the specified user
             operationId: balanceTopup
             parameters:
-                - $ref: '#/components/parameters/username'
+                -   $ref: '#/components/parameters/username'
             requestBody:
                 description: 'Top up the balance with the amount, containing a positive value'
                 required: true
@@ -69,6 +73,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/balance-get-response'
+                default:
+                    $ref: '#/components/schemas/error-response'
     '/balance/{name}/withdraw':
         post:
             tags:
@@ -76,7 +82,7 @@ paths:
             summary: Withdraw the balance for the specified user
             operationId: balanceWithdraw
             parameters:
-                - $ref: '#/components/parameters/username'
+                -   $ref: '#/components/parameters/username'
             requestBody:
                 description: 'Withdraw the amount from the balance, containing a positive value'
                 required: true
@@ -91,8 +97,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/balance-get-response'
+                default:
+                    $ref: '#/components/schemas/error-response'
 components:
     schemas:
+        error-response:
+            description: "Contains details about the occurred error"
+            properties:
+                errorCode:
+                    description: "Number, that can be referenced to a specific error"
+                    example: 400001
+                    type: integer
+                status:
+                    description: "HTTP Status Code returned"
+                    example: 400
+                    type: integer
+                errorMessage:
+                    description: "A detailed error message"
+                    example: "Unauthorized access"
+                    type: string
         balance-get-response:
             description: Contains data about the current balance
             properties:
@@ -102,7 +125,10 @@ components:
                     type: number
                     format: float
         balance-patch-request:
+            type: object
             description: Contains data about how to change the balance
+            required:
+                - balance
             properties:
                 balance:
                     description: Absolute balance to be applied instead of the current balance

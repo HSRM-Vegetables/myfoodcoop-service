@@ -70,6 +70,13 @@
             <version>${openapitools-jackson.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+
+
         <!-- Test Dependencies https://github.com/intuit/karate -->
 
         <!-- Karate Testing Framework https://github.com/intuit/karate -->
@@ -129,22 +136,21 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/documentation/openapi.yml</inputSpec>
-                            <generatorName>spring</generatorName>
                             <apiPackage>${project.groupId}.${project.name}.api</apiPackage>
                             <generateApis>true</generateApis>
-                            <modelPackage>${project.groupId}.${project.name}.model</modelPackage>
                             <generateModels>true</generateModels>
+                            <generatorName>spring</generatorName>
+                            <inputSpec>${project.basedir}/documentation/openapi.yml</inputSpec>
+                            <modelPackage>${project.groupId}.${project.name}.model</modelPackage>
                             <ignoreFileOverride>${project.basedir}/documentation/.openapi-generator-ignore</ignoreFileOverride>
+                            <strictSpec>true</strictSpec>
                             <configOptions>
                                 <dateLibrary>java8</dateLibrary>
                                 <disableHtmlEscaping>true</disableHtmlEscaping>
                                 <hateoas>false</hateoas>
                                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
                                 <interfaceOnly>true</interfaceOnly>
-                                <sourceFolder>models</sourceFolder>
                                 <useTags>true</useTags>
-                                <bigDecimalAsString>true</bigDecimalAsString>
                             </configOptions>
                         </configuration>
                     </execution>

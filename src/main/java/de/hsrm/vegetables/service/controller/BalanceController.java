@@ -1,12 +1,18 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceGetResponse;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
+import java.util.HashMap;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1")
@@ -26,7 +32,10 @@ public class BalanceController implements BalanceApi {
     }
 
     @Override
-    public ResponseEntity<BalanceGetResponse> balancePatch(String name, BalancePatchRequest request) {
+    @Valid
+    public ResponseEntity<BalanceGetResponse> balancePatch(
+            @PathVariable("name") String name,
+            @Valid @RequestBody BalancePatchRequest request) {
         if (request.getBalance() == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
