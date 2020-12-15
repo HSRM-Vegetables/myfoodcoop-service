@@ -199,7 +199,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setErrorCode(errorCode.getValue());
         errorResponse.setStatus(status.value());
-        errorResponse.setErrorMessage(errorMessage);
+        errorResponse.setMessage(errorMessage);
 
         // Set response headers
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -215,7 +215,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setErrorCode(error.getErrorCode().getValue());
         errorResponse.setStatus(status.value());
-        errorResponse.setErrorMessage(error.getMessage());
+        errorResponse.setMessage(error.getMessage());
 
         // Set response headers
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -242,7 +242,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setErrorCode(errorCode.getValue());
         errorResponse.setStatus(status.value());
-        errorResponse.setErrorMessage("Validation failed for: " + exception.getParameter());
+        errorResponse.setMessage("Validation failed for: " + exception.getParameter());
         errorResponse.setDetails(details);
 
         // Set response headers

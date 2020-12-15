@@ -138,7 +138,7 @@ components:
                     description: "HTTP Status Code returned"
                     example: 400
                     type: integer
-                errorMessage:
+                message:
                     description: "A detailed error message"
                     example: "Validation failed"
                     type: string
