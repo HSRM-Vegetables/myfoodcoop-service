@@ -40,6 +40,17 @@ To make writing tests easy, this service uses the Karate DSL and test runner. Se
 
 Tests are automatically run, when the project is being build (`mvn package`) or installed (`mvn clean install`). To skip running the tests, add `-DskipTests`. More information can be found at https://maven.apache.org/plugins-archives/maven-surefire-plugin-2.12.4/examples/skipping-test.html 
 
+## Error Handling
+
+All Errors thrown by either Spring itself or by the service are handled in src/main/java/de/hsrm/vegetables/service/exception/GlobalResponseEntityExceptionHandler.java and return a harmonized scheme.
+Errors which are not specifically mapped in this file respond with a generic "Interal Server Error" message. 
+
+All custom Errors must inherit the abstract BaseError class in src/main/java/de/hsrm/vegetables/service/exception/errors, if a specific object with a custom message shall be returned, create a @ErrorHandler in the GlobalResponseEntityExceptionHandler.
+An example is provided via the ExampleError class. 
+
+### Schema Validation Errors
+Schema validation errors are automatically detected and handled. In order for that to work, the openapi.yml specification must be as detailed as possible concerning required field in objects, min/max values, string lengths, etc. 
+
 ## Getting Help
 
 The HELP.md contains a few useful links, go have a look.
