@@ -1,0 +1,175 @@
+{
+	"info": {
+		"_postman_id": "37aee16b-bc78-4bbd-83c2-d60575b4bfe1",
+		"name": "stadtgemüse-backend",
+		"description": "## Environsments\r\n\r\n### LOCAL\r\nBenutzt für die lokale Entwicklung\r\n\r\nURL: localhost:8080\r\n\r\n### PROD\r\nBenutzt um gegen die deployte, produktive Umgebung zu schießen\r\n\r\nURL: https://veg-service.herokuapp.com/",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "service",
+			"item": [
+				{
+					"name": "balance",
+					"item": [
+						{
+							"name": "GET /balance/:name",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/v1/balance/:name",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"balance",
+										":name"
+									],
+									"variable": [
+										{
+											"key": "name",
+											"value": "Robby"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PATCH /balance/:name",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"balance\": 10\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{URL}}/v1/balance/:name",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"balance",
+										":name"
+									],
+									"variable": [
+										{
+											"key": "name",
+											"value": "Robby"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST /balance/:name/topup",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{URL}}/v1/balance/:name/topup",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"balance",
+										":name",
+										"topup"
+									],
+									"variable": [
+										{
+											"key": "name",
+											"value": "Robby"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST /balance/:name/withdraw",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 10\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{URL}}/v1/balance/:name/withdraw",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"v1",
+										"balance",
+										":name",
+										"withdraw"
+									],
+									"variable": [
+										{
+											"key": "name",
+											"value": "Robby"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "ab9a5c3b-10c4-4d62-9723-1a81e80332d5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "7695f12f-3ce7-4e7e-ab7c-adda9ed397b8",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
