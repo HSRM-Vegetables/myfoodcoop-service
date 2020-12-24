@@ -1,0 +1,16 @@
+---
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/vegetables_data
+    jpa:
+        properties:
+            hibernate:
+                ddl-auto: create
+        generate-ddl: true
+        show-sql: true
+
+logging:
+    level:
+        root: ERROR
+        de.hsrm.vegetables.service.Application: INFO
+        org.hibernate: INFO

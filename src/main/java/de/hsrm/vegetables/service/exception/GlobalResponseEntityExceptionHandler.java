@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.service.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
 import de.hsrm.vegetables.service.exception.errors.BaseError;
@@ -72,6 +73,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     // All errors not specifically mapped
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleException(Exception exception) {
+        exception.printStackTrace();
         return this.createException("An Internal Server Error occurred", HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_EXCEPTION);
     }
 
@@ -126,7 +128,13 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     @Override
     @NonNull
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.MESSAGE_NOT_READABLE);
+        Throwable specificException = ex.getMostSpecificCause();
+
+        if (specificException instanceof InvalidFormatException) {
+            return this.createException("Invalid JSON: " + specificException.getMessage().split("\n")[0], status, ErrorCode.MESSAGE_NOT_READABLE);
+        }
+
+        return this.createException("Invalid Body, check Specification", status, ErrorCode.MESSAGE_NOT_READABLE);
     }
 
     @Override
