@@ -18,6 +18,7 @@ spring:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQL92Dialect
                 ddl-auto: update
+        generate-ddl: true
 
 server:
     port: 8080
