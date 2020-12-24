@@ -23,8 +23,52 @@ When all dependencies were downloaded and installed, run
 
 `mvn spring-boot:run`
 
-in order to build the project and start it. Alternatively, you can run `mvn package` to generate build the service and manually run it with java
+in order to build the project and start it. Alternatively, you can run `mvn package` to generate build the service and manually run it with java.
+See the following section to select the correct profile
 
+### Maven Profiles
+Maven comes with the ability to save configuration values in files, located in src/main/resources/application-{profile}.yml.
+To maintain different configurations for different environments (e.g. production or local development), next to the default application.yml file,
+additional files can be created that override or extend all default values. 
+
+These profiles are available:
+
+| Profile Name | File                    | Description                                                                                                |
+|--------------|-------------------------|------------------------------------------------------------------------------------------------------------|
+| default      | application.yml         | Contains all config values. **Secrets must not be stored in this file**                                    |
+| local        | application-local.yml   | Contains overrides for local development **Secrets must not be stored in this file**                       |
+| secrets      | application-secrets.yml | Contains secrets for **local** development. This file must be created yourself **Do not commit this file** |
+
+For local development, both the local and the secrets profile must be active.
+
+#### Activate a profile via the Spring Boot CLI
+To select all necessary profiles for local development, use this CLI switch:
+* -Dspring-boot.run.profiles=local,secrets
+
+example: `mvn spring-boot:run -Dspring-boot.run.profiles=local,secrets`
+
+#### Activate a profile via the Maven CLI
+If you're starting the project not via the maven spring-boot extension, but via maven itself, add the following switch:
+* -Dspring.profiles.active=local,secrets
+
+#### Activate a profile via IntelliJ Ultimate
+IntelliJ Ultimate comes with the Spring Boot extension which helps with running Spring Boot projects
+To select profiles, go to Configuration Selection (top right) -> Edit Configurations. Select the spring config you're using to run the project, 
+and add the switch under Configuration -> Environment -> VM Options:
+* -Dspring.profiles.active=local,secrets
+
+#### Activate a profile via IntelliJ Community
+To select profiles, go to Configuration Selection (top right) -> Edit Configurations. Select the maven config you're using to run the project,
+and add the switch under Parameters -> Command Line:
+* spring-boot:run -Dspring-boot.run.fork=false -Dspring-boot.run.profiles=local,secrets
+
+The `-Dspring-boot.run.fork=false` disables forking while running the project, which helps when attaching the debugger.
+
+### Starting a local PostgreSQL Instance
+This service uses a PostgreSQL database to persist data. For the convenience of the developer, a docker-compose.yaml was provided. 
+In order to use this file, please refer to installing docker for your system, also make sure to install the docker-compose extension.
+To start the database (and adminier, a tool to manage this database) simply run `docker-compose up` in the root directory of this project.
+If not otherwise specified, the username is `postgres` and the password can be found in the docker-compose.yaml
 
 ## API Specification
 

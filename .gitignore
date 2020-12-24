@@ -30,3 +30,19 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local PostgreSQL files ###
+postgres-data/
+postgres-data/**/
+postgres-data/**/*.*
+postgres-data/**/*
+development/postgres-data/
+development/postgres-data/**/
+development/postgres-data/**/*.*
+development/postgres-data/**/*
+
+### Application config with secrets ###
+application-secrets.yml
+application-secrets.yaml
+/src/main/resources/application-secrets.yml
+/src/main/resources/application-secrets.yaml

@@ -4,10 +4,20 @@ spring:
         name: '@project.name@'
     mvc:
         throw-exception-if-no-handler-found: true
+        dispatch-options-request: true
     resources:
         add-mappings: false
     jackson:
         default-property-inclusion: NON_NULL
+    datasource:
+        url: # FILLED_BY_SECRETS
+        username: # FILLED_BY_SECRETS
+        password: # FILLED_BY_SECRETS
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQL92Dialect
+                ddl-auto: update
 
 server:
     port: 8080
