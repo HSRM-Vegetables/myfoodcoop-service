@@ -2,13 +2,6 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.StockApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
-import de.hsrm.vegetables.service.domain.dto.ExampleDto;
-import de.hsrm.vegetables.service.domain.dto.StockDto;
-import de.hsrm.vegetables.service.mapper.StockMapper;
-import de.hsrm.vegetables.service.services.StockService;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,57 +11,33 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class StockController implements StockApi {
 
-    @NonNull
-    private final StockService stockService;
 
     @Override
     public ResponseEntity<Void> stockDelete(String itemId) {
-        stockService.delete(itemId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @Override
-    public ResponseEntity<AllStockResponse> stockGet() {
-        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getAll());
-        AllStockResponse response = new AllStockResponse();
-        response.setItems(items);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<StockResponse>> stockGet() {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @Override
     public ResponseEntity<StockResponseById> stockItemGet(String itemId) {
-        StockDto stockDto = stockService.getById(itemId);
-        StockResponseById response = StockMapper.stockResponseById(stockDto);
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 
     @Override
     public ResponseEntity<StockResponse> stockPatch(String itemId, StockPatchRequest stockPatchRequest) {
-        StockDto updatedStock = stockService.update(
-                itemId,
-                stockPatchRequest.getName(),
-                stockPatchRequest.getUnitType(),
-                stockPatchRequest.getQuantity(),
-                stockPatchRequest.getPricePerUnit(),
-                stockPatchRequest.getDescription()
-        );
-
-        StockResponse response = StockMapper.stockDtoToStockResponse(updatedStock);
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @Override
     public ResponseEntity<StockResponse> stockPost(StockPostRequest stockPostRequest) {
-        StockDto stockDto = stockService.addStock(stockPostRequest.getName(),
-                stockPostRequest.getUnitType(),
-                stockPostRequest.getQuantity(),
-                stockPostRequest.getPricePerUnit(),
-                stockPostRequest.getDescription());
-        StockResponse stockResponse = StockMapper.stockDtoToStockResponse(stockDto);
-        return new ResponseEntity<>(stockResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
+
 }
