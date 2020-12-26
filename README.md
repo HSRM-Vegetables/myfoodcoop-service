@@ -41,6 +41,8 @@ These profiles are available:
 
 For local development, both the local and the secrets profile must be active.
 
+Hint: `application-secrets.yml` can contain the values from `application.yml` that are marked with `# FILLED_BY_SECRETS`. For local development you will i.e. find the values for username and password in `development/init.sql`.
+
 #### Activate a profile via the Spring Boot CLI
 To select all necessary profiles for local development, use this CLI switch:
 * -Dspring-boot.run.profiles=local,secrets
