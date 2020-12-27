@@ -349,7 +349,7 @@ components:
         - name
         - unitType
         - quantity
-        - pricePerItem
+        - pricePerUnit
       properties:
         name:
           $ref: '#/components/schemas/item-name'
@@ -357,8 +357,8 @@ components:
           $ref: '#/components/schemas/unitType'
         quantity:
           $ref: '#/components/schemas/quantity'
-        pricePerItem:
-          $ref: '#/components/schemas/pricePerItem'
+        pricePerUnit:
+          $ref: '#/components/schemas/pricePerUnit'
 
     stock-patch-request:
       description: All data of an item that can be updated
@@ -370,8 +370,8 @@ components:
           $ref: '#/components/schemas/unitType'
         quantity:
           $ref: '#/components/schemas/quantity'
-        pricePerItem:
-          $ref: '#/components/schemas/pricePerItem'
+        pricePerUnit:
+          $ref: '#/components/schemas/pricePerUnit'
 
 
     #
@@ -402,7 +402,7 @@ components:
         - name
         - unitType
         - quantity
-        - pricePerItem
+        - pricePerUnit
       properties:
         balance:
           description: The current balance
@@ -430,8 +430,8 @@ components:
           $ref: '#/components/schemas/unitType'
         quantity:
           $ref: '#/components/schemas/quantity'
-        pricePerItem:
-          $ref: '#/components/schemas/pricePerItem'
+        pricePerUnit:
+          $ref: '#/components/schemas/pricePerUnit'
 
     stock-response-by-id:
       description: All stored data of one item in the stock
@@ -445,8 +445,8 @@ components:
           $ref: '#/components/schemas/unitType'
         quantity:
           $ref: '#/components/schemas/quantity'
-        pricePerItem:
-          $ref: '#/components/schemas/pricePerItem'
+        pricePerUnit:
+          $ref: '#/components/schemas/pricePerUnit'
         isDeleted:
           type: boolean
           description: Wether this item is deleted
@@ -504,7 +504,7 @@ components:
       type: number
       format: float
 
-    pricePerItem:
+    pricePerUnit:
       description: |-
         How much money in Euro one unit of this item costs.
         A unit is defined based on the unitType

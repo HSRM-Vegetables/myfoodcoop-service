@@ -14,28 +14,28 @@ Feature: Simple Purchases
 
   Scenario: Create first stock item
     Given path '/stock'
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerItem: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
     And def stockId1 = response.id
 
   Scenario: Create second stock item
     Given path '/stock'
-    And request { name: "Potatoes", unitType: "WEIGHT", quantity: 100.0, pricePerItem: 2.2 }
+    And request { name: "Potatoes", unitType: "WEIGHT", quantity: 100.0, pricePerUnit: 2.2 }
     When method POST
     Then status 201
     And def stockId2 = response.id
 
   Scenario: Create third stock item
     Given path '/stock'
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerItem: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
     And def stockId1 = response.id
 
   Scenario: Create fourth stock item
     Given path '/stock'
-    And request { name: "Honey", unitType: "PIECE", quantity: 10.0, pricePerItem: 5.0 }
+    And request { name: "Honey", unitType: "PIECE", quantity: 10.0, pricePerUnit: 5.0 }
     When method POST
     Then status 201
     And def stockId1 = response.id
