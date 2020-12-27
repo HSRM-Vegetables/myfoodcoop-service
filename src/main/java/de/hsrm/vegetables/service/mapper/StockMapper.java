@@ -1,7 +1,6 @@
 package de.hsrm.vegetables.service.mapper;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockResponse;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockResponseById;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,20 +12,7 @@ public class StockMapper {
         response.name(stockDto.getName());
         response.unitType(stockDto.getUnitType());
         response.quantity(stockDto.getQuantity());
-        response.pricePerUnit(stockDto.getPricePerUnit());
         response.description(stockDto.getDescription());
-        return response;
-    }
-
-    public static StockResponseById stockResponseById (StockDto stockDto) {
-        StockResponseById response = new StockResponseById();
-        response.id(stockDto.getId());
-        response.name(stockDto.getName());
-        response.unitType(stockDto.getUnitType());
-        response.quantity(stockDto.getQuantity());
-        response.pricePerUnit(stockDto.getPricePerUnit());
-        response.description(stockDto.getDescription());
-        response.setIsDeleted(stockDto.isDeleted());
         return response;
     }
 

@@ -9,6 +9,4 @@ import java.util.List;
 @Repository
 public interface StockRepository extends JpaRepository<StockDto, Long> {
     List<StockDto> findByIsDeleted(boolean isDeleted);
-    StockDto findById(String id);
-
 }
