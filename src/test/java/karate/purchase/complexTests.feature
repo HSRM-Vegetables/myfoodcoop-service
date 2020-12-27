@@ -1,4 +1,4 @@
-Feature: Simple Purchases
+Feature: Complex Purchases
 
   #
   # The order of these tests is important!
@@ -40,52 +40,56 @@ Feature: Simple Purchases
     Then status 201
     And def stockId1 = response.id
 
+  Scenario: DELETE fourth stock item
+    Given path '/stock/' + stockId4
+    When method DELETE
+    Then status 204
+
   Scenario: Create a balance for a user
     Given path '/balance/Robby'
     And request { balance: 500 }
     When method PATCH
     Then status 200
 
-  Scenario: Purchase a single item
+  Scenario: Cannot purchase fractional items when unitType is PIECE
     Given path '/purchase/Robby'
     And def item1 = { id: #(stockId1), amount: 1 }
+    And def item3 = { id: #(stockId3), amount: 1.5 }
+    And request { items: [#(item1), #(item3)] }
+    When method POST
+    Then status 400
+    # TODO: check for specific errorCode when implemented
+
+  Scenario: Cannot purchase deleted item
+    Given path '/purchase/Robby'
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And def item4 = { id: #(stockId4), amount: 1 }
+    And request { items: [#(item1), #(item3)] }
+    When method POST
+    Then status 400
+    # TODO: check for specific errorCode when implemented
+
+  Scenario: Purchase a single item with higher amount than in stock is possible
+    Given path '/purchase/Robby'
+    And def item1 = { id: #(stockId1), amount: 200 }
     And request { items: [#(item1)] }
     When method POST
     Then status 200
     And assert response.name == "Robby"
-    And assert response.price == 1.3
 
-  Scenario: Purchase reduces stock
-    Given path '/stock/' + stockId1
-    When method GET
-    Then status 200
-    And match response contains { quantity: 139.0 }
+  Scenario: Unknown user cannot make a purchase
+    Given path '/purchase/Unknown'
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 400
+    # TODO: check for specific errorCode when implemented
 
-  Scenario: Purchase multiple items
+  Scenario: Cannot have multiple items with same id in items array
     Given path '/purchase/Robby'
     And def item1 = { id: #(stockId1), amount: 1 }
-    And def item3 = { id: #(stockId3), amount: 1 }
-    And request { items: [#(item1), #(item3)] }
+    And def item1AsWell = { id: #(stockId1), amount: 5 }
+    And request { items: [#(item1), #(item1AsWell)] }
     When method POST
-    Then status 200
-    And assert response.name == "Robby"
-    And assert response.price == 5.6
-
-  Scenario: Purchase reduces stock on stockItem1
-    Given path '/stock/' + stockId1
-    When method GET
-    Then status 200
-    And match response contains { quantity: 138.0 }
-
-  Scenario: Purchase reduces stock on stockItem3
-    Given path '/stock/' + stockId3
-    When method GET
-    Then status 200
-    And match response contains { quantity: 19.0 }
-
-  Scenario: Balance is reduced for user after purchase
-    Given path '/balance/Robby'
-    When method GET
-    Then status 200
-    Then assert response.balance < 500
-
+    Then status 400
+    # TODO: check for specific errorCode when implemented
