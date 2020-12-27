@@ -11,11 +11,11 @@ Feature: Complex Stock management
     * def name = 'Bananas'
     * def unitType = 'WEIGHT'
     * def quantity = 42.0
-    * def pricePerItem = 4.2
+    * def pricePerUnit = 4.2
 
   Scenario: Cannot create item with unitType PIECE and fractional quantity
     Given path '/stock'
-    And request { name: #(name), unitType: "PIECE", quantity: 14.5, pricePerItem: 4.2 }
+    And request { name: #(name), unitType: "PIECE", quantity: 14.5, pricePerUnit: 4.2 }
     When method POST
     Then status 400
     # TODO: Check for specific error code once implemented
@@ -28,26 +28,26 @@ Feature: Complex Stock management
 
   Scenario: POST creates an item in the stock and returns it
     Given path '/stock'
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerItem: #(pricePerItem) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
     And assert response.id != null
     And assert response.name == name
     And assert response.unitType == unitType
     And assert response.quantity == quantity
-    And assert response.pricePerItem == pricePerItem
+    And assert response.pricePerUnit == pricePerUnit
     And def stockId = response.id
 
   Scenario: POST with same item name is possible
     Given path '/stock'
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerItem: #(pricePerItem) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
     And assert response.id != stockId
     And assert response.name == name
     And assert response.unitType == unitType
     And assert response.quantity == quantity
-    And assert response.pricePerItem == pricePerItem
+    And assert response.pricePerUnit == pricePerUnit
 
   Scenario: Cannot PATCH an item with unitType PIECE and fractional quantity
     Given path '/stock/' + stockId
@@ -60,7 +60,7 @@ Feature: Complex Stock management
     Given path '/stock/' + stockId
     When method GET
     Then status 200
-    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerItem: #(pricePerItem) }
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     And match response.isDeleted == false
 
   Scenario: Update only unitType of item
@@ -75,7 +75,7 @@ Feature: Complex Stock management
     Given path '/stock/' + stockId
     When method GET
     Then status 200
-    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerItem: #(pricePerItem) }
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     And match response.isDeleted == false
 
   Scenario: Cannot PATCH fractional quantity of item with unitType PIECE
@@ -89,7 +89,7 @@ Feature: Complex Stock management
     Given path '/stock/' + stockId
     When method GET
     Then status 200
-    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerItem: #(pricePerItem) }
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     And match response.isDeleted == false
 
   Scenario: DELETE a stock item
