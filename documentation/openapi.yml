@@ -233,7 +233,7 @@ paths:
     post:
       tags:
         - Purchase
-      summary: Adds a new Item to the current stock
+      summary: Purchases items for a user. Reduces the amount of these items in stock and the users balance
       parameters:
         -   $ref: '#/components/parameters/username'
       operationId: purchaseFromStock
