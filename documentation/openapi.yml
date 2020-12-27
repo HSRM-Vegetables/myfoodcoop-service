@@ -394,6 +394,147 @@ components:
                     description: The name of the owner of this balance
                     example: Robby
                     type: string
+    balance-response:
+      description: Contains data about the current balance
+      type: object
+      required:
+        - id
+        - name
+        - unitType
+        - quantity
+        - pricePerItem
+      properties:
+        balance:
+          description: The current balance
+          example: 10
+          type: number
+          format: float
+
+    all-stock-response:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/stock-response'
+
+    stock-response:
+      description: All stored data of one item in the stock
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        name:
+          $ref: '#/components/schemas/item-name'
+        unitType:
+          $ref: '#/components/schemas/unitType'
+        quantity:
+          $ref: '#/components/schemas/quantity'
+        pricePerItem:
+          $ref: '#/components/schemas/pricePerItem'
+
+    stock-response-by-id:
+      description: All stored data of one item in the stock
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        name:
+          $ref: '#/components/schemas/item-name'
+        unitType:
+          $ref: '#/components/schemas/unitType'
+        quantity:
+          $ref: '#/components/schemas/quantity'
+        pricePerItem:
+          $ref: '#/components/schemas/pricePerItem'
+        isDeleted:
+          type: boolean
+          description: Wether this item is deleted
+          example: false
+
+    purchase-response:
+      description: Information about the users balance and the purchased cart
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/username'
+        balance:
+          description: The balance of the user after the purchase
+          type: number
+          format: float
+          example: 140.8
+        price:
+          description: How much the cart cost
+          type: number
+          format: float
+          example: 17.43
+
+
+    #
+    # Reusable Items
+    #
+
+    uuid:
+      description: Unique identifier
+      example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+      type: string
+
+    item-name:
+      description: Name of the stock item
+      example: Kartoffeln
+      type: string
+      minLength: 1
+
+    unitType:
+      description: |-
+        By which measurement the item is sold
+          * WEIGHT: Kilogram, or fractions of a kilogram
+          * PIECE: Positive amount of whole pieces
+      example: PIECE
+      type: string
+      enum:
+        - PIECE
+        - WEIGHT
+
+    quantity:
+      description: |-
+        How many items are left in stock.
+        This value can be negative, to allow for inconsistencies between this service and the real world
+      example: 42.0
+      type: number
+      format: float
+
+    pricePerItem:
+      description: |-
+        How much money in Euro one unit of this item costs.
+        A unit is defined based on the unitType
+          * WEIGHT: A unit is 1.0 Kg
+          * PIECE: A unit is 1.0 pieces
+      type: number
+      format: float
+      example: 7
+
+    cart-item:
+      description: An specific item including its quantity the user wants to purchase
+      type: object
+      required:
+        - id
+        - amount
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        amount:
+          type: number
+          description: |-
+            How many actual items the user wants to buy.
+            Must be an integer if the unitType of the referenced item is PIECE
+          format: float
+          example: 7
+
+    username:
+      description: The unique name of the user
+      type: string
+      example: Robby
 
     parameters:
         username:
@@ -404,3 +545,12 @@ components:
                 maxLength: 255
             required: true
             description: The unique name of the user
+
+    item-id:
+      in: path
+      name: item-id
+      schema:
+        type: string
+        maxLength: 36
+      required: true
+      description: The unique id of an item
