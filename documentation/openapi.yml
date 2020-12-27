@@ -359,6 +359,8 @@ components:
           $ref: '#/components/schemas/quantity'
         pricePerUnit:
           $ref: '#/components/schemas/pricePerUnit'
+        description:
+          $ref: '#/components/schemas/item-description'
 
     stock-patch-request:
       description: All data of an item that can be updated
@@ -372,6 +374,8 @@ components:
           $ref: '#/components/schemas/quantity'
         pricePerUnit:
           $ref: '#/components/schemas/pricePerUnit'
+        description:
+          $ref: '#/components/schemas/item-description'
 
 
     #
@@ -416,6 +420,8 @@ components:
           $ref: '#/components/schemas/quantity'
         pricePerUnit:
           $ref: '#/components/schemas/pricePerUnit'
+        description:
+          $ref: '#/components/schemas/item-description'
 
     stock-response-by-id:
       description: All stored data of one item in the stock
@@ -431,6 +437,8 @@ components:
           $ref: '#/components/schemas/quantity'
         pricePerUnit:
           $ref: '#/components/schemas/pricePerUnit'
+        description:
+          $ref: '#/components/schemas/item-description'
         isDeleted:
           type: boolean
           description: Wether this item is deleted
@@ -519,6 +527,14 @@ components:
       description: The unique name of the user
       type: string
       example: Robby
+
+    item-description:
+      description: A description of an item
+      type: string
+      example: "Potatoes from our friendly farmer Joe"
+      minLength: 0
+      maxLength: 10000
+      default: ""
 
   parameters:
     username:

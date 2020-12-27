@@ -12,6 +12,7 @@ Feature: Simple Stock management
     * def unitType = 'PIECE'
     * def quantity = 42.0
     * def pricePerUnit = 4.2
+    * def description = "this is a lovely piece of produce"
     * def nameChanged = 'Avocados'
     * def unitTypeChanged = 'WEIGHT'
     * def quantityChanged = 110.0
@@ -25,7 +26,7 @@ Feature: Simple Stock management
 
   Scenario: POST creates an item in the stock and returns it
     Given path '/stock'
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description) }
     When method POST
     Then status 201
     And assert response.id != null
@@ -33,7 +34,14 @@ Feature: Simple Stock management
     And assert response.unitType == unitType
     And assert response.quantity == quantity
     And assert response.pricePerUnit == pricePerUnit
+    And assert response.description == description
     And def stockId = response.id
+
+  Scenario: POST can create an item without a description
+    Given path '/stock'
+    And request { name: "test", unitType: "PIECE", quantity: 10.0, pricePerUnit: 5.0 }
+    When method POST
+    Then status 201
 
   Scenario: GET returns items when they exist in stock
     Given path '/stock'
