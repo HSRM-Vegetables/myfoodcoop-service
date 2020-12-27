@@ -6,13 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/v1")
 @CrossOrigin(origins = "*")
 public class StockController implements StockApi {
-
 
     @Override
     public ResponseEntity<Void> stockDelete(String itemId) {
@@ -20,7 +17,7 @@ public class StockController implements StockApi {
     }
 
     @Override
-    public ResponseEntity<List<StockResponse>> stockGet() {
+    public ResponseEntity<AllStockResponse> stockGet() {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -39,5 +36,4 @@ public class StockController implements StockApi {
     public ResponseEntity<StockResponse> stockPost(StockPostRequest stockPostRequest) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
-
 }

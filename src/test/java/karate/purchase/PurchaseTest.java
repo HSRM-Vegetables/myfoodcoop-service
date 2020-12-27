@@ -1,7 +1,8 @@
-package karate.balance;
+package karate.purchase;
 
 import com.intuit.karate.junit5.Karate;
 import de.hsrm.vegetables.service.Application;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.annotation.DirtiesContext;
@@ -17,7 +18,7 @@ import org.springframework.test.context.TestPropertySource;
         }
 )
 @DirtiesContext
-class BalanceTest {
+class PurchaseTest {
 
     @Karate.Test
     Karate testAll() {

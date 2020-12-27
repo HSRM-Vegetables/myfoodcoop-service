@@ -395,9 +395,12 @@ components:
           format: float
 
     all-stock-response:
-      type: array
-      items:
-        $ref: '#/components/schemas/stock-response'
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/stock-response'
 
     stock-response:
       description: All stored data of one item in the stock
@@ -464,6 +467,7 @@ components:
       description: Name of the stock item
       example: Kartoffeln
       type: string
+      minLength: 1
 
     unitType:
       description: |-
