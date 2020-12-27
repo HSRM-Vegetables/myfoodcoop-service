@@ -128,6 +128,8 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
             return this.createException("Invalid JSON: " + specificException.getMessage().split("\n")[0], status, ErrorCode.MESSAGE_NOT_READABLE);
         }
 
+        ex.printStackTrace();
+
         return this.createException("Invalid Body, check Specification", status, ErrorCode.MESSAGE_NOT_READABLE);
     }
 

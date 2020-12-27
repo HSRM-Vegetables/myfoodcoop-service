@@ -1,4 +1,4 @@
-package karate.balance;
+package karate.stock;
 
 import com.intuit.karate.junit5.Karate;
 import de.hsrm.vegetables.service.Application;
@@ -17,7 +17,7 @@ import org.springframework.test.context.TestPropertySource;
         }
 )
 @DirtiesContext
-class BalanceTest {
+class StockTest {
 
     @Karate.Test
     Karate testAll() {
