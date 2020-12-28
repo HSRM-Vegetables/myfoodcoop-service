@@ -3,12 +3,8 @@ package de.hsrm.vegetables.service.controller;
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
-
-import java.util.HashMap;
-
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
-import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.mapper.Mapper;
 import de.hsrm.vegetables.service.services.BalanceService;
@@ -16,7 +12,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1")
@@ -33,7 +31,7 @@ public class BalanceController implements BalanceApi {
 
         try {
             balanceDto = balanceService.getBalance(name);
-        } catch(NotFoundError e) {
+        } catch (NotFoundError e) {
             balanceDto = balanceService.createEmptyBalance(name);
         }
 

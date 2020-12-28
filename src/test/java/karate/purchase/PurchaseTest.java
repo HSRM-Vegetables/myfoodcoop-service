@@ -39,6 +39,6 @@ class PurchaseTest {
     @Karate.Test
     Karate testAll() {
         return Karate.run()
-                     .relativeTo(getClass());
+                .relativeTo(getClass());
     }
 }

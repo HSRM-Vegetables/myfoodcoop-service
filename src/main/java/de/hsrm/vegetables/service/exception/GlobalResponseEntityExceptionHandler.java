@@ -194,8 +194,8 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
      * Logs the error
      *
      * @param errorMessage The message of the error
-     * @param status The corresponding HTTP Status of the error
-     * @param errorCode The specific ErrorCode for this error
+     * @param status       The corresponding HTTP Status of the error
+     * @param errorCode    The specific ErrorCode for this error
      */
     private ResponseEntity<Object> createException(String errorMessage, HttpStatus status, ErrorCode errorCode) {
         if (errorMessage == null) {
@@ -218,7 +218,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     private ResponseEntity<Object> createException(BaseError error, HttpStatus status) {
-        logger.error(status + " || " + error.getErrorCode().getValue() + " || " +  error.getMessage());
+        logger.error(status + " || " + error.getErrorCode().getValue() + " || " + error.getMessage());
 
         // Create response object
         ErrorResponse errorResponse = new ErrorResponse();

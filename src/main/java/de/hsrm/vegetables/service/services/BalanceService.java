@@ -8,7 +8,6 @@ import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.repositories.BalanceRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +44,7 @@ public class BalanceService {
     /**
      * Creates a new empty entry in the database with a balance of 0f.
      * If the given name is already in use, an error is thrown
+     *
      * @param name The name for the new balance
      * @return The balance DTO for the new user
      */
@@ -64,9 +64,10 @@ public class BalanceService {
 
     /**
      * Reduces the amount of money a given user has.
-     *
+     * <p>
      * Throws a NotFoundError if the user wasn't found
-     * @param name The name of the user to reduce the balance for
+     *
+     * @param name   The name of the user to reduce the balance for
      * @param amount The amount to subtract from the users balance
      * @return The updated balance object
      */
@@ -79,9 +80,10 @@ public class BalanceService {
 
     /**
      * Increases the amount of money a given user has.
-     *
+     * <p>
      * Throws a NotFoundError if the user wasn't found
-     * @param name The name of the user to increase the balance for
+     *
+     * @param name   The name of the user to increase the balance for
      * @param amount The amount to add to the users balance
      * @return The updated balance object
      */
@@ -95,7 +97,8 @@ public class BalanceService {
     /**
      * Updates a users balance.
      * If no balance for the given name was found, a new entry in the database will be created, no error will be thrown
-     * @param name The name to set the amount for
+     *
+     * @param name   The name to set the amount for
      * @param amount The amount to set
      * @return The created or updated balance DTO
      */

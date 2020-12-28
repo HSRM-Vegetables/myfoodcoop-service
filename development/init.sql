@@ -1,5 +1,7 @@
-CREATE USER vegetables WITH PASSWORD 'insecure-password-for-local-development' CREATEDB;
-CREATE DATABASE vegetables_data
+CREATE
+USER vegetables WITH PASSWORD 'insecure-password-for-local-development' CREATEDB;
+CREATE
+DATABASE vegetables_data
     WITH
     OWNER = vegetables
     ENCODING = 'UTF8'
