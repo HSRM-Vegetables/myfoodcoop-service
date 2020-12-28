@@ -387,17 +387,19 @@ components:
       description: Contains data about the current balance
       type: object
       required:
-        - id
+        - balance
         - name
-        - unitType
-        - quantity
-        - pricePerUnit
       properties:
         balance:
           description: The current balance
           example: 10
           type: number
           format: float
+        name:
+          description: The name of the owner of this balance
+          example: Robby
+          type: string
+
 
     all-stock-response:
       type: object

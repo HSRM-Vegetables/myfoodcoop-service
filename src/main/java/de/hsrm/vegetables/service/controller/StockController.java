@@ -2,7 +2,6 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.StockApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
-import de.hsrm.vegetables.service.domain.dto.ExampleDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.mapper.StockMapper;
 import de.hsrm.vegetables.service.services.StockService;
