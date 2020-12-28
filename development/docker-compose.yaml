@@ -2,19 +2,19 @@ version: '3.1'
 
 services:
 
-  db:
-    image: postgres
-    restart: always
-    environment:
-        POSTGRES_PASSWORD: local_insecure_password
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data # Persist database to host system
-      - ./init.sql:/docker-entrypoint-initdb.d/10-init.sql # run these sql commands after database was first started
-    ports:
-      - 5432:5432
+    db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: local_insecure_password
+        volumes:
+            - ./postgres-data:/var/lib/postgresql/data # Persist database to host system
+            - ./init.sql:/docker-entrypoint-initdb.d/10-init.sql # run these sql commands after database was first started
+        ports:
+            - 5432:5432
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8100:8080 # access adminer via http://localhost:8100
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - 8100:8080 # access adminer via http://localhost:8100

@@ -11,6 +11,7 @@ import javax.persistence.*;
 @EntityListeners(AuditingEntityListener.class)
 @Data
 public class StockDto {
+
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
