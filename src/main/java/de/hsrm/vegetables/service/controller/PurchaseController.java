@@ -3,6 +3,8 @@ package de.hsrm.vegetables.service.controller;
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.PurchaseApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseResponse;
+import de.hsrm.vegetables.service.domain.dto.BalanceDto;
+import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.StockService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,20 +20,23 @@ public class PurchaseController implements PurchaseApi {
 
     @NonNull
     private final StockService stockService;
+    @NonNull
+    private final BalanceService balanceService ;
 
     @Override
     public ResponseEntity<PurchaseResponse> purchaseFromStock(String name, PurchaseRequest purchaseRequest) {
 
-        // TODO: Check that user exists before next call
+        //Check Name is found
+        balanceService.getBalance(name);
 
         Float totalPrice = stockService.purchase(purchaseRequest.getItems());
 
-        // TODO: add balance handling
+        BalanceDto balanceDto = balanceService.withdraw(name, totalPrice);
 
         PurchaseResponse response = new PurchaseResponse();
         response.setName(name);
         response.setPrice(totalPrice);
-        response.setBalance(0f); // TODO: add balance handling
+        response.setBalance(balanceDto.getAmount());
 
         return ResponseEntity.ok(response);
     }

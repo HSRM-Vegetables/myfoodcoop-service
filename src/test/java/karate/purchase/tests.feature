@@ -204,7 +204,7 @@ Feature: Simple Purchases
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
-    Then status 400
+    Then status 404
     # TODO: check for specific errorCode when implemented
 
   Scenario: Cannot have multiple items with same id in items array
