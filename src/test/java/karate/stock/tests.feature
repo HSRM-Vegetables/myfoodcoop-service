@@ -19,7 +19,7 @@ Feature: Simple Stock management
     Then status 200
     And assert response.items.length == 0
 
-  Scenario: Create a stock item, update it and delete it
+  Scenario: Create a stock item
     # Create stock item
     Given path '/stock'
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description) }
@@ -61,7 +61,6 @@ Feature: Simple Stock management
     Then status 200
     And match response contains { id: #(stockId), name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged) }
     And match response.isDeleted == false
-
 
   Scenario: Patch of only the name works
     # Create Item
@@ -111,7 +110,6 @@ Feature: Simple Stock management
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnit) }
 
-
   Scenario: Patch of only the pricePerUnit works
     # Create Item
     Given path '/stock'
@@ -127,7 +125,6 @@ Feature: Simple Stock management
     When method PATCH
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnitChanged) }
-
 
   Scenario: Soft Delete works
     # Create Item
@@ -185,7 +182,6 @@ Feature: Simple Stock management
     And assert response.unitType == unitType
     And assert response.quantity == quantity
     And assert response.pricePerUnit == pricePerUnit
-
 
   Scenario: Cannot PATCH an item with unitType PIECE and fractional quantity
     # Create Item

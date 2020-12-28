@@ -30,7 +30,7 @@ public class StockService {
      * deleteFilter controls how deleted entries are treated:
      * <p>
      * OMIT: Only elements which haven't been deleted will be included
-     * INCLUDE: Delted and not deleted items will be returned
+     * INCLUDE: Deleted and not deleted items will be returned
      * ONLY: Only return deleted items
      *
      * @param deleteFilter How to treat deleted items
@@ -57,7 +57,7 @@ public class StockService {
             throw new NotFoundError("No item in the stock was found with id " + id, ErrorCode.NO_STOCK_ITEM_FOUND);
         }
 
-        return stockRepository.findById(id);
+        return stockDto;
     }
 
     /**
@@ -81,8 +81,8 @@ public class StockService {
         stockDto.setQuantity(quantity);
         stockDto.setPricePerUnit(pricePerUnit);
         stockDto.setDescription(description);
-        stockRepository.save(stockDto);
-        return stockDto;
+
+        return stockRepository.save(stockDto);
     }
 
     /**
@@ -175,7 +175,7 @@ public class StockService {
             }
         });
 
-        List<StockDto> newStockItems = new ArrayList<>();
+        List<StockDto> modifiedStockItems = new ArrayList<>();
 
         // Sum up price and reduce items in stock
         Float totalPrice = items
@@ -196,14 +196,14 @@ public class StockService {
                     stockDto.setQuantity(stockDto.getQuantity() - item.getAmount());
 
                     // save the new stock items so we can commit changes after we've checked all items in the list
-                    newStockItems.add(stockDto);
+                    modifiedStockItems.add(stockDto);
 
                     return round(price, 2);
                 })
                 .reduce(0f, Float::sum);
 
         // Commit changes to repository
-        newStockItems.forEach(stockRepository::save);
+        modifiedStockItems.forEach(stockRepository::save);
 
         return round(totalPrice, 2);
     }
@@ -232,7 +232,7 @@ public class StockService {
     private static float round(float value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 
-        BigDecimal bd = new BigDecimal(Double.toString(value));
+        BigDecimal bd = new BigDecimal(Float.toString(value));
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.floatValue();
     }

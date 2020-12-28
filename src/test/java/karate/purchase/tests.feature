@@ -36,7 +36,7 @@ Feature: Simple Purchases
     Given path '/balance/Robby'
     When method GET
     Then status 200
-    Then assert response.balance < 500
+    Then assert response.balance == 498.7
 
   Scenario: Purchase multiple items
     # Create Balance for User
@@ -85,7 +85,7 @@ Feature: Simple Purchases
     Given path '/balance/Robby'
     When method GET
     Then status 200
-    Then assert response.balance < 500
+    Then assert response.balance == 494.4
 
   Scenario: Cannot purchase fractional items when unitType is PIECE
     # Create Balance for User
@@ -116,6 +116,18 @@ Feature: Simple Purchases
     When method POST
     Then status 400
     And assert response.errorCode == 400008
+
+    # Check quantity didn't change
+    Given path '/stock/' + stockId1
+    When method GET
+    Then status 200
+    And match response contains { quantity: 140.0 }
+
+    # Check quantity didn't change
+    Given path '/stock/' + stockId2
+    When method GET
+    Then status 200
+    And match response contains { quantity: 20.0 }
 
     # Check that the balance wasn't reduced
     Given path '/balance/Robby'
@@ -185,6 +197,12 @@ Feature: Simple Purchases
     Then status 200
     And assert response.name == "Robby"
 
+    # Check quantity is below 0
+    Given path '/stock/' + stockId1
+    When method GET
+    Then status 200
+    And assert response.quantity == -60
+
     # Check that the balance was reduced
     Given path '/balance/Robby'
     When method GET
@@ -205,7 +223,7 @@ Feature: Simple Purchases
     And request { items: [#(item1)] }
     When method POST
     Then status 404
-    # TODO: check for specific errorCode when implemented
+    And assert response.errorCode == 404002
 
   Scenario: Cannot have multiple items with same id in items array
     # Create Balance for User

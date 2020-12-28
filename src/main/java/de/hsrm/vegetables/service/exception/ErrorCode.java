@@ -38,7 +38,6 @@ public enum ErrorCode {
     TOO_MANY_RESULTS(500006),
     NAME_IN_USE(500007),
 
-
     // 503
     ASYNC_REQUEST_TIMEOUT(503001);
 

@@ -36,7 +36,6 @@ class PurchaseTest {
         stockList.forEach(stock -> stockRepository.delete(stock));
     }
 
-
     @Karate.Test
     Karate testAll() {
         return Karate.run()
