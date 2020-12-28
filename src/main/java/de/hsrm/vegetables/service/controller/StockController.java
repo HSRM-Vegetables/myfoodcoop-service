@@ -26,7 +26,8 @@ public class StockController implements StockApi {
 
     @Override
     public ResponseEntity<Void> stockDelete(String itemId) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        stockService.delete(itemId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
@@ -47,7 +48,17 @@ public class StockController implements StockApi {
 
     @Override
     public ResponseEntity<StockResponse> stockPatch(String itemId, StockPatchRequest stockPatchRequest) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        StockDto updatedStock = stockService.update(
+                itemId,
+                stockPatchRequest.getName(),
+                stockPatchRequest.getUnitType(),
+                stockPatchRequest.getQuantity(),
+                stockPatchRequest.getPricePerUnit(),
+                stockPatchRequest.getDescription()
+        );
+
+        StockResponse response = StockMapper.stockDtoToStockResponse(updatedStock);
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -58,6 +69,6 @@ public class StockController implements StockApi {
                 stockPostRequest.getPricePerUnit(),
                 stockPostRequest.getDescription());
         StockResponse stockResponse = StockMapper.stockDtoToStockResponse(stockDto);
-        return ResponseEntity.ok(stockResponse);
+        return new ResponseEntity<>(stockResponse, HttpStatus.CREATED);
     }
 }

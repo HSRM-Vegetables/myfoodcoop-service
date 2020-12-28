@@ -504,6 +504,7 @@ components:
           * PIECE: A unit is 1.0 pieces
       type: number
       format: float
+      minimum: 0
       example: 7
 
     cart-item:
@@ -529,7 +530,9 @@ components:
       example: Robby
 
     item-description:
-      description: A description of an item
+      description: |-
+        An optional description of an item.
+        To delete the description, set it to an empty string.
       type: string
       example: "Potatoes from our friendly farmer Joe"
       minLength: 0
