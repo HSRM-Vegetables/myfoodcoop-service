@@ -55,7 +55,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     @ExceptionHandler(BadRequestError.class)
-    public ResponseEntity<Object> handleBadRequestError(BadRequestError error) {
+    public ResponseEntity<Object> handleNotFoundError(BadRequestError error) {
         return this.createException(error, HttpStatus.BAD_REQUEST);
     }
 
