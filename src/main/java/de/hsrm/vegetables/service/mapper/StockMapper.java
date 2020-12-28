@@ -13,6 +13,7 @@ public class StockMapper {
         response.name(stockDto.getName());
         response.unitType(stockDto.getUnitType());
         response.quantity(stockDto.getQuantity());
+        response.pricePerUnit(stockDto.getPricePerUnit());
         response.description(stockDto.getDescription());
         return response;
     }
@@ -23,7 +24,9 @@ public class StockMapper {
         response.name(stockDto.getName());
         response.unitType(stockDto.getUnitType());
         response.quantity(stockDto.getQuantity());
+        response.pricePerUnit(stockDto.getPricePerUnit());
         response.description(stockDto.getDescription());
+        response.setIsDeleted(stockDto.isDeleted());
         return response;
     }
 
