@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -11,7 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
@@ -37,7 +42,7 @@ public class StockService {
         StockDto stockDto = stockRepository.findById(id);
 
         if (stockDto == null) {
-            throw new NotFoundError("No item in the stock was found with this id", ErrorCode.NO_STOCK_ITEM_FOUND);
+            throw new NotFoundError("No item in the stock was found with id " + id, ErrorCode.NO_STOCK_ITEM_FOUND);
         }
 
         return stockRepository.findById(id);
@@ -139,6 +144,74 @@ public class StockService {
         }
 
         return stockDto;
+    }
+
+    /**
+     * Reduces quantity in stock for each item in items and returns the total price
+     * @param items All items to reduce quanitity for
+     * @return The price for all these items
+     */
+    public Float purchase(List<CartItem> items) {
+        // Check that all id's are unique
+        items.stream().forEach(item -> {
+            if (countItemsWithId(items, item.getId()) > 1 ) {
+                throw new BadRequestError("Cannot have multiple cart items with same id", ErrorCode.MULTIPLE_ITEMS_WITH_SAME_ID);
+            }
+        });
+
+        List<StockDto> newStockItems = new ArrayList<>();
+
+        // Sum up price and reduce items in stock
+        Float totalPrice =  items.stream().map(item -> {
+            StockDto stockDto = getById(item.getId());
+
+            if (stockDto.getUnitType().equals(UnitType.PIECE) && item.getAmount() % 1 != 0) {
+                throw new BadRequestError("Cannot purchase item with UnitType PIECE and a fractional quantity", ErrorCode.NO_FRACTIONAL_QUANTITY);
+            }
+
+            if (stockDto.isDeleted()) {
+                throw new BadRequestError("Cannot buy deleted item " + stockDto.getId(), ErrorCode.CANNOT_PURCHASE_DELETED_ITEM);
+            }
+
+            float price = stockDto.getPricePerUnit() * item.getAmount();
+
+            stockDto.setQuantity(stockDto.getQuantity() - item.getAmount());
+
+            // save the new stock items so we can commit changes after we've checked all items in the list
+            newStockItems.add(stockDto);
+
+            return round(price, 2);
+        })
+        .reduce(0f, Float::sum);
+
+        // Commit changes to repository
+        newStockItems.forEach(stockRepository::save);
+
+        return round(totalPrice, 2);
+    }
+
+    /**
+     * counts how often an item with a given id exists in the list
+     * @param items The list of items to check in
+     * @param id The id to check for
+     * @return How often the id exists in the list
+     */
+    private int countItemsWithId(List<CartItem> items, String id) {
+        return items.stream().filter(item -> item.getId().equals(id)).collect(Collectors.toList()).size();
+    }
+
+    /**
+     * Rounds a float to a set amount of decimal places
+     * @param value The number to round
+     * @param places How many decimal places to round to
+     * @return The rounded number with places decimal places
+     */
+    private static float round(float value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(Double.toString(value));
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.floatValue();
     }
 
 }
