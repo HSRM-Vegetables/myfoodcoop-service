@@ -194,12 +194,19 @@ components:
         balance-response:
             description: Contains data about the current balance
             type: object
+            required:
+                - balance
+                - name
             properties:
                 balance:
                     description: The current balance
                     example: 10
                     type: number
                     format: float
+                name:
+                    description: The name of the owner of this balance
+                    example: Robby
+                    type: string
 
     parameters:
         username:
@@ -207,5 +214,6 @@ components:
             name: name
             schema:
                 type: string
+                maxLength: 255
             required: true
             description: The unique name of the user

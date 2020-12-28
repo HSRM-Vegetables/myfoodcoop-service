@@ -7,70 +7,58 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
 import java.util.HashMap;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
+import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.mapper.Mapper;
+import de.hsrm.vegetables.service.services.BalanceService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class BalanceController implements BalanceApi {
 
-    private final HashMap<String, Float> balances;
-
-    public BalanceController() {
-        this.balances = new HashMap<>();
-    }
+    @NonNull
+    private final BalanceService balanceService;
 
     @Override
     public ResponseEntity<BalanceResponse> balanceGet(String name) {
-        BalanceResponse response = getBalanceResponse(name);
-        return ResponseEntity.ok(response);
+        BalanceDto balanceDto = null;
+
+        try {
+            balanceDto = balanceService.getBalance(name);
+        } catch(NotFoundError e) {
+            balanceDto = balanceService.createEmptyBalance(name);
+        }
+
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
     public ResponseEntity<BalanceResponse> balancePatch(String name, BalancePatchRequest request) {
-        balances.put(name, request.getBalance());
+        BalanceDto balanceDto = balanceService.upsert(name, request.getBalance());
 
-        BalanceResponse response = getBalanceResponse(name);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
     public ResponseEntity<BalanceResponse> balanceTopup(String name, BalanceAmountRequest request) {
-        if (!balances.containsKey(name)) {
-            throw new NotFoundError("The balance for the given name was not found", ErrorCode.NO_BALANCE_FOUND);
-        }
+        BalanceDto balanceDto = balanceService.topup(name, request.getAmount());
 
-        balances.put(name, balances.get(name) + request.getAmount());
-
-        BalanceResponse response = getBalanceResponse(name);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
     public ResponseEntity<BalanceResponse> balanceWithdraw(String name, BalanceAmountRequest request) {
-        if (!balances.containsKey(name)) {
-            throw new NotFoundError("The balance for the given name was not found", ErrorCode.NO_BALANCE_FOUND);
-        }
+        BalanceDto balanceDto = balanceService.withdraw(name, request.getAmount());
 
-        balances.put(name, balances.get(name) - request.getAmount());
-
-        BalanceResponse response = getBalanceResponse(name);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
-    private BalanceResponse getBalanceResponse(String name) {
-        BalanceResponse response = new BalanceResponse();
-
-        if (balances.containsKey(name)) {
-            response.balance(balances.get(name));
-        } else {
-            balances.put(name, 0f);
-            response.balance(0f);
-        }
-
-        return response;
-    }
 }
