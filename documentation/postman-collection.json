@@ -284,10 +284,16 @@
 							"name": "POST /purchase",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Username",
+										"value": "Robby",
+										"type": "text"
+									}
+								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"items\": [\r\n        {\r\n            \"id\": \"a9a63c37-3b15-44f3-b26f-a0cc1c849e46\",\r\n            \"amount\": 3\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"items\": [\r\n        {\r\n            \"id\": \"f92aa661-2518-41b7-b84e-0da553ab0cf9\",\r\n            \"amount\": 3\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -295,20 +301,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{URL}}/v1/purchase/:name",
+									"raw": "{{URL}}/v1/purchase",
 									"host": [
 										"{{URL}}"
 									],
 									"path": [
 										"v1",
-										"purchase",
-										":name"
-									],
-									"variable": [
-										{
-											"key": "name",
-											"value": "Robby"
-										}
+										"purchase"
 									]
 								}
 							},
