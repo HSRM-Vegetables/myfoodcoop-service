@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
 import de.hsrm.vegetables.service.exception.errors.BaseError;
+import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,10 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     /*
      Handler for own errors
      */
+    @ExceptionHandler(BadRequestError.class)
+    public ResponseEntity<Object> handleBadRequestError(BadRequestError error) {
+        return this.createException(error, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(NotFoundError.class)
     public ResponseEntity<Object> handleNotFoundError(NotFoundError error) {
@@ -127,6 +132,8 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
         if (specificException instanceof InvalidFormatException) {
             return this.createException("Invalid JSON: " + specificException.getMessage().split("\n")[0], status, ErrorCode.MESSAGE_NOT_READABLE);
         }
+
+        ex.printStackTrace();
 
         return this.createException("Invalid Body, check Specification", status, ErrorCode.MESSAGE_NOT_READABLE);
     }
