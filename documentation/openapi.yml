@@ -128,6 +128,12 @@ paths:
       operationId: stockGet
       parameters:
         - in: query
+          description: |-
+            Controls if deleted elements will be included in the results
+
+            * OMIT: Only elements which haven't been deleted will be included
+            * INCLUDE: Delted and not deleted items will be returned
+            * ONLY: Only return deleted items
           name: deleted
           schema:
             $ref: '#/components/schemas/delete-filter'
