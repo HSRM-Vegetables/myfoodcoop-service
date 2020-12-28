@@ -240,13 +240,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/error-response'
 
-  '/purchase/{name}':
+  '/purchase':
     post:
       tags:
         - Purchase
       summary: Purchases items for a user. Reduces the amount of these items in stock and the users balance
       parameters:
-        - $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/usernameHeader'
       operationId: purchaseFromStock
       requestBody:
         description: All items that the user wants to purchase
@@ -555,6 +555,14 @@ components:
     username:
       in: path
       name: name
+      schema:
+        type: string
+      required: true
+      description: The unique name of the user
+
+    usernameHeader:
+      in: header
+      name: X-Username
       schema:
         type: string
       required: true

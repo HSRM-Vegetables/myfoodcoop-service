@@ -18,7 +18,8 @@ Feature: Simple Purchases
     And def stockId1 = response.id
 
     # Purchase item
-    Given path '/purchase/Robby'
+    Given path '/purchase'
+    And header X-Username = "Robby"
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -60,7 +61,8 @@ Feature: Simple Purchases
     And def stockId2 = response.id
 
     # Purchase items
-    Given path '/purchase/Robby'
+    Given path '/purchase'
+    And header X-Username = "Robby"
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
     And request { items: [#(item1), #(item2)] }
@@ -109,7 +111,8 @@ Feature: Simple Purchases
     And def stockId2 = response.id
 
     # Purchase item
-    Given path '/purchase/Robby'
+    Given path '/purchase'
+    And header X-Username = "Robby"
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1.5 }
     And request { items: [#(item1), #(item2)] }
@@ -161,7 +164,8 @@ Feature: Simple Purchases
     When method DELETE
     Then status 204
 
-    Given path '/purchase/Robby'
+    Given path '/purchase'
+    And header X-Username = "Robby"
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
     And request { items: [#(item1), #(item2)] }
@@ -190,7 +194,8 @@ Feature: Simple Purchases
     And def stockId1 = response.id
 
     # Purchase Items
-    Given path '/purchase/Robby'
+    Given path '/purchase'
+    And header X-Username = "Robby"
     And def item1 = { id: #(stockId1), amount: 200 }
     And request { items: [#(item1)] }
     When method POST
@@ -218,7 +223,8 @@ Feature: Simple Purchases
     And def stockId1 = response.id
 
     # Purchase
-    Given path '/purchase/Unknown'
+    Given path '/purchase'
+    And header X-Username = "Unknown"
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -240,7 +246,8 @@ Feature: Simple Purchases
     And def stockId1 = response.id
 
     # Purchase  items
-    Given path '/purchase/Robby'
+    Given path '/purchase'
+    And header X-Username = "Robby"
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item1AsWell = { id: #(stockId1), amount: 5 }
     And request { items: [#(item1), #(item1AsWell)] }

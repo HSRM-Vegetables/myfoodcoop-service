@@ -10,7 +10,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1")
@@ -20,21 +22,22 @@ public class PurchaseController implements PurchaseApi {
 
     @NonNull
     private final StockService stockService;
+
     @NonNull
-    private final BalanceService balanceService ;
+    private final BalanceService balanceService;
 
     @Override
-    public ResponseEntity<PurchaseResponse> purchaseFromStock(String name, PurchaseRequest purchaseRequest) {
+    public ResponseEntity<PurchaseResponse> purchaseFromStock(String xUsername, PurchaseRequest purchaseRequest) {
 
         //Check Name is found
-        balanceService.getBalance(name);
+        balanceService.getBalance(xUsername);
 
         Float totalPrice = stockService.purchase(purchaseRequest.getItems());
 
-        BalanceDto balanceDto = balanceService.withdraw(name, totalPrice);
+        BalanceDto balanceDto = balanceService.withdraw(xUsername, totalPrice);
 
         PurchaseResponse response = new PurchaseResponse();
-        response.setName(name);
+        response.setName(xUsername);
         response.setPrice(totalPrice);
         response.setBalance(balanceDto.getAmount());
 
