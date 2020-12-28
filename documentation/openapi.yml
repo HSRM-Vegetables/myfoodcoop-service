@@ -339,6 +339,7 @@ components:
       properties:
         items:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/cart-item'
 
@@ -386,17 +387,19 @@ components:
       description: Contains data about the current balance
       type: object
       required:
-        - id
+        - balance
         - name
-        - unitType
-        - quantity
-        - pricePerUnit
       properties:
         balance:
           description: The current balance
           example: 10
           type: number
           format: float
+        name:
+          description: The name of the owner of this balance
+          example: Robby
+          type: string
+
 
     all-stock-response:
       type: object
@@ -504,6 +507,7 @@ components:
           * PIECE: A unit is 1.0 pieces
       type: number
       format: float
+      minimum: 0
       example: 7
 
     cart-item:
@@ -529,7 +533,9 @@ components:
       example: Robby
 
     item-description:
-      description: A description of an item
+      description: |-
+        An optional description of an item.
+        To delete the description, set it to an empty string.
       type: string
       example: "Potatoes from our friendly farmer Joe"
       minLength: 0

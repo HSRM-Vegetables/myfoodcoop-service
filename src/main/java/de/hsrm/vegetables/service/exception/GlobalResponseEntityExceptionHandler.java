@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
 import de.hsrm.vegetables.service.exception.errors.BaseError;
-import de.hsrm.vegetables.service.exception.errors.ExampleError;
+import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +47,9 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     /*
      Handler for own errors
      */
-
-    @ExceptionHandler(ExampleError.class)
-    public ResponseEntity<Object> handleExampleError(ExampleError error) {
-        return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(BadRequestError.class)
+    public ResponseEntity<Object> handleBadRequestError(BadRequestError error) {
+        return this.createException(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundError.class)
