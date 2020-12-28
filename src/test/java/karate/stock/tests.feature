@@ -1,9 +1,5 @@
 Feature: Simple Stock management
 
-  #
-  # The order of these tests is important!
-  #
-
   Background:
     * url baseUrl
     # data used for testing later on
