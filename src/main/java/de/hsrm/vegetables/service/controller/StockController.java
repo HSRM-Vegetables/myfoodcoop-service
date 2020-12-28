@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -30,20 +32,19 @@ public class StockController implements StockApi {
     }
 
     @Override
-    public ResponseEntity<AllStockResponse> stockGet() {
-        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getAll());
+    public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted) {
+        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getAll(deleted));
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<StockResponseById> stockItemGet(String itemId) {
+    public ResponseEntity<StockResponse> stockItemGet(String itemId) {
         StockDto stockDto = stockService.getById(itemId);
-        StockResponseById response = StockMapper.stockResponseById(stockDto);
+        StockResponse response = StockMapper.stockDtoToStockResponse(stockDto);
         return ResponseEntity.ok(response);
     }
-
 
     @Override
     public ResponseEntity<StockResponse> stockPatch(String itemId, StockPatchRequest stockPatchRequest) {

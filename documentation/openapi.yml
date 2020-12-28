@@ -5,15 +5,15 @@ info:
   title: Stadtgemüse Service
   contact: { }
 servers:
-  -   url: 'https://veg-service.herokuapp.com/v1/'
-      description: Production v1
+  - url: 'https://veg-service.herokuapp.com/v1/'
+    description: Production v1
 tags:
-  -   name: Balance
-      description: Handles balance requests
-  -   name: Stock
-      description: All functionality related to the stock
-  -   name: Purchase
-      description: Functionality related to purchasing items
+  - name: Balance
+    description: Handles balance requests
+  - name: Stock
+    description: All functionality related to the stock
+  - name: Purchase
+    description: Functionality related to purchasing items
 paths:
   '/balance/{name}':
     get:
@@ -23,7 +23,7 @@ paths:
       description: 'Gets the current balance of the user, or 0 if the user is currently not known'
       operationId: balanceGet
       parameters:
-        -   $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/username'
       responses:
         '200':
           description: The current value of the balance for the specified user
@@ -43,7 +43,7 @@ paths:
       summary: Changes the balance for the specified user
       operationId: balancePatch
       parameters:
-        -   $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/username'
       requestBody:
         required: true
         content:
@@ -70,7 +70,7 @@ paths:
       summary: Topup the balance for the specified user
       operationId: balanceTopup
       parameters:
-        -   $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/username'
       requestBody:
         description: 'Top up the balance with the amount, containing a positive value'
         required: true
@@ -98,7 +98,7 @@ paths:
       summary: Withdraw the balance for the specified user
       operationId: balanceWithdraw
       parameters:
-        -   $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/username'
       requestBody:
         description: 'Withdraw the amount from the balance, containing a positive value'
         required: true
@@ -126,6 +126,11 @@ paths:
         - Stock
       summary: Retrieves all items currently in stock
       operationId: stockGet
+      parameters:
+        - in: query
+          name: deleted
+          schema:
+            $ref: '#/components/schemas/delete-filter'
       responses:
         '200':
           description: Successful call, returns the current stock
@@ -171,14 +176,14 @@ paths:
       summary: Retrieves information about a specific item in the stock
       operationId: stockItemGet
       parameters:
-        -   $ref: '#/components/parameters/item-id'
+        - $ref: '#/components/parameters/item-id'
       responses:
         '200':
           description: Successful call, returns the requested stock item
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/stock-response-by-id'
+                $ref: '#/components/schemas/stock-response'
         default:
           description: Details about the error that occured
           content:
@@ -191,7 +196,7 @@ paths:
       summary: Updates data of an item
       operationId: stockPatch
       parameters:
-        -   $ref: '#/components/parameters/item-id'
+        - $ref: '#/components/parameters/item-id'
       requestBody:
         description: All data of an item that can be updated
         required: true
@@ -218,7 +223,7 @@ paths:
       summary: Soft deletes an item from the stock. It will no longer show up in the stock list, but information can still be retrieved
       operationId: stockDelete
       parameters:
-        -   $ref: '#/components/parameters/item-id'
+        - $ref: '#/components/parameters/item-id'
       responses:
         '204':
           description: The stock item was successfully soft-deleted
@@ -235,7 +240,7 @@ paths:
         - Purchase
       summary: Purchases items for a user. Reduces the amount of these items in stock and the users balance
       parameters:
-        -   $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/username'
       operationId: purchaseFromStock
       requestBody:
         description: All items that the user wants to purchase
@@ -425,23 +430,6 @@ components:
           $ref: '#/components/schemas/pricePerUnit'
         description:
           $ref: '#/components/schemas/item-description'
-
-    stock-response-by-id:
-      description: All stored data of one item in the stock
-      type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/uuid'
-        name:
-          $ref: '#/components/schemas/item-name'
-        unitType:
-          $ref: '#/components/schemas/unitType'
-        quantity:
-          $ref: '#/components/schemas/quantity'
-        pricePerUnit:
-          $ref: '#/components/schemas/pricePerUnit'
-        description:
-          $ref: '#/components/schemas/item-description'
         isDeleted:
           type: boolean
           description: Wether this item is deleted
@@ -541,6 +529,21 @@ components:
       minLength: 0
       maxLength: 10000
       default: ""
+
+    delete-filter:
+      description: |-
+        Controls if deleted elements will be included in the results
+
+        * OMIT: Only elements which haven't been deleted will be included
+        * INCLUDE: Delted and not deleted items will be returned
+        * ONLY: Only return deleted items
+      type: string
+      example: OMIT
+      enum:
+        - OMIT
+        - INCLUDE
+        - ONLY
+      default: OMIT
 
   parameters:
     username:

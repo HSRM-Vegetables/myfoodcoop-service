@@ -265,3 +265,115 @@ Feature: Simple Stock management
     When method PATCH
     Then status 400
     And assert response.errorCode == 400009
+
+  Scenario: GET with no delete parameter does not include deleted items
+    # Create item 1
+    Given path '/stock'
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Create item 2
+    Given path '/stock'
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    When method POST
+    Then status 201
+    And def stockId2 = response.id
+
+    # Delete item 2
+    Given path '/stock/' + stockId2
+    When method DELETE
+    Then status 204
+
+    # GET items
+    Given path '/stock'
+    When method GET
+    Then status 200
+    And match each response.items contains { isDeleted: false }
+
+  Scenario: GET with delete parameter OMIT does not include deleted items
+    # Create item 1
+    Given path '/stock'
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Create item 2
+    Given path '/stock'
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    When method POST
+    Then status 201
+    And def stockId2 = response.id
+
+    # Delete item 2
+    Given path '/stock/' + stockId2
+    When method DELETE
+    Then status 204
+
+    # GET items
+    Given path '/stock'
+    And param deleted = "OMIT"
+    When method GET
+    Then status 200
+    And match each response.items contains { isDeleted: false }
+
+  Scenario: GET with delete parameter INCLUDE includes deleted and not deleted items
+    # Create item 1
+    Given path '/stock'
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Create item 2
+    Given path '/stock'
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    When method POST
+    Then status 201
+    And def stockId2 = response.id
+
+    # Delete item 2
+    Given path '/stock/' + stockId2
+    When method DELETE
+    Then status 204
+
+    # GET items
+    Given path '/stock'
+    And param deleted = "INCLUDE"
+    When method GET
+    Then status 200
+    And def filterForDeleted = function(x){ return x.isDeleted == true }
+    And def filterForNotDeleted = function(x){ return x.isDeleted == false }
+    And def deletedItems = karate.filter(response.items, filterForDeleted)
+    And def notDeletedItems = karate.filter(response.items, filterForNotDeleted)
+    And assert deletedItems.length > 0
+    And assert notDeletedItems.length > 0
+
+  Scenario: GET with delete parameter ONLY does not include non-deleted items
+    # Create item 1
+    Given path '/stock'
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Create item 2
+    Given path '/stock'
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    When method POST
+    Then status 201
+    And def stockId2 = response.id
+
+    # Delete item 2
+    Given path '/stock/' + stockId2
+    When method DELETE
+    Then status 204
+
+    # GET items
+    Given path '/stock'
+    And param deleted = "ONLY"
+    When method GET
+    Then status 200
+    And match each response.items contains { isDeleted: true }
