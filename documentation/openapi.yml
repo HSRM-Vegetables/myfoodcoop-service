@@ -268,6 +268,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    '/purchase/{name}':
+        get:
+            tags:
+                - Purchase
+            summary: Retrieve all previous purchase
+            operationId: purchaseGet
+            parameters:
+                -   $ref: '#/components/parameters/usernameHeader'
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/purchase-list-response'
+                default:
+                    description: Information about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
 components:
     schemas:
@@ -458,6 +479,60 @@ components:
                     format: float
                     example: 17.43
 
+        purchase-list-response:
+            description: List of all previous purchases
+            type: object
+            properties:
+                purchases:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/purchase-history-item'
+
+        purchase-history-item:
+            description: Contains information about a whole purchase
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                createOn:
+                    description: Time the purchase was created at
+                    example: 2017-07-21T17:32:28Z
+                    type: string
+                    format: date-time
+                totalPrice:
+                    description: |-
+                        Total price of the purchase.
+                        Changes to an items price after the purchase was made will not be reflected in this value.
+                    example: 69.0
+                    type: number
+                    format: float
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/purchase-item'
+
+        purchase-item:
+            description: Contains information about a single item that was purchased
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                name:
+                    $ref: '#/components/schemas/item-name'
+                amount:
+                    description: Amount of items purchased
+                    example: 4.2
+                    type: number
+                    format: float
+                pricePerUnit:
+                    description: |-
+                        Price per unit of the item.
+                        Changes to an items price after the purchase was made will not be reflected in this value.
+                    example: 12.0
+                    type: number
+                    format: float
+                unitType:
+                    $ref: '#/components/schemas/unitType'
 
         #
         # Reusable Items
