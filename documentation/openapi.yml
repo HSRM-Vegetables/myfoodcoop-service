@@ -241,6 +241,26 @@ paths:
                                 $ref: '#/components/schemas/error-response'
 
     '/purchase':
+        get:
+            tags:
+                - Purchase
+            summary: Retrieve all previous purchases
+            operationId: purchaseGet
+            parameters:
+                -   $ref: '#/components/parameters/usernameHeader'
+            responses:
+                '200':
+                    description: Successful call, returns the list of all previous purchases
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/purchase-list-response'
+                default:
+                    description: Information about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
         post:
             tags:
                 - Purchase
@@ -268,21 +288,21 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/purchase/{name}':
+    '/purchase/{purchase-id}':
         get:
             tags:
                 - Purchase
-            summary: Retrieve all previous purchase
-            operationId: purchaseGet
+            summary: Retrieve one purchase by Id
+            operationId: purchaseGetById
             parameters:
                 -   $ref: '#/components/parameters/usernameHeader'
             responses:
                 '200':
-                    description: The current value of the balance for the specified user
+                    description: Successful call, returns a whole purchase
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/purchase-list-response'
+                                $ref: '#/components/schemas/purchase-history-item'
                 default:
                     description: Information about the error that occured
                     content:
@@ -494,8 +514,8 @@ components:
             properties:
                 id:
                     $ref: '#/components/schemas/uuid'
-                createOn:
-                    description: Time the purchase was created at
+                createdOn:
+                    description: Date and time the purchase was created at
                     example: 2017-07-21T17:32:28Z
                     type: string
                     format: date-time
