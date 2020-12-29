@@ -16,7 +16,7 @@ Feature: Simple Stock management
     function(offset) {
       var SimpleDateFormat = Java.type('java.text.SimpleDateFormat');
       var sdf = new SimpleDateFormat("yyyy-MM-dd");
-      let offsetDate = new Date()
+      var offsetDate = new Date()
       offsetDate.setDate(offsetDate.getDate() + offset)
       return sdf.format(offsetDate)
     }
@@ -25,7 +25,7 @@ Feature: Simple Stock management
     * def findItemWithId =
     """
     function(arr, id) {
-      return arr.find(item -> item.id === id);
+      return arr.find(function(item) { item.id === id });
     }
     """
 
