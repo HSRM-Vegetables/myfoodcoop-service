@@ -516,7 +516,7 @@ components:
                     $ref: '#/components/schemas/uuid'
                 createdOn:
                     description: Date and time the purchase was created at
-                    example: 2017-07-21T17:32:28Z
+                    example: '2017-07-21T17:32:28Z'
                     type: string
                     format: date-time
                 totalPrice:
