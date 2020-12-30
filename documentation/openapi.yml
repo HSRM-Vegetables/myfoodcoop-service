@@ -296,6 +296,7 @@ paths:
             operationId: purchaseGetById
             parameters:
                 -   $ref: '#/components/parameters/usernameHeader'
+                -   $ref: '#/components/parameters/purchase-id'
             responses:
                 '200':
                     description: Successful call, returns a whole purchase
@@ -673,3 +674,12 @@ components:
                 maxLength: 36
             required: true
             description: The unique id of an item
+
+        purchase-id:
+            in: path
+            name: purchase-id
+            schema:
+                type: string
+                maxLength: 36
+            required: true
+            description: The unique id of a purchase

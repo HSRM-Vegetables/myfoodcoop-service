@@ -6,6 +6,7 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
+import de.hsrm.vegetables.service.exception.errors.http.InternalError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.repositories.StockRepository;
 import lombok.NonNull;
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
@@ -150,7 +152,8 @@ public class StockService {
             changed = true;
         }
 
-        if (stockDto.getUnitType().equals(UnitType.PIECE) && stockDto.getQuantity() % 1 != 0) {
+        if (stockDto.getUnitType()
+                .equals(UnitType.PIECE) && stockDto.getQuantity() % 1 != 0) {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
         }
 
@@ -167,7 +170,7 @@ public class StockService {
      * @param items All items to reduce quanitity for
      * @return The price for all these items
      */
-    public Float purchase(List<CartItem> items) {
+    public List<StockDto> purchase(List<CartItem> items) {
         // Check that all id's are unique
         items.forEach(item -> {
             if (countItemsWithId(items, item.getId()) > 1) {
@@ -175,15 +178,14 @@ public class StockService {
             }
         });
 
-        List<StockDto> modifiedStockItems = new ArrayList<>();
-
         // Sum up price and reduce items in stock
-        Float totalPrice = items
+        List<StockDto> modifiedStockItems = items
                 .stream()
                 .map(item -> {
                     StockDto stockDto = getById(item.getId());
 
-                    if (stockDto.getUnitType().equals(UnitType.PIECE) && item.getAmount() % 1 != 0) {
+                    if (stockDto.getUnitType()
+                            .equals(UnitType.PIECE) && item.getAmount() % 1 != 0) {
                         throw new BadRequestError("Cannot purchase item with UnitType PIECE and a fractional quantity", ErrorCode.NO_FRACTIONAL_QUANTITY);
                     }
 
@@ -195,16 +197,35 @@ public class StockService {
 
                     stockDto.setQuantity(stockDto.getQuantity() - item.getAmount());
 
-                    // save the new stock items so we can commit changes after we've checked all items in the list
-                    modifiedStockItems.add(stockDto);
+                    return stockDto;
+                })
+                .collect(Collectors.toList());
 
+        // Commit changes to repository
+        return modifiedStockItems.stream()
+                .map(stockRepository::save)
+                .collect(Collectors.toList());
+    }
+
+    public static Float calculatePrice(List<StockDto> stockItems, List<CartItem> cartItems) {
+        Float totalPrice = cartItems
+                .stream()
+                .map(cartItem -> {
+                    Optional<StockDto> associatedStockDto = stockItems
+                            .stream()
+                            .filter(stockItem -> stockItem.getId()
+                                    .equals(cartItem.getId()))
+                            .findFirst();
+
+                    if (associatedStockDto.isEmpty()) {
+                        throw new InternalError("No matching stock item was found in stockItems", ErrorCode.STOCK_DTO_NOT_FOUND);
+                    }
+
+                    float price = associatedStockDto.get()
+                            .getPricePerUnit() * cartItem.getAmount();
                     return round(price, 2);
                 })
                 .reduce(0f, Float::sum);
-
-        // Commit changes to repository
-        modifiedStockItems.forEach(stockRepository::save);
-
         return round(totalPrice, 2);
     }
 
@@ -218,7 +239,8 @@ public class StockService {
     private int countItemsWithId(List<CartItem> items, String id) {
         return (int) items
                 .stream()
-                .filter(item -> item.getId().equals(id))
+                .filter(item -> item.getId()
+                        .equals(id))
                 .count();
     }
 

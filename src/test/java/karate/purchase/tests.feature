@@ -5,14 +5,27 @@ Feature: Simple Purchases
     * def findItemWithId =
     """
     function(arr, id) {
-      return arr.find(function(item) { item.id === id });
+      if (arr === undefined || arr === null || id === undefined || id === null) {
+        return null;
+      }
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) {
+          return arr[i];
+        }
+      }
+      return null;
     }
     """
 
     * def calcPrice =
     """
-    function (items) {
-      return items.reduce(function(acc, curr) { return acc + ( curr.amount * curr.pricePerUnit ); }, 0)
+    function (arr) {
+      if (arr === undefined || arr === null) return 0.0;
+      var res = 0.0
+      for (var i = 0; i < arr.length; i++) {
+        res += arr[i].amount * arr[i].pricePerUnit;
+      }
+      return res;
     }
     """
 
@@ -56,6 +69,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
+    And header X-Username = "Robby"
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -71,7 +85,6 @@ Feature: Simple Purchases
     And assert response.purchases.length == 1
     And def purchase = findItemWithId(response.purchases, purchaseId)
     And match purchase contains { id: #(purchaseId) }
-    And assert purchase.items.length == 1
     And def purchasedItem1 = findItemWithId(purchase.items, stockId1)
     And match purchasedItem1 contains { id: #(stockId1) }
 
@@ -129,6 +142,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
+    And header X-Username = "Robby"
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -141,7 +155,6 @@ Feature: Simple Purchases
     And header X-Username = "Robby"
     When method GET
     Then status 200
-    And assert response.purchases.length == 1
     And def purchase = findItemWithId(response.purchases, purchaseId)
     And match purchase contains { id: #(purchaseId) }
     And assert purchase.items.length == 2
@@ -199,13 +212,6 @@ Feature: Simple Purchases
     Then status 200
     Then assert response.balance == 500
 
-    # Check that purchase doesnt exist
-    Given path '/purchase'
-    And header X-Username = "Robby"
-    When method GET
-    Then status 200
-    And assert response.purchases.length == 0
-
   Scenario: Cannot purchase deleted item
      # Create Balance for User
     Given path '/balance/Robby'
@@ -248,13 +254,6 @@ Feature: Simple Purchases
     Then status 200
     Then assert response.balance == 500
 
-    # Check that purchase doesnt exist
-    Given path '/purchase'
-    And header X-Username = "Robby"
-    When method GET
-    Then status 200
-    And assert response.purchases.length == 0
-
   Scenario: Purchase a single item with higher amount than in stock is possible
     # Create Balance for User
     Given path '/balance/Robby'
@@ -294,6 +293,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
+    And header X-Username = "Robby"
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -306,7 +306,6 @@ Feature: Simple Purchases
     And header X-Username = "Robby"
     When method GET
     Then status 200
-    And assert response.purchases.length == 1
     And def purchase = findItemWithId(response.purchases, purchaseId)
     And match purchase contains { id: #(purchaseId) }
     And assert purchase.items.length == 1
@@ -360,13 +359,6 @@ Feature: Simple Purchases
     Then status 200
     Then assert response.balance == 500
 
-    # Check that purchase doesnt exist
-    Given path '/purchase'
-    And header X-Username = "Robby"
-    When method GET
-    Then status 200
-    And assert response.purchases.length == 0
-
   Scenario: The price of a purchase does not change after a stock items price was updated
     # Create Balance for User
     Given path '/balance/Robby'
@@ -393,6 +385,7 @@ Feature: Simple Purchases
 
     # Get the purchase
     Given path '/purchase', purchaseId
+    And header X-Username = "Robby"
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -405,10 +398,10 @@ Feature: Simple Purchases
     And request { pricePerUnit: 5.0 }
     When method PATCH
     Then status 200
-    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: 5 }
 
     # Get the purchase a second time
     Given path '/purchase', purchaseId
+    And header X-Username = "Robby"
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -419,3 +412,43 @@ Feature: Simple Purchases
     # Check prices are still the same
     And assert totalPriceFirstTime == totalPriceSecondTime
     And assert calculatedPriceFirstTime == calculatedPriceSecondTime
+
+  Scenario: Request purchase via id from a different user fails
+    # Create Balance for User Robby
+    Given path '/balance/Robby'
+    And request { balance: 500 }
+    When method PATCH
+    Then status 200
+
+    # Create Balance for User Manfred
+    Given path '/balance/Manfred'
+    And request { balance: 500 }
+    When method PATCH
+    Then status 200
+
+
+    # Create item
+    Given path '/stock'
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Purchase item
+    Given path '/purchase'
+    And header X-Username = "Robby"
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 200
+    And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number' }
+    And assert response.name == "Robby"
+    And assert response.price == 1.3
+    And def purchaseId = response.id
+
+    # Request purchase from different user
+    Given path '/purchase', purchaseId
+    And header X-Username = "Manfred"
+    When method GET
+    Then status 401
+    And assert response.errorCode == 401001
