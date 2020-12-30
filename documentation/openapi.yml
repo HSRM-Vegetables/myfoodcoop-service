@@ -488,6 +488,8 @@ components:
             properties:
                 name:
                     $ref: '#/components/schemas/username'
+                id:
+                    $ref: '#/components/schemas/uuid'
                 balance:
                     description: The balance of the user after the purchase
                     type: number
