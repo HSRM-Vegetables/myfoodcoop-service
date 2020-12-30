@@ -367,3 +367,55 @@ Feature: Simple Purchases
     Then status 200
     And assert response.purchases.length == 0
 
+  Scenario: The price of a purchase does not change after a stock items price was updated
+    # Create Balance for User
+    Given path '/balance/Robby'
+    And request { balance: 500 }
+    When method PATCH
+    Then status 200
+
+    # Create item
+    Given path '/stock'
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.0 }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Purchase item
+    Given path '/purchase'
+    And header X-Username = "Robby"
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 200
+    And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number' }
+    And def purchaseId = response.id
+
+    # Get the purchase
+    Given path '/purchase', purchaseId
+    When method GET
+    Then status 200
+    And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
+    And match each response.items contains { id: '#uuid', name: '#string', amount: '#number', pricePerUnit: '#number', unitType: '#string' }
+    And def totalPriceFirstTime = response.totalPrice
+    And def calculatedPriceFirstTime = calcPrice(response.items)
+
+    # Update price of an item
+    Given path '/stock/' + stockId1
+    And request { pricePerUnit: 5.0 }
+    When method PATCH
+    Then status 200
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: 5 }
+
+    # Get the purchase a second time
+    Given path '/purchase', purchaseId
+    When method GET
+    Then status 200
+    And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
+    And match each response.items contains { id: '#uuid', name: '#string', amount: '#number', pricePerUnit: '#number', unitType: '#string' }
+    And def totalPriceSecondTime = response.totalPrice
+    And def calculatedPriceSecondTime = calcPrice(response.items)
+
+    # Check prices are still the same
+    And assert totalPriceFirstTime == totalPriceSecondTime
+    And assert calculatedPriceFirstTime == calculatedPriceSecondTime
