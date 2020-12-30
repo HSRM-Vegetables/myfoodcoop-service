@@ -293,6 +293,42 @@
                 ],
                 "body": {
                   "mode": "raw",
+                  "raw": "{\r\n    \"items\": [\r\n        {\r\n            \"id\": \"6e44ca11-597a-41c1-ba31-fc7ac0a07f29\",\r\n            \"amount\": 3\r\n        },\r\n        {\r\n            \"id\": \"f44a0ee8-72fb-4897-beca-3882478f2790\",\r\n            \"amount\": 3\r\n        }\r\n    ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{URL}}/v1/purchase",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "purchase"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET /purchase",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Username",
+                    "value": "Robby",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
                   "raw": "{\r\n    \"items\": [\r\n        {\r\n            \"id\": \"f92aa661-2518-41b7-b84e-0da553ab0cf9\",\r\n            \"amount\": 3\r\n        }\r\n    ]\r\n}",
                   "options": {
                     "raw": {
@@ -308,6 +344,37 @@
                   "path": [
                     "v1",
                     "purchase"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET /purchase/:purchase-id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Username",
+                    "type": "text",
+                    "value": "Robby"
+                  }
+                ],
+                "url": {
+                  "raw": "{{URL}}/v1/purchase/:purchase-id",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "purchase",
+                    ":purchase-id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "purchase-id",
+                      "value": "2c28b923-473f-4271-a5fb-794f5e268a24"
+                    }
                   ]
                 }
               },
