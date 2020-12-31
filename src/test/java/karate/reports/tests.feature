@@ -5,27 +5,34 @@ Feature: Simple Stock management
     * def getToday =
     """
     function() {
-      var SimpleDateFormat = Java.type('java.text.SimpleDateFormat');
-      var sdf = new SimpleDateFormat("yyyy-MM-dd");
-      return sdf.format(new Date())
+      var dt = new Date();
+      var month = dt.getMonth() + 1;
+      return dt.getFullYear() + "-" + month + "-" + dt.getDate();
     }
     """
 
     * def getOffsetDate =
     """
     function(offset) {
-      var SimpleDateFormat = Java.type('java.text.SimpleDateFormat');
-      var sdf = new SimpleDateFormat("yyyy-MM-dd");
-      var offsetDate = new Date()
-      offsetDate.setDate(offsetDate.getDate() + offset)
-      return sdf.format(offsetDate)
+      var dt = new Date();
+      dt.setDate(dt.getDate() + offset);
+      var month = dt.getMonth() + 1;
+      return dt.getFullYear() + "-" + month + "-" + dt.getDate();
     }
     """
 
     * def findItemWithId =
     """
     function(arr, id) {
-      return arr.find(function(item) { item.id === id });
+      if (arr === undefined || arr === null || id === undefined || id === null) {
+        return null;
+      }
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) {
+          return arr[i];
+        }
+      }
+      return null;
     }
     """
 
@@ -172,12 +179,12 @@ Feature: Simple Stock management
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
-    And def stockId1 = response.id
+    And def stockId = response.id
 
     # Purchase item first time
     Given path '/purchase'
     And header X-Username = "Robby"
-    And def item1 = { id: #(stockId1), amount: 1 }
+    And def item1 = { id: #(stockId), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
     Then status 200
@@ -192,7 +199,7 @@ Feature: Simple Stock management
     # Purchase item second time
     Given path '/purchase'
     And header X-Username = "Robby"
-    And def item1 = { id: #(stockId1), amount: 1 }
+    And def item1 = { id: #(stockId), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
     Then status 200
@@ -205,7 +212,7 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And assert response.items.length == 1
-    And match response.items[0] contains { id: #(stockIdId), quantitySold: 2 }
+    And match response.items[0] contains { id: #(stockId), quantitySold: 2 }
 
   Scenario: Report list is empty is no purchase was made on that date
     # Generate report
