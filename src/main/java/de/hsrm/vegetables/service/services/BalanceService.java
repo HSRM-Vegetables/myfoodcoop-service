@@ -79,6 +79,21 @@ public class BalanceService {
     }
 
     /**
+     * Reduces the amount of money a given user has.
+     * <p>
+     * Throws a NotFoundError if the user wasn't found
+     *
+     * @param balance The balance of the user
+     * @param amount  The amount to subtract from the balance
+     * @return The updated balance
+     */
+    public BalanceDto withdraw(BalanceDto balance, Float amount) {
+        balance.setAmount(balance.getAmount() - amount);
+
+        return balanceRepository.save(balance);
+    }
+
+    /**
      * Increases the amount of money a given user has.
      * <p>
      * Throws a NotFoundError if the user wasn't found
