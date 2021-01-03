@@ -42,7 +42,6 @@ public class PurchaseController implements PurchaseApi {
 
     @Override
     public ResponseEntity<PurchaseResponse> purchaseFromStock(String xUsername, PurchaseRequest purchaseRequest) {
-
         //Check Name is found
         BalanceDto balanceDto = balanceService.getBalance(xUsername);
 
@@ -72,6 +71,14 @@ public class PurchaseController implements PurchaseApi {
         BalanceDto balanceDto = balanceService.getBalance(xUsername);
 
         List<PurchaseDto> purchases = purchaseService.getPurchases(balanceDto);
+
+        for (var purchase : purchases) {
+            if (!balanceDto.getName()
+                    .equals(purchase.getBalanceDto()
+                            .getName())) {
+                throw new UnauthorizedError("The associated name for that purchase does not match Header X-Username", ErrorCode.USERNAME_DOES_NOT_MATCH_PURCHASE);
+            }
+        }
 
         PurchaseListResponse purchaseListResponse = new PurchaseListResponse();
         purchaseListResponse.setPurchases(purchases.stream()

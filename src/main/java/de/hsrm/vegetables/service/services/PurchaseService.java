@@ -35,10 +35,9 @@ public class PurchaseService {
      * @param balanceDto The balance of the user who purchased the items
      * @param stockItems The StockDto that were purchased
      * @param cartItems  The amounts of the items purchased
-     * @return
+     * @return The completed purchase
      */
     public PurchaseDto purchaseItems(BalanceDto balanceDto, List<StockDto> stockItems, List<CartItem> cartItems, Float totalPrice) {
-
         List<PurchasedItemDto> purchasedItems = cartItems
                 .stream()
                 .map(item -> {
@@ -73,17 +72,29 @@ public class PurchaseService {
         return purchaseRepository.save(purchaseDto);
     }
 
+    /**
+     * Find multiple purchases by name
+     *
+     * @param balanceDto The balance of the user who purchased the items
+     * @return A list of purchases made by the given user
+     */
     public List<PurchaseDto> getPurchases(BalanceDto balanceDto) {
         return purchaseRepository.findAllByBalanceDto(balanceDto);
     }
 
+    /**
+     * Find one purchase by id
+     *
+     * @param id Unique id of the purchase
+     * @return The whole purchase
+     */
     public PurchaseDto getPurchase(String id) {
         PurchaseDto purchaseDto = purchaseRepository.findById(id);
 
         if (purchaseDto == null) {
             throw new NotFoundError("No purchase with id " + id + " was found", ErrorCode.NO_PURCHASE_FOUND);
         }
-    
+
         return purchaseDto;
     }
 

@@ -426,7 +426,6 @@ Feature: Simple Purchases
     When method PATCH
     Then status 200
 
-
     # Create item
     Given path '/stock'
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
