@@ -1,6 +1,7 @@
 package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.QuantitySoldItem;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.PurchasedItemDto;
@@ -15,8 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +32,9 @@ public class PurchaseService {
 
     @NonNull
     private final PurchasedItemRepository purchasedItemRepository;
+
+    @NonNull
+    private final StockService stockService;
 
     /**
      * Purchase items
@@ -96,6 +103,49 @@ public class PurchaseService {
         }
 
         return purchaseDto;
+    }
+
+    /**
+     * Find multiple purchases between Dates
+     *
+     * @param fromDate time window from offsetDateTime where item was purchased
+     * @param toDate time window to offsetDateTime where item was purchased
+     * @return All purchases between fromDate and toDate
+     */
+    public  List<QuantitySoldItem> getSoldItems(LocalDate fromDate, LocalDate toDate) {
+        // Local Dates only contain date information and are missing time information.
+        // Convert the LocalDate to a timestamp with the options specified below.
+        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
+        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
+
+        var purchases = purchaseRepository.findAllByCreatedOnBetween(fromDateConverted,toDateConverted);
+        var purchaseQuantityByStockId = new HashMap<String, QuantitySoldItem>();
+
+        purchases.forEach(purchase -> {
+            purchase.getPurchasedItems().forEach(purchaseItem -> {
+                var stockId = purchaseItem.getStockDto().getId();
+                if (purchaseQuantityByStockId.containsKey(stockId)) {
+                    var quantitySoldItem = purchaseQuantityByStockId.get(stockId);
+                    quantitySoldItem.setQuantitySold(quantitySoldItem.getQuantitySold() + purchaseItem.getAmount());
+
+                    // TODO maybe remove
+                    purchaseQuantityByStockId.put(stockId, quantitySoldItem);
+                } else {
+                    var quantitySoldItem = new QuantitySoldItem();
+                    quantitySoldItem.setQuantitySold(purchaseItem.getAmount());
+                    quantitySoldItem.setId(stockId);
+                    quantitySoldItem.setUnitType(purchaseItem.getUnitType());
+                    purchaseQuantityByStockId.put(stockId, quantitySoldItem);
+                }
+            });
+        });
+
+        purchaseQuantityByStockId.forEach((stockId, quantitySoldItem) -> {
+            var stockItem = stockService.getById(stockId);
+            quantitySoldItem.setName(stockItem.getName());
+        });
+
+        return new ArrayList<>(purchaseQuantityByStockId.values());
     }
 
 }

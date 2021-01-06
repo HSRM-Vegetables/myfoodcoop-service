@@ -2,6 +2,8 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.ReportsApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.QuantitySoldList;
+import de.hsrm.vegetables.service.services.PurchaseService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,9 +20,16 @@ import java.time.LocalDate;
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class ReportsController implements ReportsApi {
 
+    @NonNull
+    private PurchaseService purchaseService;
+
     @Override
     public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        var list = purchaseService.getSoldItems(fromDate,toDate);
+        var response = new QuantitySoldList();
+        response.setItems(list);
+        response.setFromDate(fromDate);
+        response.setToDate(toDate);
+        return ResponseEntity.ok(response);
     }
-
 }

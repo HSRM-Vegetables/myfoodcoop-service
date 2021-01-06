@@ -530,6 +530,18 @@ components:
             type: object
             description: A list of items sold in a time window
             properties:
+                fromDate :
+                    type : string
+                    format : date
+                    description : |-
+                        Start of reported time window. This day is included in the report
+                    example : "2017-07-21"
+                toDate :
+                    type : string
+                    format : date
+                    description : |-
+                        End of reported time window. This day is included in the report
+                    example : "2017-07-21"
                 items:
                     type: array
                     items:
@@ -544,18 +556,6 @@ components:
                     $ref: '#/components/schemas/uuid'
                 name:
                     $ref: '#/components/schemas/item-name'
-                fromDate:
-                    type: string
-                    format: date
-                    description: |-
-                        Start of reported time window. This day is included in the report
-                    example: "2017-07-21"
-                toDate:
-                    type: string
-                    format: date
-                    description: |-
-                        End of reported time window. This day is included in the report
-                    example: "2017-07-21"
                 quantitySold:
                     type: number
                     format: float
