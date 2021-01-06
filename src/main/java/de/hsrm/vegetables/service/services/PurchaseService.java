@@ -121,25 +121,28 @@ public class PurchaseService {
         var purchases = purchaseRepository.findAllByCreatedOnBetween(fromDateConverted,toDateConverted);
         var purchaseQuantityByStockId = new HashMap<String, QuantitySoldItem>();
 
+        // iterate over each purchaseItem and collect the amount each purchaseItem was purchased
         purchases.forEach(purchase -> {
             purchase.getPurchasedItems().forEach(purchaseItem -> {
                 var stockId = purchaseItem.getStockDto().getId();
-                if (purchaseQuantityByStockId.containsKey(stockId)) {
-                    var quantitySoldItem = purchaseQuantityByStockId.get(stockId);
-                    quantitySoldItem.setQuantitySold(quantitySoldItem.getQuantitySold() + purchaseItem.getAmount());
+                QuantitySoldItem quantitySoldItem;
 
-                    // TODO maybe remove
-                    purchaseQuantityByStockId.put(stockId, quantitySoldItem);
+                // create or update Item to collect amount that was purchased
+                if (purchaseQuantityByStockId.containsKey(stockId)) {
+                    quantitySoldItem = purchaseQuantityByStockId.get(stockId);
+                    quantitySoldItem.setQuantitySold(quantitySoldItem.getQuantitySold() + purchaseItem.getAmount());
                 } else {
-                    var quantitySoldItem = new QuantitySoldItem();
+                    quantitySoldItem = new QuantitySoldItem();
                     quantitySoldItem.setQuantitySold(purchaseItem.getAmount());
                     quantitySoldItem.setId(stockId);
                     quantitySoldItem.setUnitType(purchaseItem.getUnitType());
-                    purchaseQuantityByStockId.put(stockId, quantitySoldItem);
                 }
+
+                purchaseQuantityByStockId.put(stockId, quantitySoldItem);
             });
         });
 
+        // additionally collect the name of each item from the stock
         purchaseQuantityByStockId.forEach((stockId, quantitySoldItem) -> {
             var stockItem = stockService.getById(stockId);
             quantitySoldItem.setName(stockItem.getName());

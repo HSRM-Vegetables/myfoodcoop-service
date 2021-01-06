@@ -26,16 +26,6 @@ import java.util.List;
 @DirtiesContext
 @AutoConfigureMockMvc
 public class ReportsTest {
-
-    @Autowired
-    private StockRepository stockRepository;
-
-    @AfterEach
-    void cleanUp() {
-        List<StockDto> stockList = stockRepository.findAll();
-        stockList.forEach(stock -> stockRepository.delete(stock));
-    }
-
     @Karate.Test
     Karate testAll() {
         return Karate.run()

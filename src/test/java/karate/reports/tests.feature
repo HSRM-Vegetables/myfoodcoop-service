@@ -7,7 +7,10 @@ Feature: Simple Stock management
     function() {
       var dt = new Date();
       var month = dt.getMonth() + 1;
-      return dt.getFullYear() + "-" + month + "-" + dt.getDate();
+      var formattedMonth = ("0" + month).slice(-2);
+      var formattedDay = ("0" + dt.getDate()).slice(-2);
+
+      return dt.getFullYear() + "-" + formattedMonth + "-" + formattedDay;
     }
     """
 
@@ -17,7 +20,10 @@ Feature: Simple Stock management
       var dt = new Date();
       dt.setDate(dt.getDate() + offset);
       var month = dt.getMonth() + 1;
-      return dt.getFullYear() + "-" + month + "-" + dt.getDate();
+      var formattedMonth = ("0" + month).slice(-2);
+      var formattedDay = ("0" + dt.getDate()).slice(-2);
+
+      return dt.getFullYear() + "-" + formattedMonth + "-" + formattedDay;
     }
     """
 
@@ -75,10 +81,10 @@ Feature: Simple Stock management
     And param toDate = today
     When method GET
     Then status 200
-    And assert response.items.length > 2
+    And assert response.items.length >= 2
     And def firstItem = findItemWithId(response.items, stockId1)
     And def secondItem = findItemWithId(response.items, stockId2)
-    And match firstItem contains { id: #(stockIdId) }
+    And match firstItem contains { id: #(stockId1) }
     And match secondItem contains { id: #(stockId2) }
 
   Scenario: Items sold in separate purchases will appear as single item in report
@@ -118,8 +124,9 @@ Feature: Simple Stock management
     And param toDate = today
     When method GET
     Then status 200
-    And assert response.items.length == 1
-    And match response.items[0] contains { id: #(stockIdId), quantitySold: 4 }
+    And assert response.items.length >= 1
+    And def item = findItemWithId(response.items, stockId1)
+    And match item contains { id: #(stockId1), quantitySold: 4 }
 
   Scenario: Item purchased by separate users will appear as a single item in a report
     # Create Balance for User 1
@@ -164,8 +171,9 @@ Feature: Simple Stock management
     And param toDate = today
     When method GET
     Then status 200
-    And assert response.items.length == 1
-    And match response.items[0] contains { id: #(stockIdId), quantitySold: 4 }
+    And assert response.items.length >= 1
+    And def item = findItemWithId(response.items, stockId1)
+    And match item contains { id: #(stockId1), quantitySold: 4 }
 
   Scenario: Patching of an items quantity does not affect report
     # Create Balance for User
@@ -211,20 +219,21 @@ Feature: Simple Stock management
     And param toDate = today
     When method GET
     Then status 200
-    And assert response.items.length == 1
-    And match response.items[0] contains { id: #(stockId), quantitySold: 2 }
+    And assert response.items.length >= 1
+    And def item = findItemWithId(response.items, stockId)
+    And match item contains { id: #(stockId), quantitySold: 2 }
 
   Scenario: Report list is empty is no purchase was made on that date
     # Generate report
     * def today = getToday()
     Given path '/reports/sold-items'
-    And param fromDate = today
-    And param toDate = today
+    And param fromDate = '2020-01-01'
+    And param toDate = '2020-01-01'
     When method GET
     Then status 200
     And assert response.items.length == 0
 
-  Scenario: toDate cannot be after fromDate
+  Scenario: fromDate cannot be after toDate
     # Generate report
     * def today = getToday()
     * def yesterday = getOffsetDate(-1)
@@ -246,7 +255,18 @@ Feature: Simple Stock management
     Then status 400
     And assert response.errorCode == 400013
 
-  Scenario: toDate cannot be in the future
+  Scenario: fromDate cannot be in the future
+    # Generate report
+    * def today = getToday()
+    * def tomorrow = getOffsetDate(1)
+    Given path '/reports/sold-items'
+    And param fromDate = tomorrow
+    And param toDate = today
+    When method GET
+    Then status 400
+    And assert response.errorCode == 400013
+
+  Scenario: toDate and fromDate cannot be in the future
     # Generate report
     * def tomorrow = getOffsetDate(1)
     Given path '/reports/sold-items'
