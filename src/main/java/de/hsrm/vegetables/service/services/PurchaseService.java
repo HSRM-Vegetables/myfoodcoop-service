@@ -1,6 +1,7 @@
 package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.QuantitySoldItem;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.PurchasedItemDto;
@@ -15,8 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +32,7 @@ public class PurchaseService {
 
     @NonNull
     private final PurchasedItemRepository purchasedItemRepository;
+
 
     /**
      * Purchase items
@@ -98,4 +103,14 @@ public class PurchaseService {
         return purchaseDto;
     }
 
+    /**
+     * Find all purchases between fromDate and toDate
+     *
+     * @param fromDateConverted start of time window of the purchase list
+     * @param toDateConverted end of time window of the purchase list
+     * @return A list of purchases in the given time
+     */
+    public List<PurchaseDto> findAllByCreatedOnBetween(OffsetDateTime fromDateConverted, OffsetDateTime toDateConverted){
+        return purchaseRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
+    }
 }

@@ -94,7 +94,7 @@ Feature: Simple Stock management
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitTypeChanged), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
 
-  Scenario: Patch of only the UnitType works
+  Scenario: Patch of only the quantity works
     # Create Item
     Given path '/stock'
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }

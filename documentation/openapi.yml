@@ -14,6 +14,8 @@ tags:
         description: All functionality related to the stock
     -   name: Purchase
         description: Functionality related to purchasing items
+    -   name: Reports
+        description: Various reports that can be generated for different aspects of the stock, the users and the balances
 paths:
     '/balance/{name}':
         get:
@@ -311,6 +313,29 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
 
+    '/reports/sold-items':
+        get:
+            tags:
+                - Reports
+            summary: Get all items sold within a time window and the quantity that was sold for that item
+            operationId: soldItems
+            parameters:
+                -   $ref: '#/components/parameters/fromDate'
+                -   $ref: '#/components/parameters/toDate'
+            responses:
+                '200':
+                    description: Successful call
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/quantity-sold-list'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+
 components:
     schemas:
 
@@ -501,6 +526,43 @@ components:
                     type: number
                     format: float
                     example: 17.43
+        quantity-sold-list:
+            type: object
+            description: A list of items sold in a time window
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/quantity-sold-item'
+
+        quantity-sold-item:
+            type: object
+            description: |-
+                Contains information on how many items were sold in a time window
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                name:
+                    $ref: '#/components/schemas/item-name'
+                fromDate :
+                    type : string
+                    format : date
+                    description : |-
+                        Start of reported time window. This day is included in the report
+                    example : "2017-07-21"
+                toDate :
+                    type : string
+                    format : date
+                    description : |-
+                        End of reported time window. This day is included in the report
+                    example : "2017-07-21"
+                quantitySold:
+                    type: number
+                    format: float
+                    description: Quantity of items sold in the time between fromDate and toDate inclusive
+                    example: 40.2
+                unitType:
+                    $ref: '#/components/schemas/unitType'
 
         purchase-list-response:
             description: List of all previous purchases
@@ -674,6 +736,32 @@ components:
                 maxLength: 36
             required: true
             description: The unique id of an item
+
+        fromDate:
+            in: query
+            name: fromDate
+            example: "2017-07-21"
+            schema:
+                type: string
+                format: date
+            required: true
+            description: |-
+                Start of report. This date is inclusive
+                Value must be same date as toDate or a earlier date.
+                Value cannot be later than today
+
+        toDate:
+            in: query
+            name: toDate
+            example: "2017-07-21"
+            schema:
+                type: string
+                format: date
+            required: true
+            description: |-
+                End of report. This date is inclusive
+                Value must be same date as fromDate or a later date.
+                Value cannot be later than today
 
         purchase-id:
             in: path
