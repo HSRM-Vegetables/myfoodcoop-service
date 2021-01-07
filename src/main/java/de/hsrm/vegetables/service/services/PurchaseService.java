@@ -33,8 +33,6 @@ public class PurchaseService {
     @NonNull
     private final PurchasedItemRepository purchasedItemRepository;
 
-    @NonNull
-    private final StockService stockService;
 
     /**
      * Purchase items
@@ -106,49 +104,13 @@ public class PurchaseService {
     }
 
     /**
-     * Find multiple purchases between Dates
+     * Find all purchases between fromDate and toDate
      *
-     * @param fromDate time window from offsetDateTime where item was purchased
-     * @param toDate time window to offsetDateTime where item was purchased
-     * @return All purchases between fromDate and toDate
+     * @param fromDateConverted start of time window of the purchase list
+     * @param toDateConverted end of time window of the purchase list
+     * @return A list of purchases in the given time
      */
-    public  List<QuantitySoldItem> getSoldItems(LocalDate fromDate, LocalDate toDate) {
-        // Local Dates only contain date information and are missing time information.
-        // Convert the LocalDate to a timestamp with the options specified below.
-        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
-        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
-
-        var purchases = purchaseRepository.findAllByCreatedOnBetween(fromDateConverted,toDateConverted);
-        var purchaseQuantityByStockId = new HashMap<String, QuantitySoldItem>();
-
-        // iterate over each purchaseItem and collect the amount each purchaseItem was purchased
-        purchases.forEach(purchase -> {
-            purchase.getPurchasedItems().forEach(purchaseItem -> {
-                var stockId = purchaseItem.getStockDto().getId();
-                QuantitySoldItem quantitySoldItem;
-
-                // create or update Item to collect amount that was purchased
-                if (purchaseQuantityByStockId.containsKey(stockId)) {
-                    quantitySoldItem = purchaseQuantityByStockId.get(stockId);
-                    quantitySoldItem.setQuantitySold(quantitySoldItem.getQuantitySold() + purchaseItem.getAmount());
-                } else {
-                    quantitySoldItem = new QuantitySoldItem();
-                    quantitySoldItem.setQuantitySold(purchaseItem.getAmount());
-                    quantitySoldItem.setId(stockId);
-                    quantitySoldItem.setUnitType(purchaseItem.getUnitType());
-                }
-
-                purchaseQuantityByStockId.put(stockId, quantitySoldItem);
-            });
-        });
-
-        // additionally collect the name of each item from the stock
-        purchaseQuantityByStockId.forEach((stockId, quantitySoldItem) -> {
-            var stockItem = stockService.getById(stockId);
-            quantitySoldItem.setName(stockItem.getName());
-        });
-
-        return new ArrayList<>(purchaseQuantityByStockId.values());
+    public List<PurchaseDto> findAllByCreatedOnBetween(OffsetDateTime fromDateConverted, OffsetDateTime toDateConverted){
+        return purchaseRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
     }
-
 }
