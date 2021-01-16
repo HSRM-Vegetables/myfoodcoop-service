@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = {"/v1", "/v2"})
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class PurchaseControllerV1 {
