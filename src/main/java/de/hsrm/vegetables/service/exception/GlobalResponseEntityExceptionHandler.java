@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.service.exception;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
@@ -69,6 +70,15 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
         // Mask all BaseErrors that don't have a specific mapping
         error.setMessage("An Internal Server Error occurred");
         return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /*
+     Handler for misc errors
+     */
+
+    @ExceptionHandler(JWTDecodeException.class)
+    public ResponseEntity<Object> handleJwtDecodeException(JWTDecodeException error) {
+        return this.createException("Invalid Authorization token", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_JWT);
     }
 
     /*
