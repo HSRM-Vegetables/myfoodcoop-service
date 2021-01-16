@@ -28,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @NonNull
     private final SecurityExceptionHandler securityExceptionHandler;
 
+    @NonNull
+    private final JwtUtil jwtUtil;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -58,7 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtSecret),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtSecret, jwtUtil),
                         UsernamePasswordAuthenticationFilter.class)
         ;
     }

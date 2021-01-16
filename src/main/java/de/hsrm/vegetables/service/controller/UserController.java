@@ -53,6 +53,17 @@ public class UserController implements UserApi {
     }
 
     @Override
+    public ResponseEntity<Void> userDelete() {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        userService.softDeleteUser(userPrincipal.getId());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
     public ResponseEntity<UserResponse> userGet() {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
                 .getContext()

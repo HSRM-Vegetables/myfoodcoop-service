@@ -20,12 +20,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final String jwtSecret;
 
+    private final JwtUtil jwtUtil;
+
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
     private static final String HEADER_TOKEN_PREFIX = "bearer ";
 
-    public JwtAuthenticationFilter(String jwtSecret) {
+    public JwtAuthenticationFilter(String jwtSecret, JwtUtil jwtUtil) {
         this.jwtSecret = jwtSecret;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authorizationHeader.replace(HEADER_TOKEN_PREFIX, "");
 
         // Retrieve Information stored in token
-        UserPrincipal userPrincipal = JwtUtil.parseToken(token, jwtSecret);
+        UserPrincipal userPrincipal = jwtUtil.parseToken(token, jwtSecret);
 
         List<GrantedAuthority> authorities = new ArrayList<>();
 

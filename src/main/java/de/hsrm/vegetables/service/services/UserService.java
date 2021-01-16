@@ -77,6 +77,16 @@ public class UserService {
         return user;
     }
 
+    public void softDeleteUser(String id) {
+        UserDto user = getUserById(id);
+        user.setDeleted(true);
+        userRepository.save(user);
+    }
+
+    public boolean isDeleted(String id) {
+        UserDto user = getUserById(id);
+        return user.isDeleted();
+    }
 
     private boolean passwordsMatch(UserDto user, String rawPassword) {
         return passwordEncoder.matches(rawPassword, user.getPassword());

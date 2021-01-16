@@ -344,6 +344,20 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+        delete:
+            tags:
+                - User
+            summary: Delete user account
+            operationId: userDelete
+            responses:
+                '204':
+                    description: The user account was deleted
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
     /user/register:
         post:
             tags:

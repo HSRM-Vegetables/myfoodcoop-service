@@ -28,4 +28,7 @@ public class UserDto {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
 }

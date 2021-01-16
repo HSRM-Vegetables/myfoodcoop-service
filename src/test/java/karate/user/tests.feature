@@ -133,3 +133,31 @@ Feature: User controller
     When method GET
     Then status 401
     And match response.errorCode == 401005
+
+  Scenario: Delete a user
+    Given path 'user', 'register'
+    * def username = "robby8"
+    * def email = "robby8@test.com"
+    * def memberId = "42228"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userId = response.id
+
+    Given path 'user', 'login'
+    And request { username: 'robby7',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    And print token
+
+    Given path 'user'
+    And header Authorization = "bearer " + token
+    When method DELETE
+    Then status 204
+
+    Given path 'user'
+    And header Authorization = "bearer " + token
+    When method GET
+    Then status 401
+    And match response.errorCode == 401002
