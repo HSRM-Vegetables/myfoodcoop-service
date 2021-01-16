@@ -1,7 +1,8 @@
 Feature: Simple Purchases
 
   Background:
-    * url baseUrl + "/v1"
+    * url baseUrl + "/v2"
+    * def password = "a_funny_horse**jumps_high778"
     * def findItemWithId =
     """
     function(arr, id) {
@@ -30,14 +31,30 @@ Feature: Simple Purchases
     """
 
   Scenario: Purchase a single item
-    # Create Balance for User
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby', email: 'Robby@test.com', memberId: '40', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+  
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + token
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -45,7 +62,7 @@ Feature: Simple Purchases
 
     # Purchase item
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -57,19 +74,21 @@ Feature: Simple Purchases
 
     # Check that stock was reduced
     Given path '/stock/' + stockId1
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 139.0 }
 
     # Check that the balance was reduced
-    Given path '/balance/Robby'
+    Given path '/balance'
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 498.7
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -79,7 +98,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists in purchase list
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And assert response.purchases.length == 1
@@ -89,14 +108,30 @@ Feature: Simple Purchases
     And match purchasedItem1 contains { id: #(stockId1) }
 
   Scenario: Purchase multiple items
-    # Create Balance for User
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby1', email: 'Robby1@test.com', memberId: '41', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby1',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + token
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -104,6 +139,7 @@ Feature: Simple Purchases
 
     # Create item 2
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -111,38 +147,41 @@ Feature: Simple Purchases
 
     # Purchase items
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
     And request { items: [#(item1), #(item2)] }
     When method POST
     Then status 200
     And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number' }
-    And assert response.name == "Robby"
+    And assert response.name == "Robby1"
     And assert response.price == 5.6
     And def purchaseId = response.id
 
     # Check stock was reduced on first item
     Given path '/stock/' + stockId1
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 139.0 }
 
     # Check stock was reduced on second item
     Given path '/stock/' + stockId2
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 19.0 }
 
     # Check that the balance was reduced
-    Given path '/balance/Robby'
+    Given path '/balance'
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 494.4
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -152,7 +191,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists in list
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And def purchase = findItemWithId(response.purchases, purchaseId)
@@ -164,14 +203,30 @@ Feature: Simple Purchases
     And match purchasedItem2 contains { id: #(stockId2) }
 
   Scenario: Cannot purchase fractional items when unitType is PIECE
-    # Create Balance for User
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby2', email: 'Robby2@test.com', memberId: '42', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby2',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + token
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -179,6 +234,7 @@ Feature: Simple Purchases
 
     # Create item 2
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -186,7 +242,7 @@ Feature: Simple Purchases
 
     # Purchase item
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1.5 }
     And request { items: [#(item1), #(item2)] }
@@ -196,31 +252,50 @@ Feature: Simple Purchases
 
     # Check quantity didn't change
     Given path '/stock/' + stockId1
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 140.0 }
 
     # Check quantity didn't change
     Given path '/stock/' + stockId2
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 20.0 }
 
     # Check that the balance wasn't reduced
-    Given path '/balance/Robby'
+    Given path '/balance'
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 500
 
   Scenario: Cannot purchase deleted item
-     # Create Balance for User
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby3', email: 'Robby3@test.com', memberId: '43', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby3',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + token
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -228,6 +303,7 @@ Feature: Simple Purchases
 
     # Create item 2
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -235,12 +311,13 @@ Feature: Simple Purchases
 
     # Delete item 2
     Given path '/stock/' + stockId2
+    And header Authorization = "bearer " + token
     When method DELETE
     Then status 204
 
     # Purchase items
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
     And request { items: [#(item1), #(item2)] }
@@ -249,20 +326,37 @@ Feature: Simple Purchases
     And assert response.errorCode == 400011
 
     # Check that the balance wasn't reduced
-    Given path '/balance/Robby'
+    Given path '/balance'
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 500
 
   Scenario: Purchase a single item with higher amount than in stock is possible
-    # Create Balance for User
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby4', email: 'Robby4@test.com', memberId: '44', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby4',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + token
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -270,30 +364,32 @@ Feature: Simple Purchases
 
     # Purchase Items
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     And def item1 = { id: #(stockId1), amount: 200 }
     And request { items: [#(item1)] }
     When method POST
     Then status 200
     And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number' }
-    And assert response.name == "Robby"
+    And assert response.name == "Robby4"
     And def purchaseId = response.id
 
     # Check quantity is below 0
     Given path '/stock/' + stockId1
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And assert response.quantity == -60
 
     # Check that the balance was reduced
-    Given path '/balance/Robby'
+    Given path '/balance'
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     Then assert response.balance < 500
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -303,7 +399,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists in list
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And def purchase = findItemWithId(response.purchases, purchaseId)
@@ -312,32 +408,31 @@ Feature: Simple Purchases
     And def purchasedItem1 = findItemWithId(purchase.items, stockId1)
     And match purchasedItem1 contains { id: #(stockId1) }
 
-  Scenario: Unknown user cannot make a purchase
-    # Create item 1
-    Given path '/stock'
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+  Scenario: Cannot have multiple items with same id in items array
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby5', email: 'Robby5@test.com', memberId: '45', password: #(password) }
     When method POST
     Then status 201
-    And def stockId1 = response.id
+    And print response
 
-    # Purchase
-    Given path '/purchase'
-    And header X-Username = "Unknown"
-    And def item1 = { id: #(stockId1), amount: 1 }
-    And request { items: [#(item1)] }
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby5',  password: #(password) }
     When method POST
-    Then status 404
-    And assert response.errorCode == 404002
+    Then status 200
+    And def token = response.token
 
-  Scenario: Cannot have multiple items with same id in items array
-    # Create Balance for User
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + token
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -345,7 +440,7 @@ Feature: Simple Purchases
 
     # Purchase  items
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item1AsWell = { id: #(stockId1), amount: 5 }
     And request { items: [#(item1), #(item1AsWell)] }
@@ -354,20 +449,37 @@ Feature: Simple Purchases
     And assert response.errorCode == 400010
 
     # Check that the balance wasn't reduced
-    Given path '/balance/Robby'
+    Given path '/balance'
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 500
 
   Scenario: The price of a purchase does not change after a stock items price was updated
-    # Create Balance for User
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby6', email: 'Robby6@test.com', memberId: '46', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby6',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + token
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item
     Given path '/stock'
+    And header Authorization = "bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.0 }
     When method POST
     Then status 201
@@ -375,7 +487,7 @@ Feature: Simple Purchases
 
     # Purchase item
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -385,7 +497,7 @@ Feature: Simple Purchases
 
     # Get the purchase
     Given path '/purchase', purchaseId
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -395,13 +507,14 @@ Feature: Simple Purchases
 
     # Update price of an item
     Given path '/stock/' + stockId1
+    And header Authorization = "bearer " + token
     And request { pricePerUnit: 5.0 }
     When method PATCH
     Then status 200
 
     # Get the purchase a second time
     Given path '/purchase', purchaseId
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -414,40 +527,71 @@ Feature: Simple Purchases
     And assert calculatedPriceFirstTime == calculatedPriceSecondTime
 
   Scenario: Request purchase via id from a different user fails
-    # Create Balance for User Robby
-    Given path '/balance/Robby'
-    And request { balance: 500 }
-    When method PATCH
+    # Register user
+    Given path 'user', 'register'
+    And request { username: 'Robby7', email: 'Robby7@test.com', memberId: '47', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Robby7',  password: #(password) }
+    When method POST
+    Then status 200
+    And def robbyToken = response.token
+
+    # Topup users balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + robbyToken
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
-    # Create Balance for User Manfred
-    Given path '/balance/Manfred'
-    And request { balance: 500 }
-    When method PATCH
+    # Register User Manfred
+    Given path 'user', 'register'
+    And request { username: 'Manfred', email: 'Manfred@test.com', memberId: '112', password: #(password) }
+    When method POST
+    Then status 201
+    And print response
+
+    # Get token
+    Given path 'user', 'login'
+    And request { username: 'Manfred',  password: #(password) }
+    When method POST
+    Then status 200
+    And def manfredToken = response.token
+
+    # Topup user Manfreds balance
+    Given path '/balance/topup'
+    And header Authorization = "bearer " + manfredToken
+    And request { amount: 500 }
+    When method POST
     Then status 200
 
     # Create item
     Given path '/stock'
+    And header Authorization = "bearer " + robbyToken
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
     And def stockId1 = response.id
 
-    # Purchase item
+    # Robby purchases item
     Given path '/purchase'
-    And header X-Username = "Robby"
+    And header Authorization = "bearer " + robbyToken
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
     Then status 200
     And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number' }
-    And assert response.name == "Robby"
+    And assert response.name == "Robby7"
     And assert response.price == 1.3
     And def purchaseId = response.id
 
     # Request purchase from different user
     Given path '/purchase', purchaseId
-    And header X-Username = "Manfred"
+    And header Authorization = "bearer " + manfredToken
     When method GET
     Then status 401
     And assert response.errorCode == 401001
