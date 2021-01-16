@@ -15,9 +15,11 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(
         properties = {
                 "server.port: 8090",
-                "logging.level.root: INFO"
+                "vegetables.jwt.secret: THIS:IS:A:JWT:SECRET",
+                "vegetables.jwt.lifetime: 60000"
         }
 )
+
 @DirtiesContext
 @AutoConfigureMockMvc
 public class UserTest {

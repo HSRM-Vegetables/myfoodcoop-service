@@ -531,6 +531,7 @@ components:
                     $ref: '#/components/schemas/memberId'
                 password:
                     $ref: '#/components/schemas/password'
+                    minLength: 10
 
         login-request:
             description: Information necessary to identify and authenticate a user for this API
@@ -836,7 +837,6 @@ components:
             format: password
             example: a_funny_horse**jumps_high778
             maxLength: 255
-            minLength: 10
 
         token:
             description: A JWT token

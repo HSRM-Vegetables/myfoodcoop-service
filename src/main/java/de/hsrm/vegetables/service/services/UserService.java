@@ -3,6 +3,7 @@ package de.hsrm.vegetables.service.services;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
+import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.repositories.UserRepository;
 import de.hsrm.vegetables.service.security.JwtUtil;
 import lombok.NonNull;
@@ -55,16 +56,16 @@ public class UserService {
         UserDto user = userRepository.findByUsername(username);
 
         if (user == null) {
-            throw new BadRequestError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+            throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
         }
 
         if (!passwordsMatch(user, password)) {
-            throw new BadRequestError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+            throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
         }
 
         return JwtUtil.generateToken(user.getUsername(), user.getId(), jwtLifetime, jwtSecret);
     }
-    
+
 
     private boolean passwordsMatch(UserDto user, String rawPassword) {
         return passwordEncoder.matches(rawPassword, user.getPassword());
