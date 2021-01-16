@@ -21,6 +21,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -73,12 +74,17 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     /*
-     Handler for misc errors
+     Handler for security errors
      */
 
     @ExceptionHandler(JWTDecodeException.class)
     public ResponseEntity<Object> handleJwtDecodeException(JWTDecodeException error) {
         return this.createException("Invalid Authorization token", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_JWT);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException error) {
+        return this.createException("Access denied", HttpStatus.UNAUTHORIZED, ErrorCode.ACCESS_DENIED);
     }
 
     /*
