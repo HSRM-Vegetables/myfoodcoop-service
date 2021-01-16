@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,6 +42,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 // login and register do not require authentication
                 .mvcMatchers("/v2/user/login", "/v2/user/register")
+                .permitAll()
+                // OPTIONS requests do not need authorization
+                .antMatchers(HttpMethod.OPTIONS)
                 .permitAll()
                 // Health actuator does not need authentication
                 .mvcMatchers("/actuator/health")
