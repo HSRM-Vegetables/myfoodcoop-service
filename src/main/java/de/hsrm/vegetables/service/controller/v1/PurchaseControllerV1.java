@@ -1,6 +1,5 @@
-package de.hsrm.vegetables.service.controller;
+package de.hsrm.vegetables.service.controller.v1;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.api.PurchaseApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseHistoryItem;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseListResponse;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseRequest;
@@ -11,7 +10,6 @@ import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.PurchaseMapper;
-import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.PurchaseService;
 import de.hsrm.vegetables.service.services.StockService;
@@ -19,11 +17,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +28,7 @@ import java.util.stream.Collectors;
 @RequestMapping(value = {"/v1", "/v2"})
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
-public class PurchaseController implements PurchaseApi {
+public class PurchaseControllerV1 {
 
     @NonNull
     private final StockService stockService;
@@ -42,12 +39,14 @@ public class PurchaseController implements PurchaseApi {
     @NonNull
     private final PurchaseService purchaseService;
 
-    @Override
-    public ResponseEntity<PurchaseResponse> purchaseFromStock(PurchaseRequest purchaseRequest) {
-        String username = getUsernameFromSecurityContext();
-
+    @PostMapping(
+            value = "/purchase",
+            produces = {"application/json"},
+            consumes = {"application/json"}
+    )
+    public ResponseEntity<PurchaseResponse> purchaseFromStock(@RequestHeader(value = "X-Username", required = true) String xUsername, @Valid @RequestBody PurchaseRequest purchaseRequest) {
         //Check Name is found
-        BalanceDto balanceDto = balanceService.getBalance(username);
+        BalanceDto balanceDto = balanceService.getBalance(xUsername);
 
         // Get all associated items and update their quantities
         List<StockDto> stockItems = stockService.purchase(purchaseRequest.getItems());
@@ -61,7 +60,7 @@ public class PurchaseController implements PurchaseApi {
         PurchaseDto purchaseDto = purchaseService.purchaseItems(balanceDto, stockItems, purchaseRequest.getItems(), totalPrice);
 
         PurchaseResponse response = new PurchaseResponse();
-        response.setName(username);
+        response.setName(xUsername);
         response.setPrice(totalPrice);
         response.setBalance(balanceDto.getAmount());
         response.setId(purchaseDto.getId());
@@ -69,11 +68,13 @@ public class PurchaseController implements PurchaseApi {
         return ResponseEntity.ok(response);
     }
 
-    @Override
-    public ResponseEntity<PurchaseListResponse> purchaseGet() {
-        String username = getUsernameFromSecurityContext();
+    @GetMapping(
+            value = "/purchase",
+            produces = {"application/json"}
+    )
+    public ResponseEntity<PurchaseListResponse> purchaseGet(@RequestHeader(value = "X-Username", required = true) String xUsername) {
 
-        BalanceDto balanceDto = balanceService.getBalance(username);
+        BalanceDto balanceDto = balanceService.getBalance(xUsername);
 
         List<PurchaseDto> purchases = purchaseService.getPurchases(balanceDto);
 
@@ -93,11 +94,12 @@ public class PurchaseController implements PurchaseApi {
         return ResponseEntity.ok(purchaseListResponse);
     }
 
-    @Override
-    public ResponseEntity<PurchaseHistoryItem> purchaseGetById(String purchaseId) {
-        String username = getUsernameFromSecurityContext();
-
-        BalanceDto balanceDto = balanceService.getBalance(username);
+    @GetMapping(
+            value = "/purchase/{purchase-id}",
+            produces = {"application/json"}
+    )
+    public ResponseEntity<PurchaseHistoryItem> purchaseGetById(@RequestHeader(value = "X-Username", required = true) String xUsername, @Size(max = 36) @PathVariable("purchase-id") String purchaseId) {
+        BalanceDto balanceDto = balanceService.getBalance(xUsername);
 
         PurchaseDto purchaseDto = purchaseService.getPurchase(purchaseId);
 
@@ -109,15 +111,6 @@ public class PurchaseController implements PurchaseApi {
 
         PurchaseHistoryItem purchaseHistoryItem = PurchaseMapper.purchaseDtoToPurchaseHistoryItem(purchaseDto);
         return ResponseEntity.ok(purchaseHistoryItem);
-    }
-
-    private String getUsernameFromSecurityContext() {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        return userPrincipal.getUsername();
     }
 
 }

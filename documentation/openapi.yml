@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
     description: This is the specification for the Stadtgemüse Service.
-    version: 0.0.1-SNAPSHOT
+    version: 2.0.0
     title: Stadtgemüse Service
     contact: { }
 servers:
@@ -19,15 +19,13 @@ tags:
     -   name: User
         description: Login, register, or get user information
 paths:
-    '/balance/{name}':
+    '/balance':
         get:
             tags:
                 - Balance
             summary: Gets the current balance of the user
             description: 'Gets the current balance of the user, or 0 if the user is currently not known'
             operationId: balanceGet
-            parameters:
-                -   $ref: '#/components/parameters/username'
             responses:
                 '200':
                     description: The current value of the balance for the specified user
@@ -46,8 +44,6 @@ paths:
                 - Balance
             summary: Changes the balance for the specified user
             operationId: balancePatch
-            parameters:
-                -   $ref: '#/components/parameters/username'
             requestBody:
                 required: true
                 content:
@@ -67,14 +63,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/balance/{name}/topup':
+    '/balance/topup':
         post:
             tags:
                 - Balance
             summary: Topup the balance for the specified user
             operationId: balanceTopup
-            parameters:
-                -   $ref: '#/components/parameters/username'
             requestBody:
                 description: 'Top up the balance with the amount, containing a positive value'
                 required: true
@@ -95,14 +89,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/balance/{name}/withdraw':
+    '/balance/withdraw':
         post:
             tags:
                 - Balance
             summary: Withdraw the balance for the specified user
             operationId: balanceWithdraw
-            parameters:
-                -   $ref: '#/components/parameters/username'
             requestBody:
                 description: 'Withdraw the amount from the balance, containing a positive value'
                 required: true
@@ -250,8 +242,6 @@ paths:
                 - Purchase
             summary: Retrieve all previous purchases
             operationId: purchaseGet
-            parameters:
-                -   $ref: '#/components/parameters/usernameHeader'
             responses:
                 '200':
                     description: Successful call, returns the list of all previous purchases
@@ -269,8 +259,6 @@ paths:
             tags:
                 - Purchase
             summary: Purchases items for a user. Reduces the amount of these items in stock and the users balance
-            parameters:
-                -   $ref: '#/components/parameters/usernameHeader'
             operationId: purchaseFromStock
             requestBody:
                 description: All items that the user wants to purchase
@@ -299,7 +287,6 @@ paths:
             summary: Retrieve one purchase by Id
             operationId: purchaseGetById
             parameters:
-                -   $ref: '#/components/parameters/usernameHeader'
                 -   $ref: '#/components/parameters/purchase-id'
             responses:
                 '200':
@@ -849,14 +836,6 @@ components:
         username:
             in: path
             name: name
-            schema:
-                type: string
-            required: true
-            description: The unique name of the user
-
-        usernameHeader:
-            in: header
-            name: X-Username
             schema:
                 type: string
             required: true

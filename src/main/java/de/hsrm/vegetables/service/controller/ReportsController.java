@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping(value = {"/v1", "/v2"})
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class ReportsController implements ReportsApi {
@@ -40,15 +40,15 @@ public class ReportsController implements ReportsApi {
     @Override
     public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate) {
         LocalDate today = LocalDate.now();
-        if (fromDate.isAfter(today) || toDate.isAfter(today)){
+        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
             throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
         }
 
-        if (fromDate.isAfter(toDate)){
+        if (fromDate.isAfter(toDate)) {
             throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
         }
 
-        List<QuantitySoldItem> soldItems = getSoldItems(fromDate,toDate);
+        List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
         QuantitySoldList response = new QuantitySoldList();
         response.setItems(soldItems);
         return ResponseEntity.ok(response);
@@ -58,7 +58,7 @@ public class ReportsController implements ReportsApi {
      * Find multiple purchases between Dates
      *
      * @param fromDate time window from offsetDateTime where item was purchased
-     * @param toDate time window to offsetDateTime where item was purchased
+     * @param toDate   time window to offsetDateTime where item was purchased
      * @return All purchases between fromDate and toDate
      */
     private List<QuantitySoldItem> getSoldItems(LocalDate fromDate, LocalDate toDate) {
@@ -67,30 +67,32 @@ public class ReportsController implements ReportsApi {
         OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
-        List<PurchaseDto>purchases = purchaseService.findAllByCreatedOnBetween(fromDateConverted,toDateConverted);
+        List<PurchaseDto> purchases = purchaseService.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
         HashMap<String, QuantitySoldItem> purchaseQuantityByStockId = new HashMap<String, QuantitySoldItem>();
 
         // iterate over each purchaseItem and collect the amount each purchaseItem was purchased
         purchases.forEach(purchase -> {
-            purchase.getPurchasedItems().forEach(purchaseItem -> {
-                String stockId = purchaseItem.getStockDto().getId();
-                QuantitySoldItem quantitySoldItem;
+            purchase.getPurchasedItems()
+                    .forEach(purchaseItem -> {
+                        String stockId = purchaseItem.getStockDto()
+                                .getId();
+                        QuantitySoldItem quantitySoldItem;
 
-                // create or update Item to collect amount that was purchased
-                if (purchaseQuantityByStockId.containsKey(stockId)) {
-                    quantitySoldItem = purchaseQuantityByStockId.get(stockId);
-                    quantitySoldItem.setQuantitySold(quantitySoldItem.getQuantitySold() + purchaseItem.getAmount());
-                } else {
-                    quantitySoldItem = new QuantitySoldItem();
-                    quantitySoldItem.setQuantitySold(purchaseItem.getAmount());
-                    quantitySoldItem.setId(stockId);
-                    quantitySoldItem.setUnitType(purchaseItem.getUnitType());
-                    quantitySoldItem.setFromDate(fromDate);
-                    quantitySoldItem.setToDate(toDate);
-                }
+                        // create or update Item to collect amount that was purchased
+                        if (purchaseQuantityByStockId.containsKey(stockId)) {
+                            quantitySoldItem = purchaseQuantityByStockId.get(stockId);
+                            quantitySoldItem.setQuantitySold(quantitySoldItem.getQuantitySold() + purchaseItem.getAmount());
+                        } else {
+                            quantitySoldItem = new QuantitySoldItem();
+                            quantitySoldItem.setQuantitySold(purchaseItem.getAmount());
+                            quantitySoldItem.setId(stockId);
+                            quantitySoldItem.setUnitType(purchaseItem.getUnitType());
+                            quantitySoldItem.setFromDate(fromDate);
+                            quantitySoldItem.setToDate(toDate);
+                        }
 
-                purchaseQuantityByStockId.put(stockId, quantitySoldItem);
-            });
+                        purchaseQuantityByStockId.put(stockId, quantitySoldItem);
+                    });
         });
 
         // additionally collect the name of each item from the stock
