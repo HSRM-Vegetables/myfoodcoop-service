@@ -595,3 +595,23 @@ Feature: Simple Purchases
     When method GET
     Then status 401
     And assert response.errorCode == 401001
+
+  Scenario: GET /purchase requires authorization
+    Given path '/purchase'
+    When method GET
+    Then status 401
+    And assert response.errorCode == 401005
+
+  Scenario: POST /purchase requires authorization
+    Given path '/purchase'
+    And def item1 = { id: "13246", amount: 1 }
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 401
+    And assert response.errorCode == 401005
+
+  Scenario: GET /purchase/{purchaseId} requires authorization
+    Given path '/purchase', "132456"
+    When method GET
+    Then status 401
+    And assert response.errorCode == 401005
