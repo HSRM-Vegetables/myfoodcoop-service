@@ -131,6 +131,15 @@ src/main/java/de/hsrm/vegetables/service/domain/dto/
 
 ![ER Diagram](documentation/er_diagram.png "ER Diagram")
 
+## Postman Collection
+
+For convenient use, a postman collection containing all requests this service supports is included in
+documentation/postman-collection.json. The collection contains various scripts to make life easier. Most importantly, it
+requests a token before each request that needs authentication. In order for that to work, the collection variables
+`username` and `password` need to be set via the edit collection menu in postman. Additionally, environments (e.g. local
+and prod)
+can be configured containing the host url of the API in the variable `URL`.
+
 ## Getting Help
 
 The HELP.md contains a few useful links, go have a look.

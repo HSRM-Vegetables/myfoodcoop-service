@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "ee86c9db-e4c2-41e0-9cde-6311c45b0a48",
+    "_postman_id": "11c7f516-35fe-4362-be8e-14c439472db9",
     "name": "stadtgemüse-backend",
     "description": "## Environsments\r\n\r\n### LOCAL\r\nBenutzt für die lokale Entwicklung\r\n\r\nURL: localhost:8080\r\n\r\n### PROD\r\nBenutzt um gegen die deployte, produktive Umgebung zu schießen\r\n\r\nURL: https://veg-service.herokuapp.com/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -10,375 +10,642 @@
       "name": "service",
       "item": [
         {
-          "name": "balance",
+          "name": "authenticated",
           "item": [
             {
-              "name": "GET /balance/:name",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{URL}}/v1/balance/:name",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "balance",
-                    ":name"
-                  ],
-                  "variable": [
-                    {
-                      "key": "name",
-                      "value": "Robby"
+              "name": "balance",
+              "item": [
+                {
+                  "name": "GET /balance/:name",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/balance",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance"
+                      ]
                     }
-                  ]
+                  },
+                  "response": []
+                },
+                {
+                  "name": "PATCH /balance/:name",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"balance\": 10\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/balance",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /balance/:name/topup",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"amount\": 5\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/balance/topup",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance",
+                        "topup"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /balance/:name/withdraw",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"amount\": 10\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/balance/withdraw",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance",
+                        "withdraw"
+                      ]
+                    }
+                  },
+                  "response": []
                 }
-              },
-              "response": []
+              ]
             },
             {
-              "name": "PATCH /balance/:name",
-              "request": {
-                "method": "PATCH",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"balance\": 10\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{URL}}/v1/balance/:name",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "balance",
-                    ":name"
-                  ],
-                  "variable": [
+              "name": "stock",
+              "item": [
+                {
+                  "name": "GET /stock",
+                  "event": [
                     {
-                      "key": "name",
-                      "value": "Robby"
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Get id of first stock item and save it to a variable\r",
+                          "\r",
+                          "const items = pm.response.json().items;\r",
+                          "\r",
+                          "if (items && items.length >= 1) {\r",
+                          "    let id = items[0].id;\r",
+                          "    pm.collectionVariables.set(\"stockId\", id);\r",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      }
                     }
-                  ]
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/stock",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "stock"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /stock",
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript"
+                      }
+                    },
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Get id and save it to a collection variable\r",
+                          "\r",
+                          "var id = pm.response.json().id;\r",
+                          "if (id) {\r",
+                          "    pm.collectionVariables.set(\"stockId\", id);\r",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"name\": \"Kartoffeln\",\r\n    \"unitType\": \"WEIGHT\",\r\n    \"quantity\": 42,\r\n    \"pricePerUnit\": 1.33,\r\n    \"description\": \"Die Kartoffeln vom Bauern Jupp\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/stock",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "stock"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "GET /stock/{item-id}",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/stock/:item-id",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "stock",
+                        ":item-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "item-id",
+                          "value": "{{stockId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "PATCH /stock/{item-id}",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"name\": \"Bananen\",\r\n    \"unitType\": \"PIECE\",\r\n    \"quantity\": 10,\r\n    \"pricePerUnit\": 1.33,\r\n    \"description\": \"Die Bananen vom Bauern Jupp\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/stock/:item-id",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "stock",
+                        ":item-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "item-id",
+                          "value": "{{stockId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "DELETE /stock/{item-id}",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v1/stock/:item-id",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v1",
+                        "stock",
+                        ":item-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "item-id",
+                          "value": "{{stockId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
                 }
-              },
-              "response": []
+              ]
             },
             {
-              "name": "POST /balance/:name/topup",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"amount\": 5\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{URL}}/v1/balance/:name/topup",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "balance",
-                    ":name",
-                    "topup"
-                  ],
-                  "variable": [
+              "name": "purchase",
+              "item": [
+                {
+                  "name": "GET /purchase",
+                  "event": [
                     {
-                      "key": "name",
-                      "value": "Robby"
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Get id of first purchase item and save it to a variable\r",
+                          "\r",
+                          "const purchases = pm.response.json().purchases;\r",
+                          "\r",
+                          "if (purchases && purchases.length >= 1) {\r",
+                          "    let id = purchases[0].id;\r",
+                          "    pm.collectionVariables.set(\"purchaseId\", id);\r",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      }
                     }
-                  ]
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/purchase",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "purchase"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /purchase",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Get id and save it to a collection variable\r",
+                          "\r",
+                          "var id = pm.response.json().id;\r",
+                          "if (id) {\r",
+                          "    pm.collectionVariables.set(\"purchaseId\", id);\r",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"items\": [\r\n        {\r\n            \"id\": \"{{stockId}}\",\r\n            \"amount\": 3\r\n        }\r\n    ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/purchase",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "purchase"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "GET /purchase/:purchase-id",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "type": "text",
+                        "value": "bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/purchase/:purchase-id",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "purchase",
+                        ":purchase-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "purchase-id",
+                          "value": "{{purchaseId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
                 }
-              },
-              "response": []
+              ]
             },
             {
-              "name": "POST /balance/:name/withdraw",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"amount\": 10\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{URL}}/v1/balance/:name/withdraw",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "balance",
-                    ":name",
-                    "withdraw"
-                  ],
-                  "variable": [
+              "name": "reports",
+              "item": [
+                {
+                  "name": "GET /reports/sold-items",
+                  "event": [
                     {
-                      "key": "name",
-                      "value": "Robby"
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript"
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "var dt = new Date();\r",
+                          "var month = dt.getMonth() + 1;\r",
+                          "var formattedMonth = (\"0\" + month).slice(-2);\r",
+                          "var formattedDay = (\"0\" + dt.getDate()).slice(-2);\r",
+                          "\r",
+                          "var today = dt.getFullYear() + \"-\" + formattedMonth + \"-\" + formattedDay;\r",
+                          "\r",
+                          "pm.collectionVariables.set(\"today\", today);"
+                        ],
+                        "type": "text/javascript"
+                      }
                     }
-                  ]
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "type": "text",
+                        "value": "bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/reports/sold-items?fromDate={{today}}&toDate={{today}}",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "reports",
+                        "sold-items"
+                      ],
+                      "query": [
+                        {
+                          "key": "fromDate",
+                          "value": "{{today}}"
+                        },
+                        {
+                          "key": "toDate",
+                          "value": "{{today}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
                 }
-              },
-              "response": []
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var username = pm.collectionVariables.get(\"username\");",
+                  "var password = pm.collectionVariables.get(\"password\");",
+                  "var baseUrl = pm.environment.get(\"URL\");",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: `${baseUrl}/v2/user/login`,",
+                  "    method: 'POST',",
+                  "    header: 'Content-Type:application/json',",
+                  "    body: {",
+                  "        mode: 'raw',",
+                  "        raw: JSON.stringify({ username, password })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "   if (err) {",
+                  "       console.log(err);",
+                  "   }",
+                  "",
+                  "    pm.collectionVariables.set(\"token\", res.json().token);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
             }
           ]
         },
         {
-          "name": "stock",
+          "name": "unauthenticated",
           "item": [
             {
-              "name": "GET /stock",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{URL}}/v1/stock",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "stock"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "POST /stock",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"name\": \"Kartoffeln\",\r\n    \"unitType\": \"WEIGHT\",\r\n    \"quantity\": 42,\r\n    \"pricePerUnit\": 1.33,\r\n    \"description\": \"Die Kartoffeln vom Bauern Jupp\"\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+              "name": "user",
+              "item": [
+                {
+                  "name": "POST /user/register",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"robby\",\r\n    \"email\": \"test@example.com\",\r\n    \"memberId\": \"1345\",\r\n    \"password\": \"a_funny_horse**jumps_high778\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/user/register",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user",
+                        "register"
+                      ]
                     }
-                  }
+                  },
+                  "response": []
                 },
-                "url": {
-                  "raw": "{{URL}}/v1/stock",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "stock"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "GET /stock/{item-id}",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{URL}}/v1/stock/:item-id",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "stock",
-                    ":item-id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "item-id",
-                      "value": "a9a63c37-3b15-44f3-b26f-a0cc1c849e46"
+                {
+                  "name": "POST /user/login",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"robby\",\r\n    \"password\": \"a_funny_horse**jumps_high778\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/user/login",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user",
+                        "login"
+                      ]
                     }
-                  ]
+                  },
+                  "response": []
                 }
-              },
-              "response": []
-            },
-            {
-              "name": "PATCH /stock/{item-id}",
-              "request": {
-                "method": "PATCH",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"name\": \"Bananen\",\r\n    \"unitType\": \"PIECE\",\r\n    \"quantity\": 10,\r\n    \"pricePerUnit\": 1.33,\r\n    \"description\": \"Die Bananen vom Bauern Jupp\"\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{URL}}/v1/stock/:item-id",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "stock",
-                    ":item-id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "item-id",
-                      "value": "a9a63c37-3b15-44f3-b26f-a0cc1c849e46"
-                    }
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "DELETE /stock/{item-id}",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{URL}}/v1/stock/:item-id",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "stock",
-                    ":item-id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "item-id",
-                      "value": "a9a63c37-3b15-44f3-b26f-a0cc1c849e46"
-                    }
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "purchase",
-          "item": [
-            {
-              "name": "POST /purchase",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "X-Username",
-                    "value": "Robby",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"items\": [\r\n        {\r\n            \"id\": \"6e44ca11-597a-41c1-ba31-fc7ac0a07f29\",\r\n            \"amount\": 3\r\n        },\r\n        {\r\n            \"id\": \"f44a0ee8-72fb-4897-beca-3882478f2790\",\r\n            \"amount\": 3\r\n        }\r\n    ]\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{URL}}/v1/purchase",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "purchase"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "GET /purchase",
-              "protocolProfileBehavior": {
-                "disableBodyPruning": true
-              },
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "X-Username",
-                    "value": "Robby",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"items\": [\r\n        {\r\n            \"id\": \"f92aa661-2518-41b7-b84e-0da553ab0cf9\",\r\n            \"amount\": 3\r\n        }\r\n    ]\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{URL}}/v1/purchase",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "purchase"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "GET /purchase/:purchase-id",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "X-Username",
-                    "type": "text",
-                    "value": "Robby"
-                  }
-                ],
-                "url": {
-                  "raw": "{{URL}}/v1/purchase/:purchase-id",
-                  "host": [
-                    "{{URL}}"
-                  ],
-                  "path": [
-                    "v1",
-                    "purchase",
-                    ":purchase-id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "purchase-id",
-                      "value": "2c28b923-473f-4271-a5fb-794f5e268a24"
-                    }
-                  ]
-                }
-              },
-              "response": []
+              ]
             }
           ]
         }
@@ -403,6 +670,32 @@
           ""
         ]
       }
+    }
+  ],
+  "variable": [
+    {
+      "key": "username",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "stockId",
+      "value": ""
+    },
+    {
+      "key": "purchaseId",
+      "value": ""
+    },
+    {
+      "key": "today",
+      "value": ""
     }
   ]
 }
