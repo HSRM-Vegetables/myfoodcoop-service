@@ -1,6 +1,8 @@
 package de.hsrm.vegetables.service.exception;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
@@ -85,6 +87,16 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDenied(AccessDeniedException error) {
         return this.createException("Access denied", HttpStatus.UNAUTHORIZED, ErrorCode.ACCESS_DENIED);
+    }
+
+    @ExceptionHandler(SignatureVerificationException.class)
+    public ResponseEntity<Object> handleSignatureVerificationException(SignatureVerificationException error) {
+        return this.createException("Signature for token in Authorization header is invalid", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_TOKEN_SIGNATURE);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException error) {
+        return this.createException("The token is expired", HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED);
     }
 
     /*

@@ -13,11 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class FilterChainExceptionHandler extends OncePerRequestFilter {
+public class SecurityExceptionHandler extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver resolver;
 
-    public FilterChainExceptionHandler(@Autowired @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    public SecurityExceptionHandler(@Autowired @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.resolver = resolver;
     }
 

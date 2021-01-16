@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -22,7 +23,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String jwtSecret;
 
     @NonNull
-    private final FilterChainExceptionHandler filterChainExceptionHandler;
+    private final AccessViolationExceptionHandler accessViolationExceptionHandler;
+
+    @NonNull
+    private final SecurityExceptionHandler securityExceptionHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -31,7 +35,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf()
                 .disable()
                 // Pass exceptions to the Global Exception Handler
-                .addFilterAfter(filterChainExceptionHandler, ExceptionTranslationFilter.class)
+                .addFilterAfter(accessViolationExceptionHandler, ExceptionTranslationFilter.class)
+                // We need two different exception handlers that basically do the same...
+                .addFilterAfter(securityExceptionHandler, LogoutFilter.class)
                 // We're a stateless API
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
