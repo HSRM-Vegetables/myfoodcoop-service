@@ -644,6 +644,30 @@
                     }
                   },
                   "response": []
+                },
+                {
+                  "name": "GET /user",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/user",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user"
+                      ]
+                    }
+                  },
+                  "response": []
                 }
               ]
             }

@@ -3,6 +3,7 @@ package de.hsrm.vegetables.service.services;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
+import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.repositories.UserRepository;
 import de.hsrm.vegetables.service.security.JwtUtil;
@@ -64,6 +65,16 @@ public class UserService {
         }
 
         return JwtUtil.generateToken(user.getUsername(), user.getId(), jwtLifetime, jwtSecret);
+    }
+
+    public UserDto getUserById(String id) {
+        UserDto user = userRepository.findById(id);
+
+        if (user == null) {
+            throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+        }
+
+        return user;
     }
 
 

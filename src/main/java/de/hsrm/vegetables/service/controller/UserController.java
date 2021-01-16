@@ -7,6 +7,7 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.model.TokenResponse;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.mapper.UserMapper;
+import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +38,7 @@ public class UserController implements UserApi {
         UserDto newUser = userService.register(registerRequest.getUsername(), registerRequest.getEmail(), registerRequest.getMemberId(), registerRequest.getPassword());
 
         balanceService.upsert(newUser.getUsername(), 0f);
-        
+
         UserResponse response = UserMapper.userDtoToUserResponse(newUser);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -48,6 +50,18 @@ public class UserController implements UserApi {
         response.setToken(userService.generateToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<UserResponse> userGet() {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        UserResponse response = UserMapper.userDtoToUserResponse(userService.getUserById(userPrincipal.getId()));
+
+        return ResponseEntity.ok(response);
     }
 
 }
