@@ -12,7 +12,7 @@
     <artifactId>service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Stadtgemuese Backend</name>
-    <description>Backend for the Stadgemuese e.V. Project at the University of Applied Sciences Rhein Main</description>
+    <description>Backend for the Stadgemuese e.V. Project at the University of Applied Sciences RheinMain</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,6 +21,11 @@
         <karate.version>0.9.6</karate.version>
         <openapi-generator.version>4.3.1</openapi-generator.version>
         <openapitools-jackson.version>0.2.1</openapitools-jackson.version>
+        <springfox.version>3.0.0</springfox.version>
+        <auth0.jwt.version>3.12.0</auth0.jwt.version>
+        <h2database.version>1.4.200</h2database.version>
+        <spring-data-jpa.version>2.4.2</spring-data-jpa.version>
+        <postgres.version>42.2.18</postgres.version>
     </properties>
 
     <dependencies>
@@ -57,12 +62,17 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
-            <version>3.0.0</version>
+            <version>${springfox.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <!-- Lombok https://projectlombok.org/ -->
@@ -86,12 +96,12 @@
             <version>${openapitools-jackson.version}</version>
         </dependency>
 
+        <!-- Non-Spring Security Dependencies -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.4.1</version>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>${auth0.jwt.version}</version>
         </dependency>
-
 
         <!-- Test Dependencies https://github.com/intuit/karate -->
 
@@ -125,7 +135,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.200</version>
+            <version>${h2database.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -134,13 +144,13 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>2.4.2</version>
+            <version>${spring-data-jpa.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.18</version>
+            <version>${postgres.version}</version>
         </dependency>
 
     </dependencies>
