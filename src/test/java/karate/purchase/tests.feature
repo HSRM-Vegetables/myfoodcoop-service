@@ -1,7 +1,7 @@
 Feature: Simple Purchases
 
   Background:
-    * url baseUrl
+    * url baseUrl + "/v1"
     * def findItemWithId =
     """
     function(arr, id) {

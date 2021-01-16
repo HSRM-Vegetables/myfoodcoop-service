@@ -16,6 +16,8 @@ tags:
         description: Functionality related to purchasing items
     -   name: Reports
         description: Various reports that can be generated for different aspects of the stock, the users and the balances
+    -   name: User
+        description: Login, register, or get user information
 paths:
     '/balance/{name}':
         get:
@@ -336,6 +338,34 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
 
+    /user/register:
+        post:
+            tags:
+                - User
+            summary: Creates a new user
+            operationId: register
+            requestBody:
+                description:
+                    Data required to register a user
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/register-request'
+            responses:
+                '201':
+                    description: User successfully registered
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+
 components:
     schemas:
 
@@ -456,6 +486,23 @@ components:
                 description:
                     $ref: '#/components/schemas/item-description'
 
+        register-request:
+            description: Data to register a user
+            type: object
+            required:
+                - username
+                - email
+                - memberId
+                - password
+            properties:
+                username:
+                    $ref: '#/components/schemas/username'
+                email:
+                    $ref: '#/components/schemas/email'
+                memberId:
+                    $ref: '#/components/schemas/memberId'
+                password:
+                    $ref: '#/components/schemas/password'
 
         #
         # Response Schemas
@@ -477,7 +524,6 @@ components:
                     description: The name of the owner of this balance
                     example: Robby
                     type: string
-
 
         all-stock-response:
             type: object
@@ -544,18 +590,18 @@ components:
                     $ref: '#/components/schemas/uuid'
                 name:
                     $ref: '#/components/schemas/item-name'
-                fromDate :
-                    type : string
-                    format : date
-                    description : |-
+                fromDate:
+                    type: string
+                    format: date
+                    description: |-
                         Start of reported time window. This day is included in the report
-                    example : "2017-07-21"
-                toDate :
-                    type : string
-                    format : date
-                    description : |-
+                    example: "2017-07-21"
+                toDate:
+                    type: string
+                    format: date
+                    description: |-
                         End of reported time window. This day is included in the report
-                    example : "2017-07-21"
+                    example: "2017-07-21"
                 quantitySold:
                     type: number
                     format: float
@@ -618,6 +664,18 @@ components:
                     format: float
                 unitType:
                     $ref: '#/components/schemas/unitType'
+
+        user-response:
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                username:
+                    $ref: '#/components/schemas/username'
+                email:
+                    $ref: '#/components/schemas/email'
+                memberId:
+                    $ref: '#/components/schemas/memberId'
 
         #
         # Reusable Items
@@ -686,6 +744,7 @@ components:
             description: The unique name of the user
             type: string
             example: Robby
+            maxLength: 255
 
         item-description:
             description: |-
@@ -711,6 +770,27 @@ components:
                 - INCLUDE
                 - ONLY
             default: OMIT
+
+        email:
+            description: An e-mail address
+            type: string
+            format: email
+            example: robby@stadtgemuese-wiesbaden.de
+            maxLength: 255
+
+        memberId:
+            description: The stadtgemuese member id
+            type: string
+            example: 1234
+            maxLength: 255
+
+        password:
+            description: The password of a user
+            type: string
+            format: password
+            example: a_funny_horse**jumps_high778
+            maxLength: 255
+            minLength: 10
 
     parameters:
         username:

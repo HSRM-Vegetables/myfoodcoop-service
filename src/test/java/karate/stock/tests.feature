@@ -1,7 +1,7 @@
 Feature: Simple Stock management
 
   Background:
-    * url baseUrl
+    * url baseUrl + "/v1"
     # data used for testing later on
     * def name = 'Bananas'
     * def unitType = 'PIECE'

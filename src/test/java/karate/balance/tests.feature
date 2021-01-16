@@ -1,7 +1,7 @@
 Feature: Balance Tests
 
   Background:
-    * url baseUrl
+    * url baseUrl + "/v1"
 
   Scenario: GET returns 0 for unknown user
     Given path '/balance/MaxMuster'
