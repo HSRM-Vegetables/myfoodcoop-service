@@ -4,9 +4,11 @@ import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.repositories.UserRepository;
+import de.hsrm.vegetables.service.security.JwtUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,12 @@ public class UserService {
 
     @NonNull
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${vegetables.jwt.lifetime}")
+    private Integer jwtLifetime;
+
+    @Value("${vegetables.jwt.secret}")
+    private String jwtSecret;
 
     public UserDto register(String username, String email, String memberId, String password) {
 
@@ -42,4 +50,24 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public String generateToken(String username, String password) {
+        UserDto user = userRepository.findByUsername(username);
+
+        if (user == null) {
+            throw new BadRequestError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+        }
+
+        if (!passwordsMatch(user, password)) {
+            throw new BadRequestError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+        }
+
+        return JwtUtil.generateToken(user.getUsername(), user.getId(), jwtLifetime, jwtSecret);
+    }
+    
+
+    private boolean passwordsMatch(UserDto user, String rawPassword) {
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
 }

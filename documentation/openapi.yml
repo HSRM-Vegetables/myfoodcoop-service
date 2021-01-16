@@ -366,6 +366,34 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
 
+    /user/login:
+        post:
+            tags:
+                - User
+            summary: Retrieve tokens to authenticate the user against this API
+            operationId: login
+            requestBody:
+                description:
+                    User login data
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/login-request'
+            responses:
+                '201':
+                    description: User successfully logged in
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/token-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+
 components:
     schemas:
 
@@ -501,6 +529,18 @@ components:
                     $ref: '#/components/schemas/email'
                 memberId:
                     $ref: '#/components/schemas/memberId'
+                password:
+                    $ref: '#/components/schemas/password'
+
+        login-request:
+            description: Information necessary to identify and authenticate a user for this API
+            type: object
+            required:
+                - username
+                - passowrd
+            properties:
+                username:
+                    $ref: '#/components/schemas/username'
                 password:
                     $ref: '#/components/schemas/password'
 
@@ -677,6 +717,12 @@ components:
                 memberId:
                     $ref: '#/components/schemas/memberId'
 
+        token-response:
+            type: object
+            properties:
+                token:
+                    $ref: '#/components/schemas/token'
+
         #
         # Reusable Items
         #
@@ -791,6 +837,13 @@ components:
             example: a_funny_horse**jumps_high778
             maxLength: 255
             minLength: 10
+
+        token:
+            description: A JWT token
+            type: string
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            maxLength: 10000
+
 
     parameters:
         username:

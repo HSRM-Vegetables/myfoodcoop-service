@@ -1,7 +1,9 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.UserApi;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.LoginRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.RegisterRequest;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.TokenResponse;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.mapper.UserMapper;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +34,22 @@ public class UserController implements UserApi {
         UserResponse response = UserMapper.userDtoToUserResponse(newUser);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<TokenResponse> login(LoginRequest loginRequest) {
+        TokenResponse response = new TokenResponse();
+        response.setToken(userService.generateToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(
+            value = "/user/test"
+    )
+    public ResponseEntity<String> test() {
+
+        return new ResponseEntity<>("works", HttpStatus.OK);
     }
 
 }

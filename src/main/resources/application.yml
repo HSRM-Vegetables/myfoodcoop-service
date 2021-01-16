@@ -27,3 +27,8 @@ logging:
     level:
         root: ERROR
         de.hsrm.vegetables.service.Application: INFO
+
+vegetables:
+    jwt:
+        lifetime: 3600000 # (1h) Lifetime of the user jwt token in milliseconds
+        secret: # FILLED_BY_SECRETS
