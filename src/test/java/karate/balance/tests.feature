@@ -18,7 +18,7 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { balance: 5 }
     When method PATCH
     Then status 200
@@ -37,7 +37,7 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 0
@@ -55,14 +55,14 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 2 }
     When method POST
     Then status 200
     And match response contains { balance: 2.0 }
 
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 2.0
@@ -80,13 +80,13 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance/withdraw'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 3 }
     When method POST
     Then status 200
 
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == -3.0
@@ -104,7 +104,7 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: -3 }
     When method POST
     Then status 400
@@ -123,7 +123,7 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance/withdraw'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: -3 }
     When method POST
     Then status 400
@@ -142,7 +142,7 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { foo: -3 }
     When method PATCH
     Then status 400
@@ -161,7 +161,7 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { foo: -3 }
     When method POST
     Then status 400
@@ -180,7 +180,7 @@ Feature: Balance Tests
     And def token = response.token
 
     Given path '/balance/withdraw'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { foo: -3 }
     When method POST
     Then status 400

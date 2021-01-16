@@ -30,7 +30,7 @@ Feature: Simple Stock management
     And def token = response.token
 
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And assert response.items.length == 0
@@ -52,7 +52,7 @@ Feature: Simple Stock management
 
     # Create stock item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description) }
     When method POST
     Then status 201
@@ -66,7 +66,7 @@ Feature: Simple Stock management
 
     # Get the item that was just created
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
@@ -89,7 +89,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -97,7 +97,7 @@ Feature: Simple Stock management
 
     # Update this stock item
     Given path 'stock', stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged) }
     When method PATCH
     Then status 200
@@ -105,7 +105,7 @@ Feature: Simple Stock management
 
     # Check that patch was successful
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: #(stockId), name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged) }
@@ -128,7 +128,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -136,7 +136,7 @@ Feature: Simple Stock management
 
     # Only patch name of this item
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def nameChanged = "Juniper"
     And request { name: #(nameChanged) }
     When method PATCH
@@ -160,7 +160,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -168,7 +168,7 @@ Feature: Simple Stock management
 
     # Only patch UnitType
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def unitTypeChanged = "WEIGHT"
     And request { unitType: #(unitTypeChanged) }
     When method PATCH
@@ -192,7 +192,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -200,7 +200,7 @@ Feature: Simple Stock management
 
     # Only patch quantity
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def quantityChanged = 120.0
     And request { quantity: #(quantityChanged) }
     When method PATCH
@@ -224,7 +224,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -232,7 +232,7 @@ Feature: Simple Stock management
 
     # Only patch pricePerUnit
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def pricePerUnitChanged = 1.22
     And request { pricePerUnit: #(pricePerUnitChanged) }
     When method PATCH
@@ -256,7 +256,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -264,13 +264,13 @@ Feature: Simple Stock management
 
     # Delete this item
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     # Get item after delete
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
@@ -292,7 +292,7 @@ Feature: Simple Stock management
     And def token = response.token
 
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "test", unitType: "PIECE", quantity: 10.0, pricePerUnit: 5.0 }
     When method POST
     Then status 201
@@ -313,7 +313,7 @@ Feature: Simple Stock management
     And def token = response.token
 
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: "PIECE", quantity: 14.5, pricePerUnit: 4.2 }
     When method POST
     Then status 400
@@ -336,7 +336,7 @@ Feature: Simple Stock management
 
     # First Post
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -349,7 +349,7 @@ Feature: Simple Stock management
 
     # Second Post
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -376,7 +376,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -389,7 +389,7 @@ Feature: Simple Stock management
 
     # Patch it
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { unitType: "PIECE", quantity: 7.4 }
     When method PATCH
     Then status 400
@@ -397,7 +397,7 @@ Feature: Simple Stock management
 
     # Check that no values were updated
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
@@ -420,7 +420,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: "PIECE", quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -433,7 +433,7 @@ Feature: Simple Stock management
 
     # Patch Item
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { quantity: 7.4 }
     When method PATCH
     Then status 400
@@ -441,7 +441,7 @@ Feature: Simple Stock management
 
     # Check that no values were updated
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: "PIECE", quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
@@ -464,7 +464,7 @@ Feature: Simple Stock management
 
     # Create Item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     When method POST
     Then status 201
@@ -477,13 +477,13 @@ Feature: Simple Stock management
 
     # Delete it
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     # Check that it can't be patched
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Honey" }
     When method PATCH
     Then status 400
@@ -506,7 +506,7 @@ Feature: Simple Stock management
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -514,7 +514,7 @@ Feature: Simple Stock management
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -522,13 +522,13 @@ Feature: Simple Stock management
 
     # Delete item 2
     Given path '/stock/' + stockId2
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     # GET items
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match each response.items contains { isDeleted: false }
@@ -550,7 +550,7 @@ Feature: Simple Stock management
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -558,7 +558,7 @@ Feature: Simple Stock management
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -566,13 +566,13 @@ Feature: Simple Stock management
 
     # Delete item 2
     Given path '/stock/' + stockId2
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     # GET items
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param deleted = "OMIT"
     When method GET
     Then status 200
@@ -595,7 +595,7 @@ Feature: Simple Stock management
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -603,7 +603,7 @@ Feature: Simple Stock management
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -611,13 +611,13 @@ Feature: Simple Stock management
 
     # Delete item 2
     Given path '/stock/' + stockId2
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     # GET items
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param deleted = "INCLUDE"
     When method GET
     Then status 200
@@ -645,7 +645,7 @@ Feature: Simple Stock management
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -653,7 +653,7 @@ Feature: Simple Stock management
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -661,13 +661,13 @@ Feature: Simple Stock management
 
     # Delete item 2
     Given path '/stock/' + stockId2
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     # GET items
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param deleted = "ONLY"
     When method GET
     Then status 200

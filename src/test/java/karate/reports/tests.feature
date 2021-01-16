@@ -60,14 +60,14 @@ Feature: Simple Stock management
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -75,7 +75,7 @@ Feature: Simple Stock management
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -83,7 +83,7 @@ Feature: Simple Stock management
 
     # Purchase items
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
     And request { items: [#(item1), #(item2)] }
@@ -95,7 +95,7 @@ Feature: Simple Stock management
     # Generate report
     * def today = getToday()
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
     When method GET
@@ -123,14 +123,14 @@ Feature: Simple Stock management
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -138,7 +138,7 @@ Feature: Simple Stock management
 
     # Purchase item first time
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -146,7 +146,7 @@ Feature: Simple Stock management
 
     # Purchase item second time
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 3 }
     And request { items: [#(item1)] }
     When method POST
@@ -155,7 +155,7 @@ Feature: Simple Stock management
     # Generate report
     * def today = getToday()
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
     When method GET
@@ -181,7 +181,7 @@ Feature: Simple Stock management
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + robbyToken
+    And header Authorization = "Bearer " + robbyToken
     And request { amount: 500 }
     When method POST
     Then status 200
@@ -202,14 +202,14 @@ Feature: Simple Stock management
 
     # Topup user Manfreds balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + manfredToken
+    And header Authorization = "Bearer " + manfredToken
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + robbyToken
+    And header Authorization = "Bearer " + robbyToken
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -217,7 +217,7 @@ Feature: Simple Stock management
 
     # Robby purchases first item
     Given path '/purchase'
-    And header Authorization = "bearer " + robbyToken
+    And header Authorization = "Bearer " + robbyToken
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -225,7 +225,7 @@ Feature: Simple Stock management
 
     # Manfred purchases second item
     Given path '/purchase'
-    And header Authorization = "bearer " + manfredToken
+    And header Authorization = "Bearer " + manfredToken
     And def item1 = { id: #(stockId1), amount: 3 }
     And request { items: [#(item1)] }
     When method POST
@@ -233,7 +233,7 @@ Feature: Simple Stock management
 
     # Generate report
     * def today = getToday()
-    And header Authorization = "bearer " + robbyToken
+    And header Authorization = "Bearer " + robbyToken
     Given path '/reports/sold-items'
     And param fromDate = today
     And param toDate = today
@@ -260,14 +260,14 @@ Feature: Simple Stock management
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -275,7 +275,7 @@ Feature: Simple Stock management
 
     # Purchase item first time
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -283,7 +283,7 @@ Feature: Simple Stock management
 
     # patch quantity
     Given path '/stock/' + stockId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def quantityChanged = 120.0
     And request { quantity: 138.0 }
     When method PATCH
@@ -291,7 +291,7 @@ Feature: Simple Stock management
 
     # Purchase item second time
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -300,7 +300,7 @@ Feature: Simple Stock management
     # Generate report
     * def today = getToday()
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
     When method GET
@@ -327,7 +327,7 @@ Feature: Simple Stock management
     # Generate report
     * def today = getToday()
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = '2020-01-01'
     And param toDate = '2020-01-01'
     When method GET
@@ -353,7 +353,7 @@ Feature: Simple Stock management
     * def today = getToday()
     * def yesterday = getOffsetDate(-1)
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = yesterday
     When method GET
@@ -379,7 +379,7 @@ Feature: Simple Stock management
     * def today = getToday()
     * def tomorrow = getOffsetDate(1)
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = tomorrow
     When method GET
@@ -405,7 +405,7 @@ Feature: Simple Stock management
     * def today = getToday()
     * def tomorrow = getOffsetDate(1)
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = tomorrow
     And param toDate = today
     When method GET
@@ -430,7 +430,7 @@ Feature: Simple Stock management
     # Generate report
     * def tomorrow = getOffsetDate(1)
     Given path '/reports/sold-items'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And param fromDate = tomorrow
     And param toDate = tomorrow
     When method GET

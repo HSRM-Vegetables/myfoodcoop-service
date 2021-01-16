@@ -5,8 +5,8 @@ info:
     title: Stadtgemüse Service
     contact: { }
 servers:
-    -   url: 'https://veg-service.herokuapp.com/v1/'
-        description: Production v1
+    -   url: 'https://veg-service.herokuapp.com/v2/'
+        description: Production v2
 tags:
     -   name: Balance
         description: Handles balance requests
@@ -21,6 +21,8 @@ tags:
 paths:
     '/balance':
         get:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Gets the current balance of the user
@@ -40,6 +42,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
         patch:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Changes the balance for the specified user
@@ -65,6 +69,8 @@ paths:
                                 $ref: '#/components/schemas/error-response'
     '/balance/topup':
         post:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Topup the balance for the specified user
@@ -91,6 +97,8 @@ paths:
                                 $ref: '#/components/schemas/error-response'
     '/balance/withdraw':
         post:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Withdraw the balance for the specified user
@@ -118,6 +126,8 @@ paths:
 
     '/stock':
         get:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Stock
             summary: Retrieves all items currently in stock
@@ -147,6 +157,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
         post:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Stock
             summary: Adds a new Item to the current stock
@@ -173,6 +185,8 @@ paths:
                                 $ref: '#/components/schemas/error-response'
     '/stock/{item-id}':
         get:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Stock
             summary: Retrieves information about a specific item in the stock
@@ -193,6 +207,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
         patch:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Stock
             summary: Updates data of an item
@@ -220,6 +236,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
         delete:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Stock
             summary: Soft deletes an item from the stock. It will no longer show up in the stock list, but information can still be retrieved
@@ -238,6 +256,8 @@ paths:
 
     '/purchase':
         get:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Purchase
             summary: Retrieve all previous purchases
@@ -256,6 +276,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
         post:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Purchase
             summary: Purchases items for a user. Reduces the amount of these items in stock and the users balance
@@ -282,6 +304,8 @@ paths:
                                 $ref: '#/components/schemas/error-response'
     '/purchase/{purchase-id}':
         get:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Purchase
             summary: Retrieve one purchase by Id
@@ -304,6 +328,8 @@ paths:
 
     '/reports/sold-items':
         get:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - Reports
             summary: Get all items sold within a time window and the quantity that was sold for that item
@@ -327,6 +353,8 @@ paths:
 
     /user:
         get:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Get own user data
@@ -345,6 +373,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
         delete:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Delete user account
@@ -414,6 +444,12 @@ paths:
                                 $ref: '#/components/schemas/error-response'
 
 components:
+    securitySchemes:
+        bearerAuth: # arbitrary name for the security scheme
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+
     schemas:
 
         #

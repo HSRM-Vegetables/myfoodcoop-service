@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
-    private static final String HEADER_TOKEN_PREFIX = "bearer ";
+    private static final String HEADER_TOKEN_PREFIX = "Bearer ";
 
     public JwtAuthenticationFilter(String jwtSecret, JwtUtil jwtUtil) {
         this.jwtSecret = jwtSecret;

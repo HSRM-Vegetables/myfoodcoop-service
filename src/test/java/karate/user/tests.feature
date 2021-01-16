@@ -115,7 +115,7 @@ Feature: User controller
     And print token
 
     Given path 'user'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response == { id: #(userId), username: #(username), email: #(email), memberId: #(memberId), password: '#notpresent' }
@@ -123,7 +123,7 @@ Feature: User controller
   Scenario: An expired token cannot be used
     Given path 'user'
     And def token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyb2JieTUiLCJpZCI6IjJjYjAzYjZhLTA4YTAtNGJlZC05NzA3LWUxM2I0ZmZkYWFlOCIsImV4cCI6MTYxMDgyMTMxMiwiaWF0IjoxNjEwODIxMzEyfQ.eCDxY79jxul25oAHh0hbBhGnV0ywLMPvJzqxnlxFxTmW1jKmj_Cjq9C3-B5WdavGLPev2Sm8_Szr_JWQGAG8TA"
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 401
     And match response.errorCode == 401003
@@ -152,12 +152,12 @@ Feature: User controller
     And print token
 
     Given path 'user'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     Given path 'user'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 401
     And match response.errorCode == 401002

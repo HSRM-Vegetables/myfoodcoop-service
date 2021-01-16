@@ -47,14 +47,14 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -62,7 +62,7 @@ Feature: Simple Purchases
 
     # Purchase item
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -74,21 +74,21 @@ Feature: Simple Purchases
 
     # Check that stock was reduced
     Given path '/stock/' + stockId1
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 139.0 }
 
     # Check that the balance was reduced
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 498.7
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -98,7 +98,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists in purchase list
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And assert response.purchases.length == 1
@@ -124,14 +124,14 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -139,7 +139,7 @@ Feature: Simple Purchases
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -147,7 +147,7 @@ Feature: Simple Purchases
 
     # Purchase items
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
     And request { items: [#(item1), #(item2)] }
@@ -160,28 +160,28 @@ Feature: Simple Purchases
 
     # Check stock was reduced on first item
     Given path '/stock/' + stockId1
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 139.0 }
 
     # Check stock was reduced on second item
     Given path '/stock/' + stockId2
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 19.0 }
 
     # Check that the balance was reduced
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 494.4
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -191,7 +191,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists in list
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And def purchase = findItemWithId(response.purchases, purchaseId)
@@ -219,14 +219,14 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -234,7 +234,7 @@ Feature: Simple Purchases
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -242,7 +242,7 @@ Feature: Simple Purchases
 
     # Purchase item
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1.5 }
     And request { items: [#(item1), #(item2)] }
@@ -252,21 +252,21 @@ Feature: Simple Purchases
 
     # Check quantity didn't change
     Given path '/stock/' + stockId1
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 140.0 }
 
     # Check quantity didn't change
     Given path '/stock/' + stockId2
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { quantity: 20.0 }
 
     # Check that the balance wasn't reduced
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 500
@@ -288,14 +288,14 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -303,7 +303,7 @@ Feature: Simple Purchases
 
     # Create item 2
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
     When method POST
     Then status 201
@@ -311,13 +311,13 @@ Feature: Simple Purchases
 
     # Delete item 2
     Given path '/stock/' + stockId2
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method DELETE
     Then status 204
 
     # Purchase items
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
     And request { items: [#(item1), #(item2)] }
@@ -327,7 +327,7 @@ Feature: Simple Purchases
 
     # Check that the balance wasn't reduced
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 500
@@ -349,14 +349,14 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -364,7 +364,7 @@ Feature: Simple Purchases
 
     # Purchase Items
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 200 }
     And request { items: [#(item1)] }
     When method POST
@@ -375,21 +375,21 @@ Feature: Simple Purchases
 
     # Check quantity is below 0
     Given path '/stock/' + stockId1
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And assert response.quantity == -60
 
     # Check that the balance was reduced
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance < 500
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -399,7 +399,7 @@ Feature: Simple Purchases
 
     # Check that purchase exists in list
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And def purchase = findItemWithId(response.purchases, purchaseId)
@@ -425,14 +425,14 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item 1
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -440,7 +440,7 @@ Feature: Simple Purchases
 
     # Purchase  items
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item1AsWell = { id: #(stockId1), amount: 5 }
     And request { items: [#(item1), #(item1AsWell)] }
@@ -450,7 +450,7 @@ Feature: Simple Purchases
 
     # Check that the balance wasn't reduced
     Given path '/balance'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     Then assert response.balance == 500
@@ -472,14 +472,14 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item
     Given path '/stock'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.0 }
     When method POST
     Then status 201
@@ -487,7 +487,7 @@ Feature: Simple Purchases
 
     # Purchase item
     Given path '/purchase'
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -497,7 +497,7 @@ Feature: Simple Purchases
 
     # Get the purchase
     Given path '/purchase', purchaseId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -507,14 +507,14 @@ Feature: Simple Purchases
 
     # Update price of an item
     Given path '/stock/' + stockId1
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     And request { pricePerUnit: 5.0 }
     When method PATCH
     Then status 200
 
     # Get the purchase a second time
     Given path '/purchase', purchaseId
-    And header Authorization = "bearer " + token
+    And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
@@ -543,7 +543,7 @@ Feature: Simple Purchases
 
     # Topup users balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + robbyToken
+    And header Authorization = "Bearer " + robbyToken
     And request { amount: 500 }
     When method POST
     Then status 200
@@ -564,14 +564,14 @@ Feature: Simple Purchases
 
     # Topup user Manfreds balance
     Given path '/balance/topup'
-    And header Authorization = "bearer " + manfredToken
+    And header Authorization = "Bearer " + manfredToken
     And request { amount: 500 }
     When method POST
     Then status 200
 
     # Create item
     Given path '/stock'
-    And header Authorization = "bearer " + robbyToken
+    And header Authorization = "Bearer " + robbyToken
     And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
     When method POST
     Then status 201
@@ -579,7 +579,7 @@ Feature: Simple Purchases
 
     # Robby purchases item
     Given path '/purchase'
-    And header Authorization = "bearer " + robbyToken
+    And header Authorization = "Bearer " + robbyToken
     And def item1 = { id: #(stockId1), amount: 1 }
     And request { items: [#(item1)] }
     When method POST
@@ -591,7 +591,7 @@ Feature: Simple Purchases
 
     # Request purchase from different user
     Given path '/purchase', purchaseId
-    And header Authorization = "bearer " + manfredToken
+    And header Authorization = "Bearer " + manfredToken
     When method GET
     Then status 401
     And assert response.errorCode == 401001
