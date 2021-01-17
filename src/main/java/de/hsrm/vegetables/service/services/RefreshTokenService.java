@@ -49,7 +49,7 @@ public class RefreshTokenService {
      * Checks validity of the current refresh token, revokes it and returns a new one
      * If anything fishy is going on with this refreshToken, it is revoked
      *
-     * @param user                The user who's supposed to be associated to this token
+     * @param userDto             The user who's supposed to be associated to this token
      * @param currentRefreshToken The refresh token to check
      * @return A new refreshToken for the user
      */
