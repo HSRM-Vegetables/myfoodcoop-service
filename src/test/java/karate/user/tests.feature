@@ -118,3 +118,15 @@ Feature: User controller
     When method GET
     Then status 401
     And match response.errorCode == 401002
+
+  Scenario: Registering with an empty email does not work
+    Given path 'user', 'register'
+    And request { username: "robby9", email: "", memberId: "55555", password: #(password) }
+    When method Post
+    Then status 400
+
+  Scenario: Registering with an invalid email does not work
+    Given path 'user', 'register'
+    And request { username: "robby9", email: "aaaaaa", memberId: "55555", password: #(password) }
+    When method Post
+    Then status 400
