@@ -673,7 +673,7 @@
                   "var baseUrl = pm.environment.get(\"URL\");",
                   "",
                   "pm.sendRequest({",
-                  "    url: `${baseUrl}/v2/user/login`,",
+                  "    url: `${baseUrl}/v2/auth/login`,",
                   "    method: 'POST',",
                   "    header: 'Content-Type:application/json',",
                   "    body: {",
@@ -752,9 +752,14 @@
                     }
                   },
                   "response": []
-                },
+                }
+              ]
+            },
+            {
+              "name": "authentication",
+              "item": [
                 {
-                  "name": "POST /user/login",
+                  "name": "POST /auth/login",
                   "request": {
                     "method": "POST",
                     "header": [],
@@ -768,24 +773,19 @@
                       }
                     },
                     "url": {
-                      "raw": "{{URL}}/v2/user/login",
+                      "raw": "{{URL}}/v2/auth/login",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
-                        "user",
+                        "auth",
                         "login"
                       ]
                     }
                   },
                   "response": []
-                }
-              ]
-            },
-            {
-              "name": "authentication",
-              "item": [
+                },
                 {
                   "name": "POST /auth/refresh",
                   "request": {
