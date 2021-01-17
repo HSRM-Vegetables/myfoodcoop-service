@@ -61,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authorizationHeader.replace(HEADER_TOKEN_PREFIX, "");
 
         // Retrieve Information stored in token
-        UserPrincipal userPrincipal = jwtUtil.parseToken(token, jwtSecret);
+        UserPrincipal userPrincipal = jwtUtil.parseAuthenticationToken(token, jwtSecret);
 
         List<GrantedAuthority> authorities = new ArrayList<>();
 

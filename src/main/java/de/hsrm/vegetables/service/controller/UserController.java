@@ -6,9 +6,13 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.model.RegisterRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.TokenResponse;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
+import de.hsrm.vegetables.service.exception.ErrorCode;
+import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.UserMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
+import de.hsrm.vegetables.service.services.RefreshTokenService;
 import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +36,9 @@ public class UserController implements UserApi {
     @NonNull
     private final BalanceService balanceService;
 
+    @NonNull
+    private final RefreshTokenService refreshTokenService;
+
     @Override
     public ResponseEntity<UserResponse> register(RegisterRequest registerRequest) {
 
@@ -47,7 +54,19 @@ public class UserController implements UserApi {
     @Override
     public ResponseEntity<TokenResponse> login(LoginRequest loginRequest) {
         TokenResponse response = new TokenResponse();
-        response.setToken(userService.generateToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        UserDto user;
+        try {
+            user = userService.getUserByUsername(loginRequest.getUsername());
+        } catch (NotFoundError e) {
+            // Mask not found error
+            throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+        }
+
+        String token = userService.generateToken(user, loginRequest.getPassword());
+        String refreshToken = refreshTokenService.generateRefreshToken(user);
+
+        response.setToken(token);
+        response.setRefreshToken(refreshToken);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -73,7 +73,7 @@ Feature: User controller
     And request { username: 'robby5',  password: #(password) }
     When method POST
     Then status 200
-    And match response == { token: '#string'}
+    And match response contains { token: '#string', refreshToken: '#string' }
     And json accessToken = parseJwtPayload(response.token)
     And match accessToken contains { sub: 'robby5', id: #(userId) }
     And print response.token

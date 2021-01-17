@@ -22,7 +22,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -46,7 +46,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -79,7 +79,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -113,7 +113,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -170,7 +170,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -219,7 +219,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -252,7 +252,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -283,7 +283,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -323,7 +323,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -377,7 +377,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -417,7 +417,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "bearer {{token}}",
+                        "value": "{{token}}",
                         "type": "text"
                       }
                     ],
@@ -451,7 +451,7 @@
                       {
                         "key": "Authorization",
                         "type": "text",
-                        "value": "bearer {{token}}"
+                        "value": "{{token}}"
                       }
                     ],
                     "url": {
@@ -514,7 +514,7 @@
                       {
                         "key": "Authorization",
                         "type": "text",
-                        "value": "bearer {{token}}"
+                        "value": "{{token}}"
                       }
                     ],
                     "url": {
@@ -536,6 +536,124 @@
                           "key": "toDate",
                           "value": "{{today}}"
                         }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "user",
+              "item": [
+                {
+                  "name": "GET /user",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/user",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "DELETE /user",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "type": "text",
+                        "value": "bearer "
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/user",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "authentication",
+              "item": [
+                {
+                  "name": "DELETE /auth/refresh",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"refreshToken\": \"\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/auth/refresh",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "auth",
+                        "refresh"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "DELETE /auth/refresh/all",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "type": "text",
+                        "value": "{{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/auth/refresh/all",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "auth",
+                        "refresh",
+                        "all"
                       ]
                     }
                   },
@@ -566,8 +684,26 @@
                   "   if (err) {",
                   "       console.log(err);",
                   "   }",
+                  "    const body = res.json();",
+                  "    const token = body.token;",
+                  "    const refreshToken = body.refreshToken;",
                   "",
-                  "    pm.collectionVariables.set(\"token\", res.json().token);",
+                  "    // be so nice and revoke the refreshToken to not spam the database",
+                  "    pm.sendRequest({",
+                  "    url: `${baseUrl}/v2/auth/refresh`,",
+                  "    method: 'DELETE',",
+                  "    header: [",
+                  "        'Content-Type:application/json',",
+                  "        `Authorization:Bearer ${token}`    ",
+                  "    ],",
+                  "    body: {",
+                  "        mode: 'raw',",
+                  "        raw: JSON.stringify({ refreshToken })",
+                  "    }",
+                  "    },() => {}); ",
+                  "",
+                  "",
+                  "    pm.collectionVariables.set(\"token\", \"Bearer \" + token);",
                   "});"
                 ]
               }
@@ -644,26 +780,35 @@
                     }
                   },
                   "response": []
-                },
+                }
+              ]
+            },
+            {
+              "name": "authentication",
+              "item": [
                 {
-                  "name": "GET /user",
+                  "name": "POST /auth/refresh",
                   "request": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "bearer {{token}}",
-                        "type": "text"
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
                       }
-                    ],
+                    },
                     "url": {
-                      "raw": "{{URL}}/v2/user",
+                      "raw": "{{URL}}/v2/auth/refresh",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
-                        "user"
+                        "auth",
+                        "refresh"
                       ]
                     }
                   },

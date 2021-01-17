@@ -53,18 +53,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public String generateToken(String username, String password) {
-        UserDto user = userRepository.findByUsername(username);
-
-        if (user == null) {
-            throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
-        }
+    public String generateToken(UserDto user, String password) {
 
         if (!passwordsMatch(user, password)) {
             throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
         }
 
         return JwtUtil.generateToken(user.getUsername(), user.getId(), jwtLifetime, jwtSecret);
+    }
+
+    public String generateToken(UserDto userDto) {
+        return JwtUtil.generateToken(userDto.getUsername(), userDto.getId(), jwtLifetime, jwtSecret);
     }
 
     public UserDto getUserById(String id) {
@@ -76,6 +75,17 @@ public class UserService {
 
         return user;
     }
+
+    public UserDto getUserByUsername(String username) {
+        UserDto user = userRepository.findByUsername(username);
+
+        if (user == null) {
+            throw new NotFoundError("No user found with given username " + username, ErrorCode.NO_USER_FOUND);
+        }
+
+        return user;
+    }
+
 
     public void softDeleteUser(String id) {
         UserDto user = getUserById(id);

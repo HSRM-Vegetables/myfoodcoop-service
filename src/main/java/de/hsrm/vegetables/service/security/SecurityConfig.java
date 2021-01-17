@@ -52,6 +52,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // login and register do not require authentication
                 .mvcMatchers("/v2/user/login", "/v2/user/register")
                 .permitAll()
+                // Token refresh does not need authentication
+                .mvcMatchers("/v2/auth/refresh")
+                .permitAll()
                 // OPTIONS requests do not need authorization
                 .antMatchers(HttpMethod.OPTIONS)
                 .permitAll()
