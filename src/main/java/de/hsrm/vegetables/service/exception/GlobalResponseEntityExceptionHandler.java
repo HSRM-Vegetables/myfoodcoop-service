@@ -1,5 +1,8 @@
 package de.hsrm.vegetables.service.exception;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorDetail;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
@@ -20,6 +23,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -69,6 +73,30 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
         // Mask all BaseErrors that don't have a specific mapping
         error.setMessage("An Internal Server Error occurred");
         return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /*
+     Handler for security errors
+     */
+
+    @ExceptionHandler(JWTDecodeException.class)
+    public ResponseEntity<Object> handleJwtDecodeException(JWTDecodeException error) {
+        return this.createException("Invalid Authorization token", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_JWT);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException error) {
+        return this.createException("Access denied", HttpStatus.UNAUTHORIZED, ErrorCode.ACCESS_DENIED);
+    }
+
+    @ExceptionHandler(SignatureVerificationException.class)
+    public ResponseEntity<Object> handleSignatureVerificationException(SignatureVerificationException error) {
+        return this.createException("Signature for token in Authorization header is invalid", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_TOKEN_SIGNATURE);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException error) {
+        return this.createException("The token is expired", HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED);
     }
 
     /*

@@ -1,35 +1,34 @@
-package de.hsrm.vegetables.service.controller;
+package de.hsrm.vegetables.service.controller.v1;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.mapper.Mapper;
-import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/v2")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
-public class BalanceController implements BalanceApi {
+public class BalanceControllerV1 {
 
     @NonNull
     private final BalanceService balanceService;
 
-    @Override
-    public ResponseEntity<BalanceResponse> balanceGet() {
-        String name = getUsernameFromSecurityContext();
+    @GetMapping(
+            value = "/balance/{name}",
+            produces = {"application/json"}
+    )
+    public ResponseEntity<BalanceResponse> balanceGet(@PathVariable("name") String name) {
         BalanceDto balanceDto = null;
 
         try {
@@ -41,37 +40,37 @@ public class BalanceController implements BalanceApi {
         return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
-    @Override
-    public ResponseEntity<BalanceResponse> balancePatch(BalancePatchRequest request) {
-        String name = getUsernameFromSecurityContext();
+    @PatchMapping(
+            value = "/balance/{name}",
+            produces = {"application/json"},
+            consumes = {"application/json"}
+    )
+    public ResponseEntity<BalanceResponse> balancePatch(@PathVariable("name") String name, @Valid @RequestBody BalancePatchRequest request) {
         BalanceDto balanceDto = balanceService.upsert(name, request.getBalance());
 
         return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
-    @Override
-    public ResponseEntity<BalanceResponse> balanceTopup(BalanceAmountRequest request) {
-        String name = getUsernameFromSecurityContext();
+    @PostMapping(
+            value = "/balance/{name}/topup",
+            produces = {"application/json"},
+            consumes = {"application/json"}
+    )
+    public ResponseEntity<BalanceResponse> balanceTopup(@PathVariable("name") String name, @Valid @RequestBody BalanceAmountRequest request) {
         BalanceDto balanceDto = balanceService.topup(name, request.getAmount());
 
         return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
-    @Override
-    public ResponseEntity<BalanceResponse> balanceWithdraw(BalanceAmountRequest request) {
-        String name = getUsernameFromSecurityContext();
+    @PostMapping(
+            value = "/balance/{name}/withdraw",
+            produces = {"application/json"},
+            consumes = {"application/json"}
+    )
+    public ResponseEntity<BalanceResponse> balanceWithdraw(@PathVariable("name") String name, @Valid @RequestBody BalanceAmountRequest request) {
         BalanceDto balanceDto = balanceService.withdraw(name, request.getAmount());
 
         return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
-    }
-
-    private String getUsernameFromSecurityContext() {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        return userPrincipal.getUsername();
     }
 
 }

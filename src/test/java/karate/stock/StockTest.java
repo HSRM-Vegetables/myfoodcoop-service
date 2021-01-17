@@ -14,7 +14,10 @@ import org.springframework.test.context.TestPropertySource;
 )
 @TestPropertySource(
         properties = {
-                "server.port: 8090"
+                "server.port: 8090",
+                "vegetables.jwt.secret: THIS:IS:A:JWT:SECRET",
+                "vegetables.jwt.lifetime: 60000",
+                "vegetables.jwt.refreshLifetime: 60000"
         }
 )
 @DirtiesContext

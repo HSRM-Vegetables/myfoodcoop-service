@@ -1,29 +1,35 @@
 ---
-spring:
-    application:
-        name: '@project.name@'
-    mvc:
-        throw-exception-if-no-handler-found: true
-        dispatch-options-request: true
-    resources:
-        add-mappings: false
-    jackson:
-        default-property-inclusion: NON_NULL
-    datasource:
-        url: # FILLED_BY_SECRETS
-        username: # FILLED_BY_SECRETS
-        password: # FILLED_BY_SECRETS
-    jpa:
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.PostgreSQL92Dialect
-                ddl-auto: update
-        generate-ddl: true
+spring :
+    application :
+        name : '@project.name@'
+    mvc :
+        throw-exception-if-no-handler-found : true
+        dispatch-options-request : true
+    resources :
+        add-mappings : false
+    jackson :
+        default-property-inclusion : NON_NULL
+    datasource :
+        url : # FILLED_BY_SECRETS
+        username : # FILLED_BY_SECRETS
+        password : # FILLED_BY_SECRETS
+    jpa :
+        properties :
+            hibernate :
+                dialect : org.hibernate.dialect.PostgreSQL92Dialect
+                ddl-auto : update
+        generate-ddl : true
 
-server:
-    port: 8080
+server :
+    port : 8080
 
-logging:
-    level:
-        root: ERROR
-        de.hsrm.vegetables.service.Application: INFO
+logging :
+    level :
+        root : ERROR
+        de.hsrm.vegetables.service.Application : INFO
+
+vegetables :
+    jwt :
+        lifetime : 3600000 # (1h) Lifetime of the user jwt token in milliseconds
+        refreshLifetime : 1209600000 # (14d) Lifetime of a refresh token in milliseconds (watch out for int overflow)
+        secret : ${JWT_SECRET} # FILLED_BY_SECRETS in this case via env vars

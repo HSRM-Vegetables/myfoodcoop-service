@@ -1,7 +1,8 @@
-package karate.balance;
+package karate.user;
 
 import com.intuit.karate.junit5.Karate;
 import de.hsrm.vegetables.service.Application;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.annotation.DirtiesContext;
@@ -19,8 +20,10 @@ import org.springframework.test.context.TestPropertySource;
                 "vegetables.jwt.refreshLifetime: 60000"
         }
 )
+
 @DirtiesContext
-class BalanceTest {
+@AutoConfigureMockMvc
+public class UserTest {
 
     @Karate.Test
     Karate testAll() {
