@@ -11,7 +11,7 @@ Feature: Balance Tests
     Then status 201
     And print response
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster',  password: #(password) }
     When method POST
     Then status 200
@@ -30,7 +30,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster2',  password: #(password) }
     When method POST
     Then status 200
@@ -48,7 +48,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster3',  password: #(password) }
     When method POST
     Then status 200
@@ -73,7 +73,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster4',  password: #(password) }
     When method POST
     Then status 200
@@ -97,7 +97,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster5',  password: #(password) }
     When method POST
     Then status 200
@@ -116,7 +116,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster6',  password: #(password) }
     When method POST
     Then status 200
@@ -135,7 +135,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster7',  password: #(password) }
     When method POST
     Then status 200
@@ -154,7 +154,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster8',  password: #(password) }
     When method POST
     Then status 200
@@ -173,7 +173,7 @@ Feature: Balance Tests
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'MaxMuster9',  password: #(password) }
     When method POST
     Then status 200

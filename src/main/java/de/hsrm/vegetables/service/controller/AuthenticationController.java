@@ -1,9 +1,13 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.AuthenticationApi;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.LoginRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.RefreshRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.TokenResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
+import de.hsrm.vegetables.service.exception.ErrorCode;
+import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.RefreshTokenService;
 import de.hsrm.vegetables.service.services.UserService;
@@ -28,6 +32,26 @@ public class AuthenticationController implements AuthenticationApi {
 
     @NonNull
     private final UserService userService;
+
+    @Override
+    public ResponseEntity<TokenResponse> login(LoginRequest loginRequest) {
+        TokenResponse response = new TokenResponse();
+        UserDto user;
+        try {
+            user = userService.getUserByUsername(loginRequest.getUsername());
+        } catch (NotFoundError e) {
+            // Mask not found error
+            throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+        }
+
+        String token = userService.generateToken(user, loginRequest.getPassword());
+        String refreshToken = refreshTokenService.generateRefreshToken(user);
+
+        response.setToken(token);
+        response.setRefreshToken(refreshToken);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     @Override
     public ResponseEntity<TokenResponse> refresh(RefreshRequest refreshRequest) {

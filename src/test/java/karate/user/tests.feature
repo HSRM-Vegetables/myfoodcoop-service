@@ -69,7 +69,7 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'robby5',  password: #(password) }
     When method POST
     Then status 200
@@ -84,14 +84,14 @@ Feature: User controller
     When method POST
     Then status 201
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'robby6',  password: 'incorrect' }
     When method POST
     Then status 401
     And match response.errorCode == 401004
 
   Scenario: Login with unknown username fails
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'YouDontKnowMe',  password: 'incorrect' }
     When method POST
     Then status 401
@@ -107,7 +107,7 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'robby7',  password: #(password) }
     When method POST
     Then status 200
@@ -144,7 +144,7 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'robby7',  password: #(password) }
     When method POST
     Then status 200

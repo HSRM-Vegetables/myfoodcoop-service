@@ -23,7 +23,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby',  password: #(password) }
     When method POST
     Then status 200
@@ -44,7 +44,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby1',  password: #(password) }
     When method POST
     Then status 200
@@ -81,7 +81,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby2',  password: #(password) }
     When method POST
     Then status 200
@@ -120,7 +120,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby3',  password: #(password) }
     When method POST
     Then status 200
@@ -152,7 +152,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby4',  password: #(password) }
     When method POST
     Then status 200
@@ -184,7 +184,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby5',  password: #(password) }
     When method POST
     Then status 200
@@ -216,7 +216,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby6',  password: #(password) }
     When method POST
     Then status 200
@@ -248,7 +248,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby7',  password: #(password) }
     When method POST
     Then status 200
@@ -285,7 +285,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby9',  password: #(password) }
     When method POST
     Then status 200
@@ -306,7 +306,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby10',  password: #(password) }
     When method POST
     Then status 200
@@ -328,7 +328,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby11',  password: #(password) }
     When method POST
     Then status 200
@@ -368,7 +368,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby12',  password: #(password) }
     When method POST
     Then status 200
@@ -412,7 +412,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby13',  password: #(password) }
     When method POST
     Then status 200
@@ -456,7 +456,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby14',  password: #(password) }
     When method POST
     Then status 200
@@ -498,7 +498,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby15',  password: #(password) }
     When method POST
     Then status 200
@@ -542,7 +542,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby16',  password: #(password) }
     When method POST
     Then status 200
@@ -587,7 +587,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby17',  password: #(password) }
     When method POST
     Then status 200
@@ -637,7 +637,7 @@ Feature: Simple Stock management
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby18',  password: #(password) }
     When method POST
     Then status 200

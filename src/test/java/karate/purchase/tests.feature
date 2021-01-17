@@ -39,7 +39,7 @@ Feature: Simple Purchases
     And print response
   
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby',  password: #(password) }
     When method POST
     Then status 200
@@ -116,7 +116,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby1',  password: #(password) }
     When method POST
     Then status 200
@@ -211,7 +211,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby2',  password: #(password) }
     When method POST
     Then status 200
@@ -280,7 +280,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby3',  password: #(password) }
     When method POST
     Then status 200
@@ -341,7 +341,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby4',  password: #(password) }
     When method POST
     Then status 200
@@ -417,7 +417,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby5',  password: #(password) }
     When method POST
     Then status 200
@@ -464,7 +464,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby6',  password: #(password) }
     When method POST
     Then status 200
@@ -535,7 +535,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Robby7',  password: #(password) }
     When method POST
     Then status 200
@@ -556,7 +556,7 @@ Feature: Simple Purchases
     And print response
 
     # Get token
-    Given path 'user', 'login'
+    Given path 'auth', 'login'
     And request { username: 'Manfred',  password: #(password) }
     When method POST
     Then status 200

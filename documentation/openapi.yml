@@ -417,10 +417,11 @@ paths :
                         application/json :
                             schema :
                                 $ref : '#/components/schemas/error-response'
-    /user/login :
+
+    /auth/login :
         post :
             tags :
-                - User
+                - Authentication
             summary : Retrieve tokens to authenticate the user against this API
             operationId : login
             requestBody :
@@ -444,7 +445,6 @@ paths :
                         application/json :
                             schema :
                                 $ref : '#/components/schemas/error-response'
-
     /auth/refresh :
         post :
             tags :
