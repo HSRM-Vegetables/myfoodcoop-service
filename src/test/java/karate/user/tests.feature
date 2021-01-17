@@ -119,14 +119,22 @@ Feature: User controller
     Then status 401
     And match response.errorCode == 401002
 
-  Scenario: Registering with an empty email does not work
+  Scenario: Registering with an empty email works
     Given path 'user', 'register'
     And request { username: "robby9", email: "", memberId: "55555", password: #(password) }
     When method Post
-    Then status 400
+    Then status 201
+    And match response.email == '#notpresent'
+
+    # Try it a second time to make sure multiple accounts without an email are permitted
+    Given path 'user', 'register'
+    And request { username: "robby10", email: "", memberId: "55556", password: #(password) }
+    When method Post
+    Then status 201
+    And match response.email == '#notpresent'
 
   Scenario: Registering with an invalid email does not work
     Given path 'user', 'register'
-    And request { username: "robby9", email: "aaaaaa", memberId: "55555", password: #(password) }
+    And request { username: "robby11", email: "aaaaaa", memberId: "55557", password: #(password) }
     When method Post
     Then status 400

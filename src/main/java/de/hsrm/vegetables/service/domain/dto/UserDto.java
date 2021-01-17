@@ -22,7 +22,7 @@ public class UserDto {
     @Column(nullable = false, unique = true)
     private String memberId;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
     @Column(nullable = false)

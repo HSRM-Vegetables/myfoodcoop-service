@@ -32,7 +32,7 @@ public class UserService {
 
     public UserDto register(String username, String email, String memberId, String password) {
 
-        if (userRepository.existsByEmail(email)) {
+        if (email != null && email.length() > 0 && userRepository.existsByEmail(email)) {
             throw new BadRequestError("email is already in use", ErrorCode.EMAIL_IN_USE);
         }
 
@@ -46,7 +46,7 @@ public class UserService {
 
         UserDto user = new UserDto();
         user.setUsername(username);
-        user.setEmail(email);
+        user.setEmail(email == null || email.length() <= 0 ? null : email);
         user.setMemberId(memberId);
         user.setPassword(passwordEncoder.encode(password));
 

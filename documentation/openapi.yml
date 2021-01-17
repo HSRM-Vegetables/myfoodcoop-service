@@ -646,7 +646,6 @@ components :
             type : object
             required :
                 - username
-                - email
                 - memberId
                 - password
             properties :
@@ -960,7 +959,6 @@ components :
             type : string
             format : email
             example : robby@stadtgemuese-wiesbaden.de
-            minLength : 6
             maxLength : 255
 
         memberId :
