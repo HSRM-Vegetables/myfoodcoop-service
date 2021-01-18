@@ -1,10 +1,12 @@
 package de.hsrm.vegetables.service.domain.dto;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -30,5 +32,10 @@ public class UserDto {
 
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    @Column
+    @Enumerated
+    @ElementCollection(targetClass = Role.class)
+    private List<Role> roles;
 
 }
