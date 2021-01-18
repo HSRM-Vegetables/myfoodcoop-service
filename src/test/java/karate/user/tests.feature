@@ -138,3 +138,118 @@ Feature: User controller
     And request { username: "robby11", email: "aaaaaa", memberId: "55557", password: #(password) }
     When method Post
     Then status 400
+
+  Scenario: Newly registered user has role 'MEMBER'
+    Given path 'user', 'register'
+    * def username = "mustermann1"
+    * def email = "mustermann1@test.com"
+    * def memberID = "123456"
+    * def password = "testPW"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And match response.roles contains 'MEMBER'
+    And def userID = response.id
+
+  Scenario: Add and delete some roles to an user
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann2"
+    * def email = "mustermann2@test.com"
+    * def memberID = "123456"
+    * def password = "testPW"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+    And def initRoles = response.roles
+
+    # Auth User
+    Given path 'auth', 'login'
+    And request { username: #(username),  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Post role TREASURER
+    Given path 'user', #(userID), roles, 'TREASURER'
+    When method POST
+    Then status 200
+    And match response.roles contains 'TREASURER'
+
+    # Post role CHAIRMAN
+    Given path 'user', #(userID), roles, 'CHAIRMAN'
+    When method POST
+    Then status 200
+    And match response.roles contains 'CHAIRMAN'
+
+    # Check roles
+    Given path 'user'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response.roles contains 'TREASURER'
+    And match response.roles contains 'CHAIRMAN'
+
+    # Delete role TREASURER
+    Given path 'user', #(userID), roles, 'TREASURER'
+    When method DELETE
+    Then status 200
+    And match response.roles !contains 'TREASURER'
+
+    # Delete role CHAIRMAN
+    Given path 'user', #(userID), roles, 'CHAIRMAN'
+    When method DELETE
+    Then status 200
+    And match response.roles !contains 'CHAIRMAN'
+
+    # Check roles again
+    Given path 'user'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response.roles == #(initRoles)
+
+  Scenario: Cannot add a role twice to a user
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann3"
+    * def email = "mustermann3@test.com"
+    * def memberID = "123456"
+    * def password = "testPW"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Post role TREASURER
+    Given path 'user', #(userID), roles, 'TREASURER'
+    When method POST
+    Then status 200
+    And match response.roles contains 'TREASURER'
+
+    # Post role TREASURER again
+    Given path 'user', #(userID), roles, 'TREASURER'
+    When method POST
+    Then status 400
+    And match response.errorCode == 400017
+
+  Scenario: Cannot delete a role from a user that has not been added
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann4"
+    * def email = "mustermann4@test.com"
+    * def memberID = "123456"
+    * def password = "testPW"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Delete role CHAIRMAN
+    Given path 'user', #(userID), roles, 'CHAIRMAN'
+    When method DELETE
+    Then status 404
+    And match response.errorCode == 404006
+
+
