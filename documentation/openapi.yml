@@ -417,7 +417,6 @@ paths :
                         application/json :
                             schema :
                                 $ref : '#/components/schemas/error-response'
-
     /auth/login :
         post :
             tags :
@@ -514,6 +513,52 @@ paths :
                         application/json :
                             schema :
                                 $ref : '#/components/schemas/error-response'
+
+    /user/{user-id}/roles/{role}:
+        post:
+            tags:
+                - User
+            summary: Adds one role to the specified user
+            operationId: userAddRole
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+                -   $ref: '#/components/parameters/role'
+            responses:
+                '200':
+                    description: The role was successfully added to the user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+
+        delete:
+            tags:
+                - User
+            summary: Removes one role from the specified user
+            operationId: userDeleteRoles
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+                -   $ref: '#/components/parameters/role'
+            responses:
+                '200':
+                    description: The role was successfully removed from the user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+
 
 components :
     securitySchemes :
@@ -851,6 +896,10 @@ components :
                     $ref : '#/components/schemas/email'
                 memberId :
                     $ref : '#/components/schemas/memberId'
+                roles:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/role'
 
         token-response :
             type : object
@@ -922,7 +971,6 @@ components :
                         Must be an integer if the unitType of the referenced item is PIECE
                     format : float
                     example : 7
-
         username :
             description : The unique name of the user
             type : string
@@ -982,12 +1030,21 @@ components :
             maxLength : 255
             minLength : 10
 
+        role:
+            description: The name of a role
+            type: string
+            example: MEMBER
+            enum:
+                - MEMBER
+                - TREASURER
+                - CHAIRMAN
+                - ORDERER
+
         token :
             description : A JWT token
             type : string
             example : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
             maxLength : 10000
-
 
     parameters :
         username :
@@ -1041,3 +1098,24 @@ components :
                 maxLength : 36
             required : true
             description : The unique id of a purchase
+
+        user-id:
+            in: path
+            name: user-id
+            schema:
+                type: string
+                maxLength: 36
+            required: true
+            description: The unique id of an user
+        role:
+            in: path
+            name: role
+            schema:
+                type: string
+                enum:
+                    - MEMBER
+                    - TREASURER
+                    - CHAIRMAN
+                    - ORDERER
+            required: true
+            description: The name of a role

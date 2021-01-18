@@ -1,22 +1,30 @@
 package de.hsrm.vegetables.service.controller;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.api.ApiUtil;
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.UserApi;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.ErrorResponse;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.RegisterRequest;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.mapper.UserMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.UserService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/v2")
@@ -65,4 +73,17 @@ public class UserController implements UserApi {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<UserResponse> userAddRole(String userId, String role) {
+        UserResponse response = UserMapper.userDtoToUserResponse(userService.addRole(userId, Role.valueOf(role)));
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Override
+    public ResponseEntity<UserResponse> userDeleteRoles(String userId,String role) {
+        UserResponse response = UserMapper.userDtoToUserResponse(userService.deleteRole(userId, Role.valueOf(role)));
+        return ResponseEntity.ok(response);
+
+    }
 }

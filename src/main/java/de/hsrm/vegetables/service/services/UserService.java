@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
@@ -100,6 +103,50 @@ public class UserService {
 
     private boolean passwordsMatch(UserDto user, String rawPassword) {
         return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    /**
+     * Adds a role to a User
+     *
+     * @param id   unique id of the user the role needs to be added to
+     * @param role to be added to the user
+     * @return current user data
+     */
+    public UserDto addRole(String id, Role role) {
+        UserDto user = getUserById(id);
+        if (user == null) {
+            throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+        }
+
+        List<Role> roles = user.getRoles();
+        if (roles.contains(role))
+            throw new BadRequestError("User already has the role " + role, ErrorCode.USER_ALREADY_HAS_ROLE);
+
+        roles.add(role);
+        user.setRoles(roles);
+        return userRepository.save(user);
+    }
+
+    /**
+     * Removes a role from the user
+     *
+     * @param id   unique id of the user the role needs to be removed from
+     * @param role to be removed from the user
+     * @return current user data
+     */
+    public UserDto deleteRole(String id, Role role) {
+        UserDto user = getUserById(id);
+        if (user == null) {
+            throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+        }
+        List<Role> roles = user.getRoles();
+
+        if (!roles.contains(role))
+            throw new NotFoundError("User does not has the role" + role, ErrorCode.USER_DOESNT_HAS_ROLE);
+
+        roles.remove(role);
+        user.setRoles(roles);
+        return userRepository.save(user);
     }
 
 }
