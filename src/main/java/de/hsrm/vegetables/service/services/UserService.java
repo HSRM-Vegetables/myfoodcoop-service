@@ -105,7 +105,14 @@ public class UserService {
         return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 
-    public UserDto addRole (String id, Role role) {
+    /**
+     * Adds a role to a User
+     *
+     * @param id   unique id of the user the role needs to be added to
+     * @param role to be added to the user
+     * @return current user data
+     */
+    public UserDto addRole(String id, Role role) {
         UserDto user = getUserById(id);
         if (user == null) {
             throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
@@ -113,14 +120,21 @@ public class UserService {
 
         List<Role> roles = user.getRoles();
         if (roles.contains(role))
-            throw new BadRequestError("User already has the role "+ role, ErrorCode.USER_ALREDY_HAS_THE_ROLE);
+            throw new BadRequestError("User already has the role " + role, ErrorCode.USER_ALREADY_HAS_ROLE);
 
         roles.add(role);
         user.setRoles(roles);
         return userRepository.save(user);
     }
 
-    public UserDto deleteRole (String id, Role role) {
+    /**
+     * Removes a role from the user
+     *
+     * @param id   unique id of the user the role needs to be removed from
+     * @param role to be removed from the user
+     * @return current user data
+     */
+    public UserDto deleteRole(String id, Role role) {
         UserDto user = getUserById(id);
         if (user == null) {
             throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
@@ -128,7 +142,7 @@ public class UserService {
         List<Role> roles = user.getRoles();
 
         if (!roles.contains(role))
-            throw new NotFoundError("User does not has the role"+ role, ErrorCode.USER_DOESNT_HAS_THE_ROLE);
+            throw new NotFoundError("User does not has the role" + role, ErrorCode.USER_DOESNT_HAS_ROLE);
 
         roles.remove(role);
         user.setRoles(roles);
