@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = {"/v1", "/v2"})
+@RequestMapping("/v2")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class ReportsController implements ReportsApi {
