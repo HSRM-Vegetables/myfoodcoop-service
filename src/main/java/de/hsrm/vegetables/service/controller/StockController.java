@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,12 +27,14 @@ public class StockController implements StockApi {
     private final StockService stockService;
 
     @Override
+    @PreAuthorize("hasRole('ORDERER')")
     public ResponseEntity<Void> stockDelete(String itemId) {
         stockService.delete(itemId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted) {
         List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getAll(deleted));
         AllStockResponse response = new AllStockResponse();
@@ -40,6 +43,7 @@ public class StockController implements StockApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<StockResponse> stockItemGet(String itemId) {
         StockDto stockDto = stockService.getById(itemId);
         StockResponse response = StockMapper.stockDtoToStockResponse(stockDto);
@@ -47,6 +51,7 @@ public class StockController implements StockApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('ORDERER')")
     public ResponseEntity<StockResponse> stockPatch(String itemId, StockPatchRequest stockPatchRequest) {
         StockDto updatedStock = stockService.update(
                 itemId,
@@ -62,6 +67,7 @@ public class StockController implements StockApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('ORDERER')")
     public ResponseEntity<StockResponse> stockPost(StockPostRequest stockPostRequest) {
         StockDto stockDto = stockService.addStock(stockPostRequest.getName(),
                 stockPostRequest.getUnitType(),

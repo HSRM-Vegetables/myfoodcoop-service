@@ -62,11 +62,11 @@ public class UserService {
             throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
         }
 
-        return JwtUtil.generateToken(user.getUsername(), user.getId(), jwtLifetime, jwtSecret);
+        return JwtUtil.generateToken(user.getUsername(), user.getId(), user.getRoles(), jwtLifetime, jwtSecret);
     }
 
     public String generateToken(UserDto userDto) {
-        return JwtUtil.generateToken(userDto.getUsername(), userDto.getId(), jwtLifetime, jwtSecret);
+        return JwtUtil.generateToken(userDto.getUsername(), userDto.getId(), userDto.getRoles(), jwtLifetime, jwtSecret);
     }
 
     public UserDto getUserById(String id) {

@@ -19,6 +19,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +44,7 @@ public class PurchaseController implements PurchaseApi {
     private final PurchaseService purchaseService;
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<PurchaseResponse> purchaseFromStock(PurchaseRequest purchaseRequest) {
         String username = getUsernameFromSecurityContext();
 
@@ -70,6 +72,7 @@ public class PurchaseController implements PurchaseApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<PurchaseListResponse> purchaseGet() {
         String username = getUsernameFromSecurityContext();
 
@@ -94,16 +97,14 @@ public class PurchaseController implements PurchaseApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<PurchaseHistoryItem> purchaseGetById(String purchaseId) {
         String username = getUsernameFromSecurityContext();
 
-        BalanceDto balanceDto = balanceService.getBalance(username);
-
         PurchaseDto purchaseDto = purchaseService.getPurchase(purchaseId);
 
-        if (!balanceDto.getName()
-                .equals(purchaseDto.getBalanceDto()
-                        .getName())) {
+        if (!username.equals(purchaseDto.getBalanceDto()
+                .getName())) {
             throw new UnauthorizedError("The associated name for that purchase does not match Header X-Username", ErrorCode.USERNAME_DOES_NOT_MATCH_PURCHASE);
         }
 
