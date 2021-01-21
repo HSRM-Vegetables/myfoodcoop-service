@@ -57,7 +57,6 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<UserResponse> userGet() {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
                 .getContext()
