@@ -35,7 +35,7 @@ public class UserDto {
 
     @Column
     @Enumerated
-    @ElementCollection(targetClass = Role.class)
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     private List<Role> roles;
 
 }

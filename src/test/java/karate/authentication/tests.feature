@@ -16,28 +16,22 @@ Feature: User controller
     """
 
   Scenario: Retrieve tokens for a user
-    Given path 'user', 'register'
-    And request { username: 'robby5', email: 'robby5@test.com', memberId: '4225', password: #(password) }
-    When method POST
-    Then status 201
-    And def userId = response.id
-
     Given path 'auth', 'login'
-    And request { username: 'robby5',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And match response contains { token: '#string', refreshToken: '#string' }
     And json accessToken = parseJwtPayload(response.token)
-    And match accessToken contains { sub: 'robby5', id: #(userId) }
+
+    Given path 'user'
+    And header Authorization = "Bearer " + response.token
+    When method GET
+    Then status 200
+    And match accessToken contains { sub: 'member', id: #(response.id) }
 
   Scenario: Login with incorrect password fails
-    Given path 'user', 'register'
-    And request { username: 'robby6', email: 'robby6@test.com', memberId: '42255', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'robby6',  password: 'incorrect' }
+    And request { username: 'member',  password: 'incorrect' }
     When method POST
     Then status 401
     And match response.errorCode == 401004
@@ -58,13 +52,8 @@ Feature: User controller
     And match response.errorCode == 401003
 
   Scenario: Use refresh token to retrieve a new set of tokens
-    Given path 'user', 'register'
-    And request { username: 'robby7', email: 'robby7@test.com', memberId: '4227', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'robby7',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def refreshToken = response.refreshToken
@@ -90,13 +79,8 @@ Feature: User controller
     Then status 200
 
   Scenario: Revoke a refresh token
-    Given path 'user', 'register'
-    And request { username: 'robby8', email: 'robby8@test.com', memberId: '4228', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'robby8',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -117,14 +101,9 @@ Feature: User controller
     And match response.errorCode == 401009
 
   Scenario: Revoke all refresh token
-    Given path 'user', 'register'
-    And request { username: 'robby9', email: 'robby9@test.com', memberId: '4229', password: #(password) }
-    When method POST
-    Then status 201
-
     # Generate first refreshToken
     Given path 'auth', 'login'
-    And request { username: 'robby9',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -132,7 +111,7 @@ Feature: User controller
 
     # Generate second refreshToken
     Given path 'auth', 'login'
-    And request { username: 'robby9',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def refreshToken2 = response.refreshToken
