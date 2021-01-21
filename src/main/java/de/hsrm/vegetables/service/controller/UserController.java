@@ -70,18 +70,14 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasRole('CHAIRMAN')")
     public ResponseEntity<UserResponse> userAddRole(String userId, String role) {
         UserResponse response = UserMapper.userDtoToUserResponse(userService.addRole(userId, Role.valueOf(role)));
         return ResponseEntity.ok(response);
     }
 
-
     @Override
-    @PreAuthorize("hasRole('CHAIRMAN')")
     public ResponseEntity<UserResponse> userDeleteRoles(String userId, String role) {
         UserResponse response = UserMapper.userDtoToUserResponse(userService.deleteRole(userId, Role.valueOf(role)));
         return ResponseEntity.ok(response);
-
     }
 }
