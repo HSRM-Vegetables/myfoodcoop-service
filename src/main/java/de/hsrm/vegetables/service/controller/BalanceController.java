@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ public class BalanceController implements BalanceApi {
     private final BalanceService balanceService;
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<BalanceResponse> balanceGet() {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = null;
@@ -42,6 +44,7 @@ public class BalanceController implements BalanceApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<BalanceResponse> balancePatch(BalancePatchRequest request) {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = balanceService.upsert(name, request.getBalance());
@@ -50,6 +53,7 @@ public class BalanceController implements BalanceApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<BalanceResponse> balanceTopup(BalanceAmountRequest request) {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = balanceService.topup(name, request.getAmount());
@@ -58,6 +62,7 @@ public class BalanceController implements BalanceApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<BalanceResponse> balanceWithdraw(BalanceAmountRequest request) {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = balanceService.withdraw(name, request.getAmount());

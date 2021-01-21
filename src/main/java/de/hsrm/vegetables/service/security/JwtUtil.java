@@ -3,6 +3,7 @@ package de.hsrm.vegetables.service.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
@@ -27,6 +30,8 @@ public class JwtUtil {
 
     private static final String AUTHENTICATION_TOKEN_TYPE = "authentication";
 
+    private static final String JWT_ROLES_KEY = "roles";
+
     /**
      * Generates a token string for authentication
      *
@@ -36,7 +41,7 @@ public class JwtUtil {
      * @param jwtSecret   Secret to sign token with
      * @return The token string
      */
-    public static String generateToken(String username, String userId, Integer jwtLifetime, String jwtSecret) {
+    public static String generateToken(String username, String userId, List<Role> roles, Integer jwtLifetime, String jwtSecret) {
 
         return JWT.create()
                 .withSubject(username)
@@ -44,6 +49,9 @@ public class JwtUtil {
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtLifetime))
                 .withIssuedAt(new Date())
                 .withClaim("type", AUTHENTICATION_TOKEN_TYPE)
+                .withClaim(JWT_ROLES_KEY, roles.stream()
+                        .map(Role::toString)
+                        .collect(Collectors.toList()))
                 .sign(Algorithm.HMAC512(jwtSecret.getBytes(StandardCharsets.UTF_8)));
     }
 
@@ -102,7 +110,9 @@ public class JwtUtil {
         userPrincipal.setUsername(decodedJWT.getSubject());
         userPrincipal.setId(decodedJWT.getClaim("id")
                 .asString());
-
+        userPrincipal.setRoles(decodedJWT.getClaim(JWT_ROLES_KEY)
+                .asList(Role.class));
+    
         // Check that user associated to this JWT is not deleted and exists
         try {
             if (userService.isDeleted(userPrincipal.getId())) {

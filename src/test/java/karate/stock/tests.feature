@@ -15,16 +15,9 @@ Feature: Simple Stock management
     * def password = "a_funny_horse**jumps_high778"
 
   Scenario: GET returns an empty list if no stock exists
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby', email: 'Robby@test.com', memberId: '40', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -36,16 +29,9 @@ Feature: Simple Stock management
     And assert response.items.length == 0
 
   Scenario: Create a stock item
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby1', email: 'Robby1@test.com', memberId: '41', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby1',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -73,16 +59,9 @@ Feature: Simple Stock management
     And match response.isDeleted == false
 
   Scenario: Update a stock item with all values
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby2', email: 'Robby2@test.com', memberId: '42', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby2',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -112,16 +91,9 @@ Feature: Simple Stock management
     And match response.isDeleted == false
 
   Scenario: Patch of only the name works
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby3', email: 'Robby3@test.com', memberId: '43', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby3',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -144,16 +116,9 @@ Feature: Simple Stock management
     And match response contains { id: #(stockId), name: #(nameChanged), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
 
   Scenario: Patch of only the UnitType works
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby4', email: 'Robby4@test.com', memberId: '44', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby4',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -176,16 +141,9 @@ Feature: Simple Stock management
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitTypeChanged), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
 
   Scenario: Patch of only the quantity works
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby5', email: 'Robby5@test.com', memberId: '45', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby5',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -208,16 +166,9 @@ Feature: Simple Stock management
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnit) }
 
   Scenario: Patch of only the pricePerUnit works
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby6', email: 'Robby6@test.com', memberId: '46', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby6',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -240,16 +191,9 @@ Feature: Simple Stock management
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnitChanged) }
 
   Scenario: Soft Delete works
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby7', email: 'Robby7@test.com', memberId: '47', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby7',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -277,16 +221,9 @@ Feature: Simple Stock management
     And match response.isDeleted == true
 
   Scenario: POST can create an item without a description
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby9', email: 'Robby9@test.com', memberId: '49', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby9',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -298,16 +235,9 @@ Feature: Simple Stock management
     Then status 201
 
   Scenario: Cannot create item with unitType PIECE and fractional quantity
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby10', email: 'Robby10@test.com', memberId: '50', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby10',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -320,16 +250,9 @@ Feature: Simple Stock management
     And response.errorCode == 400008
 
   Scenario: POST with same item name is possible
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby11', email: 'Robby11@test.com', memberId: '51', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby11',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -360,16 +283,9 @@ Feature: Simple Stock management
     And assert response.pricePerUnit == pricePerUnit
 
   Scenario: Cannot PATCH an item with unitType PIECE and fractional quantity
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby12', email: 'Robby12@test.com', memberId: '52', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby12',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -404,16 +320,9 @@ Feature: Simple Stock management
     And match response.isDeleted == false
 
   Scenario: Cannot PATCH fractional quantity of item with unitType PIECE
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby13', email: 'Robby13@test.com', memberId: '53', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby13',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -448,16 +357,9 @@ Feature: Simple Stock management
     And match response.isDeleted == false
 
   Scenario: Cannot PATCH a soft deleted item
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby14', email: 'Robby14@test.com', memberId: '54', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby14',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -490,16 +392,9 @@ Feature: Simple Stock management
     And assert response.errorCode == 400009
 
   Scenario: GET with no delete parameter does not include deleted items
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby15', email: 'Robby15@test.com', memberId: '55', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby15',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -534,16 +429,9 @@ Feature: Simple Stock management
     And match each response.items contains { isDeleted: false }
 
   Scenario: GET with delete parameter OMIT does not include deleted items
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby16', email: 'Robby16@test.com', memberId: '56', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby16',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -579,16 +467,9 @@ Feature: Simple Stock management
     And match each response.items contains { isDeleted: false }
 
   Scenario: GET with delete parameter INCLUDE includes deleted and not deleted items
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby17', email: 'Robby17@test.com', memberId: '57', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby17',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -629,16 +510,9 @@ Feature: Simple Stock management
     And assert notDeletedItems.length > 0
 
   Scenario: GET with delete parameter ONLY does not include non-deleted items
-    # Register user
-    Given path 'user', 'register'
-    And request { username: 'Robby18', email: 'Robby18@test.com', memberId: '58', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     # Get token
     Given path 'auth', 'login'
-    And request { username: 'Robby18',  password: #(password) }
+    And request { username: 'orderer',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token

@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "11c7f516-35fe-4362-be8e-14c439472db9",
+    "_postman_id": "78ea28a5-1f9f-495f-a47b-5b72c06e6c6a",
     "name": "stadtgemüse-backend",
     "description": "## Environsments\r\n\r\n### LOCAL\r\nBenutzt für die lokale Entwicklung\r\n\r\nURL: localhost:8080\r\n\r\n### PROD\r\nBenutzt um gegen die deployte, produktive Umgebung zu schießen\r\n\r\nURL: https://veg-service.herokuapp.com/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -548,6 +548,22 @@
               "item": [
                 {
                   "name": "GET /user",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Get id of first stock item and save it to a variable\r",
+                          "\r",
+                          "const user = pm.response.json();\r",
+                          "\r",
+                          "pm.collectionVariables.set(\"userId\", user.id);\r",
+                          ""
+                        ],
+                        "type": "text/javascript"
+                      }
+                    }
+                  ],
                   "request": {
                     "method": "GET",
                     "header": [
@@ -589,6 +605,80 @@
                       "path": [
                         "v2",
                         "user"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /user/:userId/roles/:role",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "type": "text",
+                        "value": "{{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/user/:userId/roles/:role",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user",
+                        ":userId",
+                        "roles",
+                        ":role"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "{{userId}}"
+                        },
+                        {
+                          "key": "role",
+                          "value": "MEMBER"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "DELETE /user/:userId/roles/:role",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "type": "text",
+                        "value": "{{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/user/:userId/roles/:role",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user",
+                        ":userId",
+                        "roles",
+                        ":role"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "{{userId}}"
+                        },
+                        {
+                          "key": "role",
+                          "value": "MEMBER"
+                        }
                       ]
                     }
                   },
@@ -732,7 +822,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"username\": \"robby\",\r\n    \"email\": \"test@example.com\",\r\n    \"memberId\": \"1345\",\r\n    \"password\": \"a_funny_horse**jumps_high778\"\r\n}",
+                      "raw": "{\r\n    \"username\": \"treasurer\",\r\n    \"email\": \"treasurer@example.com\",\r\n    \"memberId\": \"treasurer\",\r\n    \"password\": \"treasurertreasurer\"\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -864,6 +954,10 @@
     },
     {
       "key": "today",
+      "value": ""
+    },
+    {
+      "key": "userId",
       "value": ""
     }
   ]

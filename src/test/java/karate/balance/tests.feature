@@ -5,14 +5,8 @@ Feature: Balance Tests
     * def password = "a_funny_horse**jumps_high778"
 
   Scenario: PATCH allows to set the balance for user
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster', email: 'MaxMuster@test.com', memberId: '42', password: #(password) }
-    When method POST
-    Then status 201
-    And print response
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -25,13 +19,8 @@ Feature: Balance Tests
     And assert response.balance == 5
 
   Scenario: GET returns balance for user
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster2', email: 'MaxMuster2@test.com', memberId: '43', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster2',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -40,65 +29,63 @@ Feature: Balance Tests
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    Then assert response.balance == 0
+    Then match response.balance == '#number'
 
   Scenario: Topup balance of user
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster3', email: 'MaxMuster3@test.com', memberId: '44', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster3',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
+
+    Given path '/balance'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    * def newBalance = response.balance + 2.0
 
     Given path '/balance/topup'
     And header Authorization = "Bearer " + token
     And request { amount: 2 }
     When method POST
     Then status 200
-    And match response contains { balance: 2.0 }
+    And match response contains { balance: #(newBalance) }
 
     Given path '/balance'
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    Then assert response.balance == 2.0
+    Then match response.balance == newBalance
 
   Scenario: Withdraw from balance
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster4', email: 'MaxMuster4@test.com', memberId: '45', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster4',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
+
+    Given path '/balance'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    * def newBalance = response.balance - 3.0
 
     Given path '/balance/withdraw'
     And header Authorization = "Bearer " + token
     And request { amount: 3 }
     When method POST
     Then status 200
+    And match response contains { balance: #(newBalance) }
 
     Given path '/balance'
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    Then assert response.balance == -3.0
+    Then match response.balance == newBalance
 
   Scenario: POST topup with negativ value should fail
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster5', email: 'MaxMuster5@test.com', memberId: '46', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster5',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -111,13 +98,8 @@ Feature: Balance Tests
     And assert response.errorCode == 400005
 
   Scenario: POST withdraw with negative value should fail
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster6', email: 'MaxMuster6@test.com', memberId: '47', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster6',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -130,13 +112,8 @@ Feature: Balance Tests
     And assert response.errorCode == 400005
 
   Scenario: PATCH with invalid body returns error
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster7', email: 'MaxMuster7@test.com', memberId: '48', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster7',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -149,13 +126,8 @@ Feature: Balance Tests
     And assert response.errorCode == 400005
 
   Scenario: POST topup with invalid body fails
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster8', email: 'MaxMuster8@test.com', memberId: '49', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster8',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -168,13 +140,8 @@ Feature: Balance Tests
     And assert response.errorCode == 400005
 
   Scenario: POST withdraw with invalid body fails
-    Given path 'user', 'register'
-    And request { username: 'MaxMuster9', email: 'MaxMuster9@test.com', memberId: '50', password: #(password) }
-    When method POST
-    Then status 201
-
     Given path 'auth', 'login'
-    And request { username: 'MaxMuster9',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -212,3 +179,36 @@ Feature: Balance Tests
     When method POST
     Then status 401
     And match response.errorCode == 401005
+
+  Scenario: New user has a balance of 0
+    Given path 'user', 'register'
+    And request { username: 'MaxMuster', email: 'MaxMuster8@test.com', memberId: '49', password: #(password) }
+    When method POST
+    Then status 201
+    And def userId = response.id
+
+    # Login chair main to grant MaxMuster MEMBER role
+    Given path 'auth', 'login'
+    And request { username: 'chairman',  password: #(password) }
+    When method POST
+    Then status 200
+    And def cToken = response.token
+
+    # Grant role MEMBER to MaxMuster
+    Given path 'user', userId, 'roles', 'MEMBER'
+    And header Authorization = "Bearer " + cToken
+    And request {}
+    When method POST
+    Then status 200
+
+    Given path 'auth', 'login'
+    And request { username: 'MaxMuster',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    Given path 'balance'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response.balance == 0

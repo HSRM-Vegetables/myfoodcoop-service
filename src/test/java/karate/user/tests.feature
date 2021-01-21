@@ -63,17 +63,8 @@ Feature: User controller
     And match response.errorCode == 400016
 
   Scenario: Get own user data
-    Given path 'user', 'register'
-    * def username = "robby7"
-    * def email = "robby7@test.com"
-    * def memberId = "42226"
-    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
-    When method POST
-    Then status 201
-    And def userId = response.id
-
     Given path 'auth', 'login'
-    And request { username: 'robby7',  password: #(password) }
+    And request { username: 'member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -83,7 +74,7 @@ Feature: User controller
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: #(userId), username: #(username), email: #(email), memberId: #(memberId), password: '#notpresent', roles: '#array' }
+    And match response contains { id: '#uuid', username: 'member', email: 'member@mail.com', memberId: 'memberId', password: '#notpresent', roles: '#array' }
 
   Scenario: GET /user requires authorization
     Given path 'user'
@@ -102,19 +93,20 @@ Feature: User controller
     And def userId = response.id
 
     Given path 'auth', 'login'
-    And request { username: 'robby7',  password: #(password) }
+    And request { username:  #(username),  password: #(password) }
     When method POST
     Then status 200
-    And def token = response.token
-    And print token
+    And def rToken = response.token
 
+    # Delete user
     Given path 'user'
-    And header Authorization = "Bearer " + token
+    And header Authorization = "Bearer " + rToken
     When method DELETE
     Then status 204
 
+    # Check that deletion was successful
     Given path 'user'
-    And header Authorization = "Bearer " + token
+    And header Authorization = "Bearer " + rToken
     When method GET
     Then status 401
     And match response.errorCode == 401002
@@ -207,7 +199,6 @@ Feature: User controller
     # Create User
     Given path 'user', 'register'
     * def username = "mustermann3"
-    * def password = "testPW1234567"
     And request { username: #(username), email: "mustermann3@test.com", memberId: "1235454456", password: #(password) }
     When method POST
     Then status 201
@@ -215,7 +206,7 @@ Feature: User controller
 
     # Auth User
     Given path 'auth', 'login'
-    And request { username: #(username),  password: #(password) }
+    And request { username: 'chairman',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -240,7 +231,6 @@ Feature: User controller
     # Create User
     Given path 'user', 'register'
     * def username = "mustermann4"
-    * def password = "testPW1234567"
     And request { username: #(username), email: "mustermann4@test.com", memberId: "12384524456", password: #(password) }
     When method POST
     Then status 201
@@ -248,7 +238,7 @@ Feature: User controller
 
     # Auth User
     Given path 'auth', 'login'
-    And request { username: #(username),  password: #(password) }
+    And request { username: 'chairman',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token

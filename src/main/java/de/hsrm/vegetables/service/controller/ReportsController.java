@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +39,7 @@ public class ReportsController implements ReportsApi {
     private final StockService stockService;
 
     @Override
+    @PreAuthorize("hasRole('TREASURER')")
     public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate) {
         LocalDate today = LocalDate.now();
         if (fromDate.isAfter(today) || toDate.isAfter(today)) {

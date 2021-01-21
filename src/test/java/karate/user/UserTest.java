@@ -2,6 +2,7 @@ package karate.user;
 
 import com.intuit.karate.junit5.Karate;
 import de.hsrm.vegetables.service.Application;
+import karate.BaseTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -23,11 +24,12 @@ import org.springframework.test.context.TestPropertySource;
 
 @DirtiesContext
 @AutoConfigureMockMvc
-public class UserTest {
+public class UserTest extends BaseTest {
 
     @Karate.Test
     Karate testAll() {
         return Karate.run()
                 .relativeTo(getClass());
     }
+
 }

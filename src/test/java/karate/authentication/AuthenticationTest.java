@@ -2,6 +2,7 @@ package karate.authentication;
 
 import com.intuit.karate.junit5.Karate;
 import de.hsrm.vegetables.service.Application;
+import karate.BaseTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -23,7 +24,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @DirtiesContext
 @AutoConfigureMockMvc
-public class AuthenticationTest {
+public class AuthenticationTest extends BaseTest {
 
     @Karate.Test
     Karate testAll() {
