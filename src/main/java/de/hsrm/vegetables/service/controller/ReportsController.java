@@ -39,7 +39,7 @@ public class ReportsController implements ReportsApi {
     private final StockService stockService;
 
     @Override
-    @PreAuthorize("hasRole('TREASURER')")
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate) {
         LocalDate today = LocalDate.now();
         if (fromDate.isAfter(today) || toDate.isAfter(today)) {
