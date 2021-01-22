@@ -1037,7 +1037,7 @@ components :
             enum:
                 - MEMBER
                 - TREASURER
-                - CHAIRMAN
+                - ADMIN
                 - ORDERER
 
         token :
@@ -1115,7 +1115,7 @@ components :
                 enum:
                     - MEMBER
                     - TREASURER
-                    - CHAIRMAN
+                    - ADMIN
                     - ORDERER
             required: true
             description: The name of a role

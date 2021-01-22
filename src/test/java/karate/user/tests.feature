@@ -158,13 +158,13 @@ Feature: User controller
     Then status 200
     And match response.roles contains 'TREASURER'
 
-    # Post role CHAIRMAN
-    Given path 'user', userID, 'roles', 'CHAIRMAN'
+    # Post role ADMIN
+    Given path 'user', userID, 'roles', 'ADMIN'
     And header Authorization = "Bearer " + token
     And request ''
     When method POST
     Then status 200
-    And match response.roles contains 'CHAIRMAN'
+    And match response.roles contains 'ADMIN'
 
     # Check roles
     Given path 'user'
@@ -172,7 +172,7 @@ Feature: User controller
     When method GET
     Then status 200
     And match response.roles contains 'TREASURER'
-    And match response.roles contains 'CHAIRMAN'
+    And match response.roles contains 'ADMIN'
 
     # Delete role TREASURER
     Given path 'user', userID, 'roles', 'TREASURER'
@@ -181,12 +181,12 @@ Feature: User controller
     Then status 200
     And match response.roles !contains 'TREASURER'
 
-    # Delete role CHAIRMAN
-    Given path 'user', userID, 'roles', 'CHAIRMAN'
+    # Delete role ADMIN
+    Given path 'user', userID, 'roles', 'ADMIN'
     And header Authorization = "Bearer " + token
     When method DELETE
     Then status 200
-    And match response.roles !contains 'CHAIRMAN'
+    And match response.roles !contains 'ADMIN'
 
     # Check roles again
     Given path 'user'
@@ -206,7 +206,7 @@ Feature: User controller
 
     # Auth User
     Given path 'auth', 'login'
-    And request { username: 'chairman',  password: #(password) }
+    And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -238,13 +238,13 @@ Feature: User controller
 
     # Auth User
     Given path 'auth', 'login'
-    And request { username: 'chairman',  password: #(password) }
+    And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
 
-    # Delete role CHAIRMAN
-    Given path 'user', userID, 'roles', 'CHAIRMAN'
+    # Delete role ADMIN
+    Given path 'user', userID, 'roles', 'ADMIN'
     And header Authorization = "Bearer " + token
     When method DELETE
     Then status 404

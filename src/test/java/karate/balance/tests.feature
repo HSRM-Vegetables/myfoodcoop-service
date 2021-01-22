@@ -187,9 +187,9 @@ Feature: Balance Tests
     Then status 201
     And def userId = response.id
 
-    # Login chair main to grant MaxMuster MEMBER role
+    # Login admin to grant MaxMuster MEMBER role
     Given path 'auth', 'login'
-    And request { username: 'chairman',  password: #(password) }
+    And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def cToken = response.token
