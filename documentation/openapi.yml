@@ -145,6 +145,14 @@ paths:
                     name: deleted
                     schema:
                         $ref: '#/components/schemas/delete-filter'
+                -   in: query
+                    description: Filters the returned elements by their status
+                    name: filterByStatus
+                    schema:
+                        description: Filters the returned elements by their status
+                        type: array
+                        items:
+                            $ref: '#/components/schemas/stockStatus'
             responses:
                 '200':
                     description: Successful call, returns the current stock

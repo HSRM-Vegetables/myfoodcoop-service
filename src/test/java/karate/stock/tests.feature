@@ -619,3 +619,119 @@ Feature: Simple Stock management
     When method DELETE
     Then status 401
     And match response.errorCode == 401005
+
+  Scenario: Filtering by status OUTOFSTOCK works
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create stock item with status ORDERED
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'INSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Get token for member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # Get only stock items with status ORDERED
+    Given path 'stock'
+    And header Authorization = "Bearer " + mToken
+    And header filterByStatus = "OUTOFSTOCK"
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And match each response.items contains { stockStatus: 'OUTOFSTOCK' }
+
+  Scenario: Filtering by status OUTOFSTOCK and INSTOCK works
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create stock item with status OUTOFSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'INSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Get token for member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # Get only stock items with status OUTOFSTOCK or INSTOCK
+    Given path 'stock'
+    And header Authorization = "Bearer " + mToken
+    And header filterByStatus = "OUTOFSTOCK,INSTOCK"
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And match each response.items contains { stockStatus: '#? _ === "OUTOFSTOCK" || _ === "INSTOCK"' }

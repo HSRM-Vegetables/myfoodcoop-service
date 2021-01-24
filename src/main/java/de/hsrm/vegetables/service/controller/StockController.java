@@ -35,7 +35,7 @@ public class StockController implements StockApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted) {
+    public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted, List<StockStatus> filterByStatus) {
         List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getAll(deleted));
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);
