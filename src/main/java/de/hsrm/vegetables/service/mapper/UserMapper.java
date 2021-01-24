@@ -3,6 +3,9 @@ package de.hsrm.vegetables.service.mapper;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class UserMapper {
 
     private UserMapper() {
@@ -20,5 +23,11 @@ public class UserMapper {
         return userResponse;
     }
 
+    public static List<UserResponse> listUserDtoToListUserResponse(List<UserDto> userDtos) {
+        return userDtos
+                .stream()
+                .map(UserMapper::userDtoToUserResponse)
+                .collect(Collectors.toList());
+    }
 
 }

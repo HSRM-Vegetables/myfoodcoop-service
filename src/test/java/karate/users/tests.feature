@@ -16,8 +16,8 @@ Feature: Users controller
       And header Authorization = "Bearer " + oToken
       When method GET
       Then status 200
-      And match response = { users: '#array' }
-      And match response.users[*].username == 'admin'
+      And match response == { users: '#array' }
+      And match response.users[*].username contains 'admin'
 
     Scenario: Cannot get all Users without login
       Given path 'users'

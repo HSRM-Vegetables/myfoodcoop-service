@@ -149,4 +149,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public List<UserDto> getAll() {
+        return userRepository.findAll();
+    }
+
 }
