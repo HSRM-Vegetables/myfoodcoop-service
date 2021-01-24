@@ -18,6 +18,8 @@ tags :
         description : Various reports that can be generated for different aspects of the stock, the users and the balances
     -   name : User
         description : Login, register, or get user information
+    -   name : Users
+        description : Functionality related to all users
     -   name : Authentication
         description : Token management and related functionality
 paths :
@@ -417,6 +419,30 @@ paths :
                         application/json :
                             schema :
                                 $ref : '#/components/schemas/error-response'
+
+    /users :
+        get :
+            security :
+                -   bearerAuth : [ ]
+            tags :
+                - Users
+            summary : Get all users
+            operationId : usersGet
+            responses :
+                '200' :
+                    description: Get all users
+                    content:
+                        application/json :
+                            schema:
+                                $ref : '#/components/schemas/user-list-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+
+
     /auth/login :
         post :
             tags :
@@ -900,6 +926,14 @@ components :
                     type: array
                     items:
                         $ref: '#/components/schemas/role'
+
+        user-list-response :
+            type : object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/user-response'
 
         token-response :
             type : object
