@@ -659,6 +659,7 @@ components:
                 - unitType
                 - quantity
                 - pricePerUnit
+                - stockStatus
             properties:
                 name:
                     $ref: '#/components/schemas/item-name'
@@ -670,6 +671,8 @@ components:
                     $ref: '#/components/schemas/pricePerUnit'
                 description:
                     $ref: '#/components/schemas/item-description'
+                stockStatus:
+                    $ref: '#/components/schemas/stockStatus'
 
         stock-patch-request:
             description: All data of an item that can be updated
@@ -685,6 +688,8 @@ components:
                     $ref: '#/components/schemas/pricePerUnit'
                 description:
                     $ref: '#/components/schemas/item-description'
+                stockStatus:
+                    $ref: '#/components/schemas/stockStatus'
 
         register-request:
             description: Data to register a user
@@ -773,6 +778,8 @@ components:
                     type: boolean
                     description: Wether this item is deleted
                     example: false
+                stockStatus:
+                    $ref: '#/components/schemas/stockStatus'
 
         purchase-response:
             description: Information about the users balance and the purchased cart
@@ -1045,6 +1052,23 @@ components:
             type: string
             example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
             maxLength: 10000
+
+        stockStatus:
+            description: |-
+                Describes the current status of an item \
+                The following status are available:
+                * ORDERED: The item was ordered, but it is not delivered yet
+                * INSTOCK: The item was delivered and is ready for purchase
+                * PERISHESSOON: The item perishes soon and should be bought in the near future
+                * OUTOFSTOCK: The item is out of stock and cannot be bought anymore
+            type: string
+            example: ORDERED
+            default: ORDERED
+            enum:
+                - ORDERED
+                - INSTOCK
+                - PERISHESSOON
+                - OUTOFSTOCK
 
     parameters:
         username:
