@@ -17,6 +17,8 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 @SpringBootApplication
 @ComponentScan(basePackages = "de.hsrm")
 public class Application {
@@ -38,7 +40,7 @@ public class Application {
             final CorsConfiguration config = new CorsConfiguration();
             config.addAllowedOrigin("*");
             config.addAllowedHeader("*");
-            config.addAllowedMethod("*");
+            config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTION"));
 
             final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", config);
