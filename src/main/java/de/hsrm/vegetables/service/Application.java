@@ -43,7 +43,7 @@ public class Application {
             config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTION"));
 
             final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-            source.registerCorsConfiguration("/**", config);
+            source.registerCorsConfiguration("/v*/**", config);
             return new CorsFilter(source);
         }
 
