@@ -566,3 +566,46 @@ Feature: Simple Purchases
     When method GET
     Then status 401
     And assert response.errorCode == 401005
+
+  Scenario: Purchasing an item with stockStatus OUTOFSTOCK is not possible
+    # Create Item with Orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create item that is out of stock
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'OUTOFSTOCK' }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Login with member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Purchase item
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 400
+    And match response.errorCode == 400018
+
+    # Check that purchase exists in purchase list
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And assert response.purchases.length == 1
+    And def purchase = findItemWithId(response.purchases, purchaseId)
+    And match purchase contains { id: #(purchaseId) }
+    And def purchasedItem1 = findItemWithId(purchase.items, stockId1)
+    And match purchasedItem1 contains { id: #(stockId1) }

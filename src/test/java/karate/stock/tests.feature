@@ -13,6 +13,8 @@ Feature: Simple Stock management
     * def quantityChanged = 110.0
     * def pricePerUnitChanged = 4.2
     * def password = "a_funny_horse**jumps_high778"
+    * def stockStatus = "ORDERED"
+    * def stockStatusChanged = "INSTOCK"
 
   Scenario: GET returns an empty list if no stock exists
     # Get token
@@ -39,15 +41,20 @@ Feature: Simple Stock management
     # Create stock item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description) }
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: #(stockStatus),
+     }
+    """
     When method POST
     Then status 201
-    And assert response.id != null
-    And assert response.name == name
-    And assert response.unitType == unitType
-    And assert response.quantity == quantity
-    And assert response.pricePerUnit == pricePerUnit
-    And assert response.description == description
+    And match response contains { id: '#uuid', name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: #(stockStatus) }
     And def stockId = response.id
 
     # Get the item that was just created
@@ -55,7 +62,7 @@ Feature: Simple Stock management
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: #(stockStatus) }
     And match response.isDeleted == false
 
   Scenario: Update a stock item with all values
@@ -69,7 +76,17 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: #(stockStatus),
+     }
+    """
     When method POST
     Then status 201
     And def stockId = response.id
@@ -77,17 +94,17 @@ Feature: Simple Stock management
     # Update this stock item
     Given path 'stock', stockId
     And header Authorization = "Bearer " + token
-    And request { name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged) }
+    And request { name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged), stockStatus: #(stockStatusChanged) }
     When method PATCH
     Then status 200
-    And match response contains { id: #(stockId), name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged) }
+    And match response contains { id: #(stockId), name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged), stockStatus: #(stockStatusChanged) }
 
     # Check that patch was successful
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: #(stockId), name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged) }
+    And match response contains { id: #(stockId), name: #(nameChanged), unitType: #(unitTypeChanged), quantity: #(quantityChanged), pricePerUnit: #(pricePerUnitChanged), stockStatus: #(stockStatusChanged) }
     And match response.isDeleted == false
 
   Scenario: Patch of only the name works
@@ -189,6 +206,30 @@ Feature: Simple Stock management
     When method PATCH
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnitChanged) }
+
+  Scenario: Patch of only the stockStatus works
+    # Get token
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Create Item
+    Given path '/stock'
+    And header Authorization = "Bearer " + token
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: #(stockStatus) }
+    When method POST
+    Then status 201
+    And def stockId = response.id
+
+    # Only patch stockStatus
+    Given path '/stock/' + stockId
+    And header Authorization = "Bearer " + token
+    And request { stockStatus: #(stockStatusChanged) }
+    When method PATCH
+    Then status 200
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), stockStatus: #(stockStatusChanged) }
 
   Scenario: Soft Delete works
     # Get token
