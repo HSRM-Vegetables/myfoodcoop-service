@@ -23,7 +23,7 @@ Feature: User controller
     And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
     When method POST
     Then status 201
-    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), password: '#notpresent' }
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'false', password: '#notpresent' }
 
   Scenario: Cannot create a user with already registered username
     Given path 'user', 'register'
@@ -74,7 +74,7 @@ Feature: User controller
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: '#uuid', username: 'member', email: 'member@mail.com', memberId: 'memberId', password: '#notpresent', roles: '#array' }
+    And match response contains { id: '#uuid', username: 'member', email: 'member@mail.com', memberId: 'memberId', isDeleted: 'false', password: '#notpresent', roles: '#array' }
 
   Scenario: GET /user requires authorization
     Given path 'user'
@@ -160,7 +160,6 @@ Feature: User controller
     When method DELETE
     Then status 200
     And match response.roles !contains 'TREASURER'
-
 
   Scenario Outline: Cannot add or delete roles as member, orderer or treasurer
     # Login
@@ -275,3 +274,90 @@ Feature: User controller
     When method DELETE
     Then status 400
     And match response.errorCode == 400018
+
+  Scenario: Get user data from another user
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann4"
+    * def email = "mustermann4@test.com"
+    * def memberId = "12384524481"
+    And request { username: #(username), email: #(email), #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Get data from new user
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'false', password: '#notpresent' }
+
+  Scenario: Error when retrieving user data from invalid user-id
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Get data from unknown user
+    Given path 'user', 'ZZZZZ9999'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 404
+    And match response.errorCode == 404005
+
+  Scenario: Error when deleting invalid user-id
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Delete unknown user
+    Given path 'user', 'ZZZZZ9999'
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 404
+    And match response.errorCode == 404005
+
+  Scenario: User is softDeleted after delete
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann5"
+    * def email = "mustermann5@test.com"
+    * def memberId = "12384524482"
+    And request { username: #(username), email: #(email), #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'false', password: '#notpresent' }
+
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Delete new user
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 204
+
+    # Get user data
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'true', password: '#notpresent' }
