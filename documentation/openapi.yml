@@ -542,6 +542,8 @@ paths :
 
     /user/{user-id} :
         get :
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Get user data for the specified user
@@ -562,6 +564,8 @@ paths :
                             schema:
                                 $ref: '#/components/schemas/error-response'
         delete :
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Soft deletes a user account
@@ -580,6 +584,8 @@ paths :
 
     /user/{user-id}/roles/{role}:
         post:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Adds one role to the specified user
@@ -602,6 +608,8 @@ paths :
                                 $ref: '#/components/schemas/error-response'
 
         delete:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Removes one role from the specified user
