@@ -251,3 +251,27 @@ Feature: User controller
     When method DELETE
     Then status 404
     And match response.errorCode == 404006
+
+  Scenario: Cannot remove role admin when user is the last admin
+    # depends on class BaseTest that there is only one admin
+
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # get UserID
+    Given path 'user'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And def userID = response.id
+
+    # try to remove role admin
+    Given path 'user', userID, 'roles', 'ADMIN'
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 400
+    And match response.errorCode == 400018

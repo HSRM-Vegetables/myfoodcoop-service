@@ -144,6 +144,9 @@ public class UserService {
         if (!roles.contains(role))
             throw new NotFoundError("User does not has the role" + role, ErrorCode.USER_DOESNT_HAS_ROLE);
 
+        if(role == Role.ADMIN && this.getAllByRole(Role.ADMIN).size() == 1)
+            throw new BadRequestError("Can't delete role " + role + ": User " + user.getUsername() + "is the last admin", ErrorCode.USER_IS_LAST_ADMIN);
+
         roles.remove(role);
         user.setRoles(roles);
         return userRepository.save(user);
@@ -151,6 +154,10 @@ public class UserService {
 
     public List<UserDto> getAll() {
         return userRepository.findAll();
+    }
+
+    public List<UserDto> getAllByRole(Role role) {
+        return userRepository.findByRoles(role);
     }
 
 }
