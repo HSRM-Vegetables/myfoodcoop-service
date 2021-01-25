@@ -19,6 +19,7 @@ public class UserMapper {
         userResponse.setMemberId(userDto.getMemberId());
         userResponse.setId(userDto.getId());
         userResponse.setRoles(userDto.getRoles());
+        userResponse.setIsDeleted(userDto.isDeleted());
 
         return userResponse;
     }
