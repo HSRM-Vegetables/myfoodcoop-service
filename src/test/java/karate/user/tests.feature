@@ -23,7 +23,7 @@ Feature: User controller
     And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
     When method POST
     Then status 201
-    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'false', password: '#notpresent' }
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent' }
 
   Scenario: Cannot create a user with already registered username
     Given path 'user', 'register'
@@ -74,7 +74,7 @@ Feature: User controller
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: '#uuid', username: 'member', email: 'member@mail.com', memberId: 'memberId', isDeleted: 'false', password: '#notpresent', roles: '#array' }
+    And match response contains { id: '#uuid', username: 'member', email: 'member@mail.com', memberId: 'memberId', isDeleted: false, password: '#notpresent', roles: '#array' }
 
   Scenario: GET /user requires authorization
     Given path 'user'
@@ -298,7 +298,7 @@ Feature: User controller
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'false', password: '#notpresent' }
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent' }
 
   Scenario: Error when retrieving user data from invalid user-id
     # Login as admin
@@ -340,7 +340,7 @@ Feature: User controller
     When method POST
     Then status 201
     And def userID = response.id
-    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'false', password: '#notpresent' }
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent' }
 
     # Login as admin
     Given path 'auth', 'login'
