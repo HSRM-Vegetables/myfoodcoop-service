@@ -563,7 +563,7 @@ paths :
                 -   $ref: '#/components/parameters/user-id'
             responses:
                 '200':
-                    description: Get own user data
+                    description: Successful call, returns the user data of the specified user
                     content:
                         application/json:
                             schema:
