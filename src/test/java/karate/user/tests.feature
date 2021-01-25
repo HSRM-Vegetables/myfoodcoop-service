@@ -281,7 +281,7 @@ Feature: User controller
     * def username = "mustermann4"
     * def email = "mustermann4@test.com"
     * def memberId = "12384524481"
-    And request { username: #(username), email: #(email), #(memberId), password: #(password) }
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
     When method POST
     Then status 201
     And def userID = response.id
@@ -298,7 +298,7 @@ Feature: User controller
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent' }
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent', roles: '#array' }
 
   Scenario: Error when retrieving user data from invalid user-id
     # Login as admin
@@ -336,7 +336,7 @@ Feature: User controller
     * def username = "mustermann5"
     * def email = "mustermann5@test.com"
     * def memberId = "12384524482"
-    And request { username: #(username), email: #(email), #(memberId), password: #(password) }
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
     When method POST
     Then status 201
     And def userID = response.id
@@ -360,4 +360,4 @@ Feature: User controller
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: 'true', password: '#notpresent' }
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: true, password: '#notpresent', roles: '#array' }

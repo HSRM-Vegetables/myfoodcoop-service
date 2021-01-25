@@ -9,6 +9,7 @@ import de.hsrm.vegetables.service.mapper.UserMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.UserService;
+import io.swagger.annotations.ApiParam;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/v2")
@@ -65,6 +69,20 @@ public class UserController implements UserApi {
         UserResponse response = UserMapper.userDtoToUserResponse(userService.getUserById(userPrincipal.getId()));
 
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> userIdGet(String userId) {
+        UserResponse response = UserMapper.userDtoToUserResponse(userService.getUserById(userId));
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> userIdDelete(String userId) {
+        userService.softDeleteUser(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
