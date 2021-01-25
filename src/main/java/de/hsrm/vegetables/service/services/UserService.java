@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -152,8 +153,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<UserDto> getAll() {
-        return userRepository.findAll();
+    public List<UserDto> getAll(DeleteFilter deleteFilter) {
+        return switch (deleteFilter) {
+            case OMIT -> userRepository.findByIsDeleted(false);
+            case ONLY -> userRepository.findByIsDeleted(true);
+            case INCLUDE -> userRepository.findAll();
+        };
     }
 
     public List<UserDto> getAllByRole(Role role) {

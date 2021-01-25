@@ -1,10 +1,7 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.UsersApi;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.AllStockResponse;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockResponse;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserListResponse;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserResponse;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.mapper.StockMapper;
 import de.hsrm.vegetables.service.mapper.UserMapper;
@@ -31,8 +28,8 @@ public class UsersController implements UsersApi {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserListResponse> usersGet() {
-        List<UserResponse> users = UserMapper.listUserDtoToListUserResponse(userService.getAll());
+    public ResponseEntity<UserListResponse> usersGet(DeleteFilter deleted) {
+        List<UserResponse> users = UserMapper.listUserDtoToListUserResponse(userService.getAll(deleted));
         UserListResponse response = new UserListResponse();
         response.setUsers(users);
         return ResponseEntity.ok(response);

@@ -428,6 +428,17 @@ paths :
                 - Users
             summary : Get all users
             operationId : usersGet
+            parameters:
+                -   in: query
+                    description: |-
+                        Controls if deleted users will be included in the results
+
+                        * OMIT: Only users which haven't been deleted will be included
+                        * INCLUDE: Delted and not deleted users will be returned
+                        * ONLY: Only return deleted users
+                    name: deleted
+                    schema:
+                        $ref: '#/components/schemas/delete-filter'
             responses :
                 '200' :
                     description: Get all users

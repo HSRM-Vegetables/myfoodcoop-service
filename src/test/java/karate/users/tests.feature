@@ -66,3 +66,50 @@ Feature: Users controller
       When method GET
       Then status 401
       And match response.errorCode == 401005
+
+    Scenario: Get only deleted users
+      # Create User
+      Given path 'user', 'register'
+      And request { username: "mustermann1", email: "mustermann1@test.com", memberId: "1234", password: #(password) }
+      When method POST
+      Then status 201
+      And def userID = response.id
+
+      # Login as Admin
+      Given path 'auth', 'login'
+      And request { username: 'admin',  password: #(password) }
+      When method POST
+      Then status 200
+      And def oToken = response.token
+
+      # Delete new user
+      Given path 'user', userID
+      And header Authorization = "Bearer " + oToken
+      When method DELETE
+      Then status 204
+
+      # Get only deleted users
+      Given path 'users'
+      And header Authorization = "Bearer " + oToken
+      And param deleted = "ONLY"
+      When method GET
+      Then status 200
+      And match response == { users: '#array' }
+      And match response.users[*].username contains 'mustermann1'
+
+      # Deleted user should net be in default /users response
+      Given path 'users'
+      And header Authorization = "Bearer " + oToken
+      When method GET
+      Then status 200
+      And match response == { users: '#array' }
+      And match response.users[*].username !contains 'mustermann1'
+
+      # Deleted users should be in included /users resonse
+      Given path 'users'
+      And header Authorization = "Bearer " + oToken
+      And param deleted = "INCLUDE"
+      When method GET
+      Then status 200
+      And match response == { users: '#array' }
+      And match response.users[*].username contains 'mustermann1'
