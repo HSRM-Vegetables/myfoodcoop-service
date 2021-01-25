@@ -598,14 +598,3 @@ Feature: Simple Purchases
     When method POST
     Then status 400
     And match response.errorCode == 400018
-
-    # Check that purchase exists in purchase list
-    Given path '/purchase'
-    And header Authorization = "Bearer " + token
-    When method GET
-    Then status 200
-    And assert response.purchases.length == 1
-    And def purchase = findItemWithId(response.purchases, purchaseId)
-    And match purchase contains { id: #(purchaseId) }
-    And def purchasedItem1 = findItemWithId(purchase.items, stockId1)
-    And match purchasedItem1 contains { id: #(stockId1) }

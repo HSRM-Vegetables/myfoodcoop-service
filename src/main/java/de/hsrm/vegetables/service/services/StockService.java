@@ -2,6 +2,7 @@ package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -27,6 +30,9 @@ public class StockService {
     @NonNull
     private final StockRepository stockRepository;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     /**
      * Returns all items currently in stock
      * deleteFilter controls how deleted entries are treated:
@@ -38,12 +44,23 @@ public class StockService {
      * @param deleteFilter How to treat deleted items
      * @return A list of stock items
      */
-    public List<StockDto> getAll(DeleteFilter deleteFilter) {
-        return switch (deleteFilter) {
-            case OMIT -> stockRepository.findByIsDeleted(false);
-            case ONLY -> stockRepository.findByIsDeleted(true);
-            case INCLUDE -> stockRepository.findAll();
-        };
+    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter) {
+        // No filtering by status
+        if (stockFilter == null || stockFilter.isEmpty()) {
+            return switch (deleteFilter) {
+                case OMIT -> stockRepository.findByIsDeleted(false);
+                case ONLY -> stockRepository.findByIsDeleted(true);
+                case INCLUDE -> stockRepository.findAll();
+            };
+        }
+
+        // No filtering by deleted but by status
+        if (deleteFilter.equals(DeleteFilter.INCLUDE)) {
+            return stockRepository.findByStockStatusIn(stockFilter);
+        }
+
+        // filtering by stockStatus and deleted
+        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT));
     }
 
     /**
@@ -72,7 +89,7 @@ public class StockService {
      * @param description  Description of the item
      * @return The full item as saved in the database
      */
-    public StockDto addStock(String name, UnitType unitType, Float quantity, Float pricePerUnit, String description) {
+    public StockDto addStock(String name, UnitType unitType, Float quantity, Float pricePerUnit, String description, StockStatus stockStatus) {
         if (unitType.equals(UnitType.PIECE) && quantity % 1 != 0) {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
         }
@@ -83,6 +100,7 @@ public class StockService {
         stockDto.setQuantity(quantity);
         stockDto.setPricePerUnit(pricePerUnit);
         stockDto.setDescription(description);
+        stockDto.setStockStatus(stockStatus);
 
         return stockRepository.save(stockDto);
     }
@@ -114,7 +132,7 @@ public class StockService {
      * @param description  Description of the item
      * @return The updated item
      */
-    public StockDto update(String id, String name, UnitType unitType, Float quantity, Float pricePerUnit, String description) {
+    public StockDto update(String id, String name, UnitType unitType, Float quantity, Float pricePerUnit, String description, StockStatus stockStatus) {
         StockDto stockDto = stockRepository.findById(id);
 
         if (stockDto == null) {
@@ -149,6 +167,11 @@ public class StockService {
 
         if (description != null) {
             stockDto.setDescription(description);
+            changed = true;
+        }
+
+        if (stockStatus != null) {
+            stockDto.setStockStatus(stockStatus);
             changed = true;
         }
 

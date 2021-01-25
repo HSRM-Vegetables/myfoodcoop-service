@@ -36,7 +36,7 @@ public class StockController implements StockApi {
     @Override
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted, List<StockStatus> filterByStatus) {
-        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getAll(deleted));
+        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getStock(deleted, filterByStatus));
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);
         return ResponseEntity.ok(response);
@@ -59,7 +59,8 @@ public class StockController implements StockApi {
                 stockPatchRequest.getUnitType(),
                 stockPatchRequest.getQuantity(),
                 stockPatchRequest.getPricePerUnit(),
-                stockPatchRequest.getDescription()
+                stockPatchRequest.getDescription(),
+                stockPatchRequest.getStockStatus()
         );
 
         StockResponse response = StockMapper.stockDtoToStockResponse(updatedStock);
@@ -73,7 +74,9 @@ public class StockController implements StockApi {
                 stockPostRequest.getUnitType(),
                 stockPostRequest.getQuantity(),
                 stockPostRequest.getPricePerUnit(),
-                stockPostRequest.getDescription());
+                stockPostRequest.getDescription(),
+                stockPostRequest.getStockStatus()
+        );
         StockResponse stockResponse = StockMapper.stockDtoToStockResponse(stockDto);
         return new ResponseEntity<>(stockResponse, HttpStatus.CREATED);
     }

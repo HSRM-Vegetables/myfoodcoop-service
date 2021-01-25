@@ -671,8 +671,8 @@ Feature: Simple Stock management
 
     # Get only stock items with status ORDERED
     Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK"
     And header Authorization = "Bearer " + mToken
-    And header filterByStatus = "OUTOFSTOCK"
     When method GET
     Then status 200
     And assert response.items.length > 0
@@ -729,8 +729,8 @@ Feature: Simple Stock management
 
     # Get only stock items with status OUTOFSTOCK or INSTOCK
     Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK,INSTOCK"
     And header Authorization = "Bearer " + mToken
-    And header filterByStatus = "OUTOFSTOCK,INSTOCK"
     When method GET
     Then status 200
     And assert response.items.length > 0
