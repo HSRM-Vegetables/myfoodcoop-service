@@ -59,7 +59,14 @@ public class StockController implements StockApi {
                 stockPatchRequest.getUnitType(),
                 stockPatchRequest.getQuantity(),
                 stockPatchRequest.getPricePerUnit(),
-                stockPatchRequest.getDescription()
+                stockPatchRequest.getDescription(),
+                stockPatchRequest.getSustainablyProduced(),
+                stockPatchRequest.getCertificates(),
+                stockPatchRequest.getOriginCategory(),
+                stockPatchRequest.getProducer(),
+                stockPatchRequest.getSupplier(),
+                stockPatchRequest.getOrderDate(),
+                stockPatchRequest.getDeliveryDate()
         );
 
         StockResponse response = StockMapper.stockDtoToStockResponse(updatedStock);
@@ -69,11 +76,20 @@ public class StockController implements StockApi {
     @Override
     @PreAuthorize("hasRole('ORDERER')")
     public ResponseEntity<StockResponse> stockPost(StockPostRequest stockPostRequest) {
-        StockDto stockDto = stockService.addStock(stockPostRequest.getName(),
+        StockDto stockDto = stockService.addStock(
+                stockPostRequest.getName(),
                 stockPostRequest.getUnitType(),
                 stockPostRequest.getQuantity(),
                 stockPostRequest.getPricePerUnit(),
-                stockPostRequest.getDescription());
+                stockPostRequest.getDescription(),
+                stockPostRequest.getSustainablyProduced(),
+                stockPostRequest.getCertificates(),
+                stockPostRequest.getOriginCategory(),
+                stockPostRequest.getProducer(),
+                stockPostRequest.getSupplier(),
+                stockPostRequest.getOrderDate(),
+                stockPostRequest.getDeliveryDate()
+        );
         StockResponse stockResponse = StockMapper.stockDtoToStockResponse(stockDto);
         return new ResponseEntity<>(stockResponse, HttpStatus.CREATED);
     }

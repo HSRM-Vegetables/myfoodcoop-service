@@ -1,11 +1,16 @@
 package de.hsrm.vegetables.service.domain.dto;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.OriginCategory;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity // Persists this class
 @EntityListeners(AuditingEntityListener.class)
@@ -34,5 +39,25 @@ public class StockDto {
 
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    @Column(nullable = false)
+    private boolean sustainablyProduced = true;
+
+    @ElementCollection
+    private List<String> certificates = new ArrayList<String>();
+
+    @Column(nullable = false)
+    private OriginCategory originCategory = OriginCategory.UNKNOWN;
+
+    @Column(nullable = false)
+    private String producer;
+
+    @Column(nullable = false)
+    private String supplier;
+
+    private LocalDate orderDate;
+
+    private LocalDate deliveryDate;
+
 
 }
