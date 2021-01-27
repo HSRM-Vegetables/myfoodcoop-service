@@ -2,7 +2,6 @@ Feature: Simple Stock management
 
   Background:
     * url baseUrl + "/v2"
-    # data used for testing later on
     * def name = 'Bananas'
     * def unitType = 'PIECE'
     * def quantity = 42.0
