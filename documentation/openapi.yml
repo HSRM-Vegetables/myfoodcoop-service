@@ -1071,7 +1071,6 @@ components:
                 * OUTOFSTOCK: The item is out of stock and cannot be bought anymore
             type: string
             example: ORDERED
-            default: ORDERED
             enum:
                 - ORDERED
                 - INSTOCK

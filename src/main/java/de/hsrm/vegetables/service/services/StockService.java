@@ -15,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -29,9 +27,6 @@ public class StockService {
 
     @NonNull
     private final StockRepository stockRepository;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     /**
      * Returns all items currently in stock
@@ -216,7 +211,17 @@ public class StockService {
                         throw new BadRequestError("Cannot buy deleted item " + stockDto.getId(), ErrorCode.CANNOT_PURCHASE_DELETED_ITEM);
                     }
 
-                    float price = stockDto.getPricePerUnit() * item.getAmount();
+                    // Check that purchased item is not out of stock
+                    if (stockDto.getStockStatus()
+                            .equals(StockStatus.OUTOFSTOCK)) {
+                        throw new BadRequestError("Cannot purchase OUTOFSTOCK item with id " + item.getId(), ErrorCode.ITEM_OUT_OF_STOCK);
+                    }
+
+                    // Check that purchased item is not just ordered and hence not in the store yet
+                    if (stockDto.getStockStatus()
+                            .equals(StockStatus.ORDERED)) {
+                        throw new BadRequestError("Cannot purchase ORDERED item with id " + item.getId(), ErrorCode.ITEM_NOT_IN_STOCK_YET);
+                    }
 
                     stockDto.setQuantity(stockDto.getQuantity() - item.getAmount());
 

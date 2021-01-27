@@ -118,7 +118,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit),  stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId = response.id
@@ -143,7 +143,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit),  stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId = response.id
@@ -168,7 +168,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit),  stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId = response.id
@@ -193,7 +193,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit),  stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId = response.id
@@ -242,7 +242,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit),  stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId = response.id
@@ -271,7 +271,7 @@ Feature: Simple Stock management
 
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "test", unitType: "PIECE", quantity: 10.0, pricePerUnit: 5.0 }
+    And request { name: "test", unitType: "PIECE", quantity: 10.0, pricePerUnit: 5.0, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
 
@@ -301,7 +301,7 @@ Feature: Simple Stock management
     # First Post
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And assert response.id != null
@@ -314,7 +314,7 @@ Feature: Simple Stock management
     # Second Post
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And assert response.id != stockId
@@ -334,7 +334,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And assert response.id != null
@@ -371,7 +371,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: "PIECE", quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: "PIECE", quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And assert response.id != null
@@ -408,7 +408,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
+    And request { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And assert response.id != null
@@ -443,7 +443,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -451,7 +451,7 @@ Feature: Simple Stock management
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -480,7 +480,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -488,7 +488,7 @@ Feature: Simple Stock management
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -518,7 +518,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -526,7 +526,7 @@ Feature: Simple Stock management
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -561,7 +561,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -569,7 +569,7 @@ Feature: Simple Stock management
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
     And def stockId2 = response.id

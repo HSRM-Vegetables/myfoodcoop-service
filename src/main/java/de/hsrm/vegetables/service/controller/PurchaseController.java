@@ -1,12 +1,14 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.PurchaseApi;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseHistoryItem;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseListResponse;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseRequest;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseResponse;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
-import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
@@ -24,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -52,16 +53,6 @@ public class PurchaseController implements PurchaseApi {
 
         // Get all associated items and update their quantities
         List<StockDto> stockItems = stockService.purchase(purchaseRequest.getItems());
-
-        // Check that no item is out of stock
-        Optional<StockDto> oneIsOutOfStock = stockItems.stream()
-                .filter(stockItem -> stockItem.getStockStatus()
-                        .equals(StockStatus.OUTOFSTOCK))
-                .findFirst();
-        if (oneIsOutOfStock.isPresent()) {
-            throw new BadRequestError("Cannot purchase OUTOFSTOCK item with id " + oneIsOutOfStock.get()
-                    .getId(), ErrorCode.ITEM_OUT_OF_STOCK);
-        }
 
         // Calculate the total price of the cart
         Float totalPrice = StockService.calculatePrice(stockItems, purchaseRequest.getItems());
