@@ -135,3 +135,52 @@ Feature: User controller
     When method POST
     Then status 401
     And match response.errorCode == 401009
+
+  Scenario: Revoke all refresh token for another user
+    # Generate first refreshToken
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    And def refreshToken1 = response.refreshToken
+
+    # Get userID
+    Given path 'user'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And def userID = response.id
+
+    # Generate second refreshToken
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def refreshToken2 = response.refreshToken
+
+    # Revoke all as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def adminToken = response.token
+
+    Given path 'auth', 'refresh', 'all', userID
+    And header Authorization = "Bearer " + adminToken
+    When method DELETE
+    Then status 204
+
+    # check that first token was revoked
+    Given path 'auth', 'refresh'
+    And request { refreshToken: #(refreshToken1) }
+    When method POST
+    Then status 401
+    And match response.errorCode == 401009
+
+    # check that second token was revoked
+    Given path 'auth', 'refresh'
+    And request { refreshToken: #(refreshToken2) }
+    When method POST
+    Then status 401
+    And match response.errorCode == 401009
