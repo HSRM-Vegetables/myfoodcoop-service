@@ -145,7 +145,7 @@ public class UserService {
         if (!roles.contains(role))
             throw new NotFoundError("User does not has the role" + role, ErrorCode.USER_DOESNT_HAS_ROLE);
 
-        if(role == Role.ADMIN && this.getAllByRole(Role.ADMIN).size() == 1)
+        if(role == Role.ADMIN && userRepository.countByRoles(Role.ADMIN) == 1)
             throw new BadRequestError("Can't delete role " + role + ": User " + user.getUsername() + " is the last admin", ErrorCode.USER_IS_LAST_ADMIN);
 
         roles.remove(role);
@@ -153,16 +153,23 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Returns all User
+     * deleteFilter controls how deleted users are treated:
+     * <p>
+     * OMIT: Only users which haven't been deleted will be included
+     * INCLUDE: Deleted and not deleted users will be returned
+     * ONLY: Only return deleted users
+     *
+     * @param deleteFilter How to treat deleted users
+     * @return A list of users
+     * */
     public List<UserDto> getAll(DeleteFilter deleteFilter) {
         return switch (deleteFilter) {
             case OMIT -> userRepository.findByIsDeleted(false);
             case ONLY -> userRepository.findByIsDeleted(true);
             case INCLUDE -> userRepository.findAll();
         };
-    }
-
-    public List<UserDto> getAllByRole(Role role) {
-        return userRepository.findByRoles(role);
     }
 
 }
