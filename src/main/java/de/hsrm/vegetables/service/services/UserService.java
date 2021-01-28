@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -144,9 +145,31 @@ public class UserService {
         if (!roles.contains(role))
             throw new NotFoundError("User does not has the role" + role, ErrorCode.USER_DOESNT_HAS_ROLE);
 
+        if(role == Role.ADMIN && userRepository.countByRoles(Role.ADMIN) == 1)
+            throw new BadRequestError("Can't delete role " + role + ": User " + user.getUsername() + " is the last admin", ErrorCode.USER_IS_LAST_ADMIN);
+
         roles.remove(role);
         user.setRoles(roles);
         return userRepository.save(user);
+    }
+
+    /**
+     * Returns all User
+     * deleteFilter controls how deleted users are treated:
+     * <p>
+     * OMIT: Only users which haven't been deleted will be included
+     * INCLUDE: Deleted and not deleted users will be returned
+     * ONLY: Only return deleted users
+     *
+     * @param deleteFilter How to treat deleted users
+     * @return A list of users
+     * */
+    public List<UserDto> getAll(DeleteFilter deleteFilter) {
+        return switch (deleteFilter) {
+            case OMIT -> userRepository.findByIsDeleted(false);
+            case ONLY -> userRepository.findByIsDeleted(true);
+            case INCLUDE -> userRepository.findAll();
+        };
     }
 
 }

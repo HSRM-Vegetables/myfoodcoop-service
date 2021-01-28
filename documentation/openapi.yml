@@ -18,6 +18,8 @@ tags:
         description: Various reports that can be generated for different aspects of the stock, the users and the balances
     -   name: User
         description: Login, register, or get user information
+    -   name: Users
+        description: Functionality related to all users
     -   name: Authentication
         description: Token management and related functionality
 paths:
@@ -417,6 +419,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    /users:
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - Users
+            summary: Get all users
+            operationId: usersGet
+            parameters:
+                -   in: query
+                    description: |-
+                        Controls if deleted users will be included in the results
+
+                        * OMIT: Only users which haven't been deleted will be included
+                        * INCLUDE: Delted and not deleted users will be returned
+                        * ONLY: Only return deleted users
+                    name: deleted
+                    schema:
+                        $ref: '#/components/schemas/delete-filter'
+            responses:
+                '200':
+                    description: Get all users
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-list-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
     /auth/login:
         post:
             tags:
@@ -513,9 +547,70 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-
+    /auth/refresh/all/{user-id}:
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - Authentication
+            summary: Revoke all refresh tokens for a specified user
+            operationId: revokeAllForUser
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+            responses:
+                '204':
+                    description: Tokens succesfully revoked
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /user/{user-id}:
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - User
+            summary: Get user data for the specified user
+            operationId: userIdGet
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+            responses:
+                '200':
+                    description: Successful call, returns the user data of the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - User
+            summary: Soft deletes a user account
+            operationId: userIdDelete
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+            responses:
+                '204':
+                    description: The user account was deleted
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
     /user/{user-id}/roles/{role}:
         post:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Adds one role to the specified user
@@ -538,6 +633,8 @@ paths:
                                 $ref: '#/components/schemas/error-response'
 
         delete:
+            security:
+                -   bearerAuth: [ ]
             tags:
                 - User
             summary: Removes one role from the specified user
@@ -896,10 +993,22 @@ components:
                     $ref: '#/components/schemas/email'
                 memberId:
                     $ref: '#/components/schemas/memberId'
+                isDeleted:
+                    type: boolean
+                    description: Wether this user is deleted
+                    example: false
                 roles:
                     type: array
                     items:
                         $ref: '#/components/schemas/role'
+
+        user-list-response :
+            type : object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/user-response'
 
         token-response:
             type: object
