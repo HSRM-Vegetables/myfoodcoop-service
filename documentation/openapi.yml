@@ -1,433 +1,432 @@
-openapi : 3.0.3
-info :
-    description : This is the specification for the Stadtgemüse Service.
-    version : 2.0.0
-    title : Stadtgemüse Service
-    contact : { }
-servers :
-    -   url : 'https://veg-service.herokuapp.com/v2/'
-        description : Production v2
-tags :
-    -   name : Balance
-        description : Handles balance requests
-    -   name : Stock
-        description : All functionality related to the stock
-    -   name : Purchase
-        description : Functionality related to purchasing items
-    -   name : Reports
-        description : Various reports that can be generated for different aspects of the stock, the users and the balances
-    -   name : User
-        description : Login, register, or get user information
-    -   name : Users
-        description : Functionality related to all users
-    -   name : Authentication
-        description : Token management and related functionality
-paths :
-    '/balance' :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+openapi: 3.0.3
+info:
+    description: This is the specification for the Stadtgemüse Service.
+    version: 2.0.0
+    title: Stadtgemüse Service
+    contact: { }
+servers:
+    -   url: 'https://veg-service.herokuapp.com/v2/'
+        description: Production v2
+tags:
+    -   name: Balance
+        description: Handles balance requests
+    -   name: Stock
+        description: All functionality related to the stock
+    -   name: Purchase
+        description: Functionality related to purchasing items
+    -   name: Reports
+        description: Various reports that can be generated for different aspects of the stock, the users and the balances
+    -   name: User
+        description: Login, register, or get user information
+    -   name: Users
+        description: Functionality related to all users
+    -   name: Authentication
+        description: Token management and related functionality
+paths:
+    '/balance':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Balance
-            summary : Gets the current balance of the user
-            description : 'Gets the current balance of the user, or 0 if the user is currently not known'
-            operationId : balanceGet
-            responses :
-                '200' :
-                    description : The current value of the balance for the specified user
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/balance-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-        patch :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Gets the current balance of the user
+            description: 'Gets the current balance of the user, or 0 if the user is currently not known'
+            operationId: balanceGet
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        patch:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Balance
-            summary : Changes the balance for the specified user
-            operationId : balancePatch
-            requestBody :
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/balance-patch-request'
-            responses :
-                '200' :
-                    description : The current value of the balance for the specified user
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/balance-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-    '/balance/topup' :
-        post :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Changes the balance for the specified user
+            operationId: balancePatch
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/balance-patch-request'
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    '/balance/topup':
+        post:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Balance
-            summary : Topup the balance for the specified user
-            operationId : balanceTopup
-            requestBody :
-                description : 'Top up the balance with the amount, containing a positive value'
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/balance-amount-request'
-            responses :
-                '200' :
-                    description : The current value of the balance for the specified user
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/balance-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-    '/balance/withdraw' :
-        post :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Topup the balance for the specified user
+            operationId: balanceTopup
+            requestBody:
+                description: 'Top up the balance with the amount, containing a positive value'
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/balance-amount-request'
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    '/balance/withdraw':
+        post:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Balance
-            summary : Withdraw the balance for the specified user
-            operationId : balanceWithdraw
-            requestBody :
-                description : 'Withdraw the amount from the balance, containing a positive value'
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/balance-amount-request'
-            responses :
-                '200' :
-                    description : The current value of the balance for the specified user
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/balance-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
+            summary: Withdraw the balance for the specified user
+            operationId: balanceWithdraw
+            requestBody:
+                description: 'Withdraw the amount from the balance, containing a positive value'
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/balance-amount-request'
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
-    '/stock' :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+    '/stock':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Stock
-            summary : Retrieves all items currently in stock
-            operationId : stockGet
-            parameters :
-                -   in : query
-                    description : |-
+            summary: Retrieves all items currently in stock
+            operationId: stockGet
+            parameters:
+                -   in: query
+                    description: |-
                         Controls if deleted elements will be included in the results
 
                         * OMIT: Only elements which haven't been deleted will be included
                         * INCLUDE: Delted and not deleted items will be returned
                         * ONLY: Only return deleted items
-                    name : deleted
-                    schema :
-                        $ref : '#/components/schemas/delete-filter'
-            responses :
-                '200' :
-                    description : Successful call, returns the current stock
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/all-stock-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-        post :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+                    name: deleted
+                    schema:
+                        $ref: '#/components/schemas/delete-filter'
+            responses:
+                '200':
+                    description: Successful call, returns the current stock
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/all-stock-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        post:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Stock
-            summary : Adds a new Item to the current stock
-            operationId : stockPost
-            requestBody :
-                description : All data neccesary to create a new stock item
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/stock-post-request'
-            responses :
-                '201' :
-                    description : Successful call, returns the created stock item
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/stock-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-    '/stock/{item-id}' :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Adds a new Item to the current stock
+            operationId: stockPost
+            requestBody:
+                description: All data neccesary to create a new stock item
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/stock-post-request'
+            responses:
+                '201':
+                    description: Successful call, returns the created stock item
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/stock-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    '/stock/{item-id}':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Stock
-            summary : Retrieves information about a specific item in the stock
-            operationId : stockItemGet
-            parameters :
-                -   $ref : '#/components/parameters/item-id'
-            responses :
-                '200' :
-                    description : Successful call, returns the requested stock item
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/stock-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-        patch :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Retrieves information about a specific item in the stock
+            operationId: stockItemGet
+            parameters:
+                -   $ref: '#/components/parameters/item-id'
+            responses:
+                '200':
+                    description: Successful call, returns the requested stock item
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/stock-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        patch:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Stock
-            summary : Updates data of an item
-            operationId : stockPatch
-            parameters :
-                -   $ref : '#/components/parameters/item-id'
-            requestBody :
-                description : All data of an item that can be updated
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/stock-patch-request'
-            responses :
-                '200' :
-                    description : Successful call, returns the updated stock item
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/stock-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-        delete :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Updates data of an item
+            operationId: stockPatch
+            parameters:
+                -   $ref: '#/components/parameters/item-id'
+            requestBody:
+                description: All data of an item that can be updated
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/stock-patch-request'
+            responses:
+                '200':
+                    description: Successful call, returns the updated stock item
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/stock-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Stock
-            summary : Soft deletes an item from the stock. It will no longer show up in the stock list, but information can still be retrieved
-            operationId : stockDelete
-            parameters :
-                -   $ref : '#/components/parameters/item-id'
-            responses :
-                '204' :
-                    description : The stock item was successfully soft-deleted
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
+            summary: Soft deletes an item from the stock. It will no longer show up in the stock list, but information can still be retrieved
+            operationId: stockDelete
+            parameters:
+                -   $ref: '#/components/parameters/item-id'
+            responses:
+                '204':
+                    description: The stock item was successfully soft-deleted
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
-    '/purchase' :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+    '/purchase':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Purchase
-            summary : Retrieve all previous purchases
-            operationId : purchaseGet
-            responses :
-                '200' :
-                    description : Successful call, returns the list of all previous purchases
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/purchase-list-response'
-                default :
-                    description : Information about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-        post :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Retrieve all previous purchases
+            operationId: purchaseGet
+            responses:
+                '200':
+                    description: Successful call, returns the list of all previous purchases
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/purchase-list-response'
+                default:
+                    description: Information about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        post:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Purchase
-            summary : Purchases items for a user. Reduces the amount of these items in stock and the users balance
-            operationId : purchaseFromStock
-            requestBody :
-                description : All items that the user wants to purchase
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/purchase-request'
-            responses :
-                '200' :
-                    description : Successful call, returns the price of what was purchase and the new balance
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/purchase-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-    '/purchase/{purchase-id}' :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Purchases items for a user. Reduces the amount of these items in stock and the users balance
+            operationId: purchaseFromStock
+            requestBody:
+                description: All items that the user wants to purchase
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/purchase-request'
+            responses:
+                '200':
+                    description: Successful call, returns the price of what was purchase and the new balance
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/purchase-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    '/purchase/{purchase-id}':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Purchase
-            summary : Retrieve one purchase by Id
-            operationId : purchaseGetById
-            parameters :
-                -   $ref : '#/components/parameters/purchase-id'
-            responses :
-                '200' :
-                    description : Successful call, returns a whole purchase
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/purchase-history-item'
-                default :
-                    description : Information about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
+            summary: Retrieve one purchase by Id
+            operationId: purchaseGetById
+            parameters:
+                -   $ref: '#/components/parameters/purchase-id'
+            responses:
+                '200':
+                    description: Successful call, returns a whole purchase
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/purchase-history-item'
+                default:
+                    description: Information about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
-    '/reports/sold-items' :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+    '/reports/sold-items':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Reports
-            summary : Get all items sold within a time window and the quantity that was sold for that item
-            operationId : soldItems
-            parameters :
-                -   $ref : '#/components/parameters/fromDate'
-                -   $ref : '#/components/parameters/toDate'
-            responses :
-                '200' :
-                    description : Successful call
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/quantity-sold-list'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
+            summary: Get all items sold within a time window and the quantity that was sold for that item
+            operationId: soldItems
+            parameters:
+                -   $ref: '#/components/parameters/fromDate'
+                -   $ref: '#/components/parameters/toDate'
+            responses:
+                '200':
+                    description: Successful call
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/quantity-sold-list'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
-    /user :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+    /user:
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - User
-            summary : Get own user data
-            operationId : userGet
-            responses :
-                '200' :
-                    description : Get own user data
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/user-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-        delete :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Get own user data
+            operationId: userGet
+            responses:
+                '200':
+                    description: Get own user data
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - User
-            summary : Delete user account
-            operationId : userDelete
-            responses :
-                '204' :
-                    description : The user account was deleted
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-    /user/register :
-        post :
-            tags :
+            summary: Delete user account
+            operationId: userDelete
+            responses:
+                '204':
+                    description: The user account was deleted
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /user/register:
+        post:
+            tags:
                 - User
-            summary : Creates a new user
-            operationId : register
-            requestBody :
-                description :
+            summary: Creates a new user
+            operationId: register
+            requestBody:
+                description:
                     Data required to register a user
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/register-request'
-            responses :
-                '201' :
-                    description : User successfully registered
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/user-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-
-    /users :
-        get :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/register-request'
+            responses:
+                '201':
+                    description: User successfully registered
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /users:
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Users
-            summary : Get all users
-            operationId : usersGet
+            summary: Get all users
+            operationId: usersGet
             parameters:
                 -   in: query
                     description: |-
@@ -439,140 +438,136 @@ paths :
                     name: deleted
                     schema:
                         $ref: '#/components/schemas/delete-filter'
-            responses :
-                '200' :
+            responses:
+                '200':
                     description: Get all users
                     content:
-                        application/json :
+                        application/json:
                             schema:
-                                $ref : '#/components/schemas/user-list-response'
+                                $ref: '#/components/schemas/user-list-response'
                 default:
                     description: Details about the error that occured
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-
-
-    /auth/login :
-        post :
-            tags :
+    /auth/login:
+        post:
+            tags:
                 - Authentication
-            summary : Retrieve tokens to authenticate the user against this API
-            operationId : login
-            requestBody :
-                description :
+            summary: Retrieve tokens to authenticate the user against this API
+            operationId: login
+            requestBody:
+                description:
                     User login data
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/login-request'
-            responses :
-                '201' :
-                    description : User successfully logged in
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/token-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-    /auth/refresh :
-        post :
-            tags :
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/login-request'
+            responses:
+                '201':
+                    description: User successfully logged in
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/token-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /auth/refresh:
+        post:
+            tags:
                 - Authentication
-            summary : Get a new set of tokens using the refresh token
-            description : |-
+            summary: Get a new set of tokens using the refresh token
+            description: |-
                 Get a new set of tokens using the refresh token. The refreshToken used will be revoked, thus subsequent
                 calls with this token will fail.
-            operationId : refresh
-            requestBody :
-                description : The body containing the refresh token
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/refresh-request'
-            responses :
-                '201' :
-                    description : Token succesfully retrieved
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/token-response'
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-        delete :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            operationId: refresh
+            requestBody:
+                description: The body containing the refresh token
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/refresh-request'
+            responses:
+                '201':
+                    description: Token succesfully retrieved
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/token-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Authentication
-            summary : Revoke a refresh token
-            operationId : revoke
-            requestBody :
-                description : The body containing the refresh token to revoke
-                required : true
-                content :
-                    application/json :
-                        schema :
-                            $ref : '#/components/schemas/refresh-request'
-            responses :
-                '204' :
-                    description : Token succesfully revoked
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-    /auth/refresh/all :
-        delete :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Revoke a refresh token
+            operationId: revoke
+            requestBody:
+                description: The body containing the refresh token to revoke
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/refresh-request'
+            responses:
+                '204':
+                    description: Token succesfully revoked
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /auth/refresh/all:
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Authentication
-            summary : Revoke all refresh tokens for a user
-            operationId : revokeAll
-            responses :
-                '204' :
-                    description : Tokens succesfully revoked
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-
-    /auth/refresh/all/{user-id} :
-        delete :
-            security :
-                -   bearerAuth : [ ]
-            tags :
+            summary: Revoke all refresh tokens for a user
+            operationId: revokeAll
+            responses:
+                '204':
+                    description: Tokens succesfully revoked
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /auth/refresh/all/{user-id}:
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
                 - Authentication
-            summary : Revoke all refresh tokens for a specified user
-            operationId : revokeAllForUser
+            summary: Revoke all refresh tokens for a specified user
+            operationId: revokeAllForUser
             parameters:
                 -   $ref: '#/components/parameters/user-id'
-            responses :
-                '204' :
-                    description : Tokens succesfully revoked
-                default :
-                    description : Details about the error that occured
-                    content :
-                        application/json :
-                            schema :
-                                $ref : '#/components/schemas/error-response'
-
-    /user/{user-id} :
-        get :
+            responses:
+                '204':
+                    description: Tokens succesfully revoked
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /user/{user-id}:
+        get:
             security:
                 -   bearerAuth: [ ]
             tags:
@@ -594,7 +589,7 @@ paths :
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-        delete :
+        delete:
             security:
                 -   bearerAuth: [ ]
             tags:
@@ -612,7 +607,6 @@ paths :
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-
     /user/{user-id}/roles/{role}:
         post:
             security:
@@ -663,346 +657,346 @@ paths :
                                 $ref: '#/components/schemas/error-response'
 
 
-components :
-    securitySchemes :
-        bearerAuth : # arbitrary name for the security scheme
-            type : http
-            scheme : bearer
-            bearerFormat : JWT
+components:
+    securitySchemes:
+        bearerAuth: # arbitrary name for the security scheme
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
 
-    schemas :
+    schemas:
 
         #
         # Error Schemas
         #
 
-        error-response :
-            description : "Contains details about the occurred error"
-            type : object
-            required :
+        error-response:
+            description: "Contains details about the occurred error"
+            type: object
+            required:
                 - errorCode
                 - status
                 - errorMessage
-            properties :
-                errorCode :
-                    description : "Number, that can be referenced to a specific error"
-                    example : 400001
-                    type : integer
-                status :
-                    description : "HTTP Status Code returned"
-                    example : 400
-                    type : integer
-                message :
-                    description : "A detailed error message"
-                    example : "Validation failed"
-                    type : string
-                details :
-                    type : array
-                    items :
-                        $ref : '#/components/schemas/error-detail'
-        error-detail :
-            description : A more precise explaination of an error
-            type : object
-            properties :
-                message :
-                    description : A message relating to the error detail
-                    type : string
-                    example : "Invalid request parameter: balance"
-                detail :
-                    description : A detailed message of the error
-                    type : string
-                    example : "The value null does not match the Specification"
+            properties:
+                errorCode:
+                    description: "Number, that can be referenced to a specific error"
+                    example: 400001
+                    type: integer
+                status:
+                    description: "HTTP Status Code returned"
+                    example: 400
+                    type: integer
+                message:
+                    description: "A detailed error message"
+                    example: "Validation failed"
+                    type: string
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/error-detail'
+        error-detail:
+            description: A more precise explaination of an error
+            type: object
+            properties:
+                message:
+                    description: A message relating to the error detail
+                    type: string
+                    example: "Invalid request parameter: balance"
+                detail:
+                    description: A detailed message of the error
+                    type: string
+                    example: "The value null does not match the Specification"
 
         #
         # Request Schemas
         #
 
-        balance-patch-request :
-            type : object
-            description : Contains data about how to change the balance
-            required :
+        balance-patch-request:
+            type: object
+            description: Contains data about how to change the balance
+            required:
                 - balance
-            properties :
-                balance :
-                    description : Absolute balance to be applied instead of the current balance
-                    example : 60
-                    type : number
-                    format : float
+            properties:
+                balance:
+                    description: Absolute balance to be applied instead of the current balance
+                    example: 60
+                    type: number
+                    format: float
 
-        balance-amount-request :
-            description : Contains data about the amount you want to change the balance
-            type : object
-            required :
+        balance-amount-request:
+            description: Contains data about the amount you want to change the balance
+            type: object
+            required:
                 - amount
-            properties :
-                amount :
-                    description : Realative amount to be applied to the balance
-                    example : 60
-                    minimum : 0
-                    type : number
-                    format : float
+            properties:
+                amount:
+                    description: Realative amount to be applied to the balance
+                    example: 60
+                    minimum: 0
+                    type: number
+                    format: float
 
-        purchase-request :
-            description : All items that the user wants to purchase
-            type : object
-            required :
+        purchase-request:
+            description: All items that the user wants to purchase
+            type: object
+            required:
                 - items
-            properties :
-                items :
-                    type : array
-                    minItems : 1
-                    items :
-                        $ref : '#/components/schemas/cart-item'
+            properties:
+                items:
+                    type: array
+                    minItems: 1
+                    items:
+                        $ref: '#/components/schemas/cart-item'
 
-        stock-post-request :
-            description : All possible fields to set when creating a new item in stock
-            type : object
-            required :
+        stock-post-request:
+            description: All possible fields to set when creating a new item in stock
+            type: object
+            required:
                 - name
                 - unitType
                 - quantity
                 - pricePerUnit
-            properties :
-                name :
-                    $ref : '#/components/schemas/item-name'
-                unitType :
-                    $ref : '#/components/schemas/unitType'
-                quantity :
-                    $ref : '#/components/schemas/quantity'
-                pricePerUnit :
-                    $ref : '#/components/schemas/pricePerUnit'
-                description :
-                    $ref : '#/components/schemas/item-description'
+            properties:
+                name:
+                    $ref: '#/components/schemas/item-name'
+                unitType:
+                    $ref: '#/components/schemas/unitType'
+                quantity:
+                    $ref: '#/components/schemas/quantity'
+                pricePerUnit:
+                    $ref: '#/components/schemas/pricePerUnit'
+                description:
+                    $ref: '#/components/schemas/item-description'
 
-        stock-patch-request :
-            description : All data of an item that can be updated
-            type : object
-            properties :
-                name :
-                    $ref : '#/components/schemas/item-name'
-                unitType :
-                    $ref : '#/components/schemas/unitType'
-                quantity :
-                    $ref : '#/components/schemas/quantity'
-                pricePerUnit :
-                    $ref : '#/components/schemas/pricePerUnit'
-                description :
-                    $ref : '#/components/schemas/item-description'
+        stock-patch-request:
+            description: All data of an item that can be updated
+            type: object
+            properties:
+                name:
+                    $ref: '#/components/schemas/item-name'
+                unitType:
+                    $ref: '#/components/schemas/unitType'
+                quantity:
+                    $ref: '#/components/schemas/quantity'
+                pricePerUnit:
+                    $ref: '#/components/schemas/pricePerUnit'
+                description:
+                    $ref: '#/components/schemas/item-description'
 
-        register-request :
-            description : Data to register a user
-            type : object
-            required :
+        register-request:
+            description: Data to register a user
+            type: object
+            required:
                 - username
                 - memberId
                 - password
-            properties :
-                username :
-                    $ref : '#/components/schemas/username'
-                email :
-                    $ref : '#/components/schemas/email'
-                memberId :
-                    $ref : '#/components/schemas/memberId'
-                password :
-                    $ref : '#/components/schemas/set-password'
+            properties:
+                username:
+                    $ref: '#/components/schemas/username'
+                email:
+                    $ref: '#/components/schemas/email'
+                memberId:
+                    $ref: '#/components/schemas/memberId'
+                password:
+                    $ref: '#/components/schemas/set-password'
 
-        refresh-request :
-            type : object
-            description : Object containing the refresh token
-            required :
+        refresh-request:
+            type: object
+            description: Object containing the refresh token
+            required:
                 - refreshToken
-            properties :
-                refreshToken :
-                    $ref : '#/components/schemas/token'
+            properties:
+                refreshToken:
+                    $ref: '#/components/schemas/token'
 
-        login-request :
-            description : Information necessary to identify and authenticate a user for this API
-            type : object
-            required :
+        login-request:
+            description: Information necessary to identify and authenticate a user for this API
+            type: object
+            required:
                 - username
                 - passowrd
-            properties :
-                username :
-                    $ref : '#/components/schemas/username'
-                password :
-                    $ref : '#/components/schemas/password'
+            properties:
+                username:
+                    $ref: '#/components/schemas/username'
+                password:
+                    $ref: '#/components/schemas/password'
 
         #
         # Response Schemas
         #
 
-        balance-response :
-            description : Contains data about the current balance
-            type : object
-            required :
+        balance-response:
+            description: Contains data about the current balance
+            type: object
+            required:
                 - balance
                 - name
-            properties :
-                balance :
-                    description : The current balance
-                    example : 10
-                    type : number
-                    format : float
-                name :
-                    description : The name of the owner of this balance
-                    example : Robby
-                    type : string
+            properties:
+                balance:
+                    description: The current balance
+                    example: 10
+                    type: number
+                    format: float
+                name:
+                    description: The name of the owner of this balance
+                    example: Robby
+                    type: string
 
-        all-stock-response :
-            type : object
-            properties :
-                items :
-                    type : array
-                    items :
-                        $ref : '#/components/schemas/stock-response'
+        all-stock-response:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/stock-response'
 
-        stock-response :
-            description : All stored data of one item in the stock
-            type : object
-            properties :
-                id :
-                    $ref : '#/components/schemas/uuid'
-                name :
-                    $ref : '#/components/schemas/item-name'
-                unitType :
-                    $ref : '#/components/schemas/unitType'
-                quantity :
-                    $ref : '#/components/schemas/quantity'
-                pricePerUnit :
-                    $ref : '#/components/schemas/pricePerUnit'
-                description :
-                    $ref : '#/components/schemas/item-description'
-                isDeleted :
-                    type : boolean
-                    description : Wether this item is deleted
-                    example : false
+        stock-response:
+            description: All stored data of one item in the stock
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                name:
+                    $ref: '#/components/schemas/item-name'
+                unitType:
+                    $ref: '#/components/schemas/unitType'
+                quantity:
+                    $ref: '#/components/schemas/quantity'
+                pricePerUnit:
+                    $ref: '#/components/schemas/pricePerUnit'
+                description:
+                    $ref: '#/components/schemas/item-description'
+                isDeleted:
+                    type: boolean
+                    description: Wether this item is deleted
+                    example: false
 
-        purchase-response :
-            description : Information about the users balance and the purchased cart
-            type : object
-            properties :
-                name :
-                    $ref : '#/components/schemas/username'
-                id :
-                    $ref : '#/components/schemas/uuid'
-                balance :
-                    description : The balance of the user after the purchase
-                    type : number
-                    format : float
-                    example : 140.8
-                price :
-                    description : How much the cart cost
-                    type : number
-                    format : float
-                    example : 17.43
-        quantity-sold-list :
-            type : object
-            description : A list of items sold in a time window
-            properties :
-                items :
-                    type : array
-                    items :
-                        $ref : '#/components/schemas/quantity-sold-item'
+        purchase-response:
+            description: Information about the users balance and the purchased cart
+            type: object
+            properties:
+                name:
+                    $ref: '#/components/schemas/username'
+                id:
+                    $ref: '#/components/schemas/uuid'
+                balance:
+                    description: The balance of the user after the purchase
+                    type: number
+                    format: float
+                    example: 140.8
+                price:
+                    description: How much the cart cost
+                    type: number
+                    format: float
+                    example: 17.43
+        quantity-sold-list:
+            type: object
+            description: A list of items sold in a time window
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/quantity-sold-item'
 
-        quantity-sold-item :
-            type : object
-            description : |-
+        quantity-sold-item:
+            type: object
+            description: |-
                 Contains information on how many items were sold in a time window
-            properties :
-                id :
-                    $ref : '#/components/schemas/uuid'
-                name :
-                    $ref : '#/components/schemas/item-name'
-                fromDate :
-                    type : string
-                    format : date
-                    description : |-
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                name:
+                    $ref: '#/components/schemas/item-name'
+                fromDate:
+                    type: string
+                    format: date
+                    description: |-
                         Start of reported time window. This day is included in the report
-                    example : "2017-07-21"
-                toDate :
-                    type : string
-                    format : date
-                    description : |-
+                    example: "2017-07-21"
+                toDate:
+                    type: string
+                    format: date
+                    description: |-
                         End of reported time window. This day is included in the report
-                    example : "2017-07-21"
-                quantitySold :
-                    type : number
-                    format : float
-                    description : Quantity of items sold in the time between fromDate and toDate inclusive
-                    example : 40.2
-                unitType :
-                    $ref : '#/components/schemas/unitType'
+                    example: "2017-07-21"
+                quantitySold:
+                    type: number
+                    format: float
+                    description: Quantity of items sold in the time between fromDate and toDate inclusive
+                    example: 40.2
+                unitType:
+                    $ref: '#/components/schemas/unitType'
 
-        purchase-list-response :
-            description : List of all previous purchases
-            type : object
-            properties :
-                purchases :
-                    type : array
-                    items :
-                        $ref : '#/components/schemas/purchase-history-item'
+        purchase-list-response:
+            description: List of all previous purchases
+            type: object
+            properties:
+                purchases:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/purchase-history-item'
 
-        purchase-history-item :
-            description : Contains information about a whole purchase
-            type : object
-            properties :
-                id :
-                    $ref : '#/components/schemas/uuid'
-                createdOn :
-                    description : Date and time the purchase was created at
-                    example : '2017-07-21T17:32:28Z'
-                    type : string
-                    format : date-time
-                totalPrice :
-                    description : |-
+        purchase-history-item:
+            description: Contains information about a whole purchase
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                createdOn:
+                    description: Date and time the purchase was created at
+                    example: '2017-07-21T17:32:28Z'
+                    type: string
+                    format: date-time
+                totalPrice:
+                    description: |-
                         Total price of the purchase.
                         Changes to an items price after the purchase was made will not be reflected in this value.
-                    example : 69.0
-                    type : number
-                    format : float
-                items :
-                    type : array
-                    items :
-                        $ref : '#/components/schemas/purchase-item'
+                    example: 69.0
+                    type: number
+                    format: float
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/purchase-item'
 
-        purchase-item :
-            description : Contains information about a single item that was purchased
-            type : object
-            properties :
-                id :
-                    $ref : '#/components/schemas/uuid'
-                name :
-                    $ref : '#/components/schemas/item-name'
-                amount :
-                    description : Amount of items purchased
-                    example : 4.2
-                    type : number
-                    format : float
-                pricePerUnit :
-                    description : |-
+        purchase-item:
+            description: Contains information about a single item that was purchased
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                name:
+                    $ref: '#/components/schemas/item-name'
+                amount:
+                    description: Amount of items purchased
+                    example: 4.2
+                    type: number
+                    format: float
+                pricePerUnit:
+                    description: |-
                         Price per unit of the item.
                         Changes to an items price after the purchase was made will not be reflected in this value.
-                    example : 12.0
-                    type : number
-                    format : float
-                unitType :
-                    $ref : '#/components/schemas/unitType'
+                    example: 12.0
+                    type: number
+                    format: float
+                unitType:
+                    $ref: '#/components/schemas/unitType'
 
-        user-response :
-            type : object
-            properties :
-                id :
-                    $ref : '#/components/schemas/uuid'
-                username :
-                    $ref : '#/components/schemas/username'
-                email :
-                    $ref : '#/components/schemas/email'
-                memberId :
-                    $ref : '#/components/schemas/memberId'
-                isDeleted :
-                    type : boolean
-                    description : Wether this user is deleted
-                    example : false
+        user-response:
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                username:
+                    $ref: '#/components/schemas/username'
+                email:
+                    $ref: '#/components/schemas/email'
+                memberId:
+                    $ref: '#/components/schemas/memberId'
+                isDeleted:
+                    type: boolean
+                    description: Wether this user is deleted
+                    example: false
                 roles:
                     type: array
                     items:
@@ -1016,134 +1010,134 @@ components :
                     items:
                         $ref: '#/components/schemas/user-response'
 
-        token-response :
-            type : object
-            properties :
-                token :
-                    $ref : '#/components/schemas/token'
-                refreshToken :
-                    $ref : '#/components/schemas/token'
+        token-response:
+            type: object
+            properties:
+                token:
+                    $ref: '#/components/schemas/token'
+                refreshToken:
+                    $ref: '#/components/schemas/token'
 
         #
         # Reusable Items
         #
 
-        uuid :
-            description : Unique identifier
-            example : "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
-            type : string
+        uuid:
+            description: Unique identifier
+            example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+            type: string
 
-        item-name :
-            description : Name of the stock item
-            example : Kartoffeln
-            type : string
-            minLength : 1
-            maxLength : 250
+        item-name:
+            description: Name of the stock item
+            example: Kartoffeln
+            type: string
+            minLength: 1
+            maxLength: 250
 
-        unitType :
-            description : |-
+        unitType:
+            description: |-
                 By which measurement the item is sold
                   * WEIGHT: Kilogram, or fractions of a kilogram
                   * PIECE: Positive amount of whole pieces
-            example : PIECE
-            type : string
-            enum :
+            example: PIECE
+            type: string
+            enum:
                 - PIECE
                 - WEIGHT
 
-        quantity :
-            description : |-
+        quantity:
+            description: |-
                 How many items are left in stock.
                 This value can be negative, to allow for inconsistencies between this service and the real world
-            example : 42.0
-            type : number
-            format : float
+            example: 42.0
+            type: number
+            format: float
 
-        pricePerUnit :
-            description : |-
+        pricePerUnit:
+            description: |-
                 How much money in Euro one unit of this item costs.
                 A unit is defined based on the unitType
                   * WEIGHT: A unit is 1.0 Kg
                   * PIECE: A unit is 1.0 pieces
-            type : number
-            format : float
-            minimum : 0
-            example : 7
+            type: number
+            format: float
+            minimum: 0
+            example: 7
 
-        cart-item :
-            description : An specific item including its quantity the user wants to purchase
-            type : object
-            required :
+        cart-item:
+            description: An specific item including its quantity the user wants to purchase
+            type: object
+            required:
                 - id
                 - amount
-            properties :
-                id :
-                    $ref : '#/components/schemas/uuid'
-                amount :
-                    type : number
-                    description : |-
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                amount:
+                    type: number
+                    description: |-
                         How many actual items the user wants to buy.
                         Must be an integer if the unitType of the referenced item is PIECE
-                    format : float
-                    example : 7
-        username :
-            description : The unique name of the user
-            type : string
-            example : Robby
-            maxLength : 255
+                    format: float
+                    example: 7
+        username:
+            description: The unique name of the user
+            type: string
+            example: Robby
+            maxLength: 255
 
-        item-description :
-            description : |-
+        item-description:
+            description: |-
                 An optional description of an item.
                 To delete the description, set it to an empty string.
-            type : string
-            example : "Potatoes from our friendly farmer Joe"
-            minLength : 0
-            maxLength : 10000
-            default : ""
+            type: string
+            example: "Potatoes from our friendly farmer Joe"
+            minLength: 0
+            maxLength: 10000
+            default: ""
 
-        delete-filter :
-            description : |-
+        delete-filter:
+            description: |-
                 Controls if deleted elements will be included in the results
 
                 * OMIT: Only elements which haven't been deleted will be included
                 * INCLUDE: Delted and not deleted items will be returned
                 * ONLY: Only return deleted items
-            type : string
-            example : OMIT
-            enum :
+            type: string
+            example: OMIT
+            enum:
                 - OMIT
                 - INCLUDE
                 - ONLY
-            default : OMIT
+            default: OMIT
 
-        email :
-            description : An e-mail address
-            type : string
-            format : email
-            example : robby@stadtgemuese-wiesbaden.de
-            maxLength : 255
+        email:
+            description: An e-mail address
+            type: string
+            format: email
+            example: robby@stadtgemuese-wiesbaden.de
+            maxLength: 255
 
-        memberId :
-            description : The stadtgemuese member id
-            type : string
-            example : 1234
-            maxLength : 255
+        memberId:
+            description: The stadtgemuese member id
+            type: string
+            example: 1234
+            maxLength: 255
 
-        password :
-            description : The password of a user
-            type : string
-            format : password
-            example : a_funny_horse**jumps_high778
-            maxLength : 255
+        password:
+            description: The password of a user
+            type: string
+            format: password
+            example: a_funny_horse**jumps_high778
+            maxLength: 255
 
-        set-password :
-            description : The password of a user
-            type : string
-            format : password
-            example : a_funny_horse**jumps_high778
-            maxLength : 255
-            minLength : 10
+        set-password:
+            description: The password of a user
+            type: string
+            format: password
+            example: a_funny_horse**jumps_high778
+            maxLength: 255
+            minLength: 10
 
         role:
             description: The name of a role
@@ -1155,64 +1149,64 @@ components :
                 - ADMIN
                 - ORDERER
 
-        token :
-            description : A JWT token
-            type : string
-            example : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-            maxLength : 10000
+        token:
+            description: A JWT token
+            type: string
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            maxLength: 10000
 
-    parameters :
-        username :
-            in : path
-            name : name
-            schema :
-                type : string
-            required : true
-            description : The unique name of the user
+    parameters:
+        username:
+            in: path
+            name: name
+            schema:
+                type: string
+            required: true
+            description: The unique name of the user
 
-        item-id :
-            in : path
-            name : item-id
-            schema :
-                type : string
-                maxLength : 36
-            required : true
-            description : The unique id of an item
+        item-id:
+            in: path
+            name: item-id
+            schema:
+                type: string
+                maxLength: 36
+            required: true
+            description: The unique id of an item
 
-        fromDate :
-            in : query
-            name : fromDate
-            example : "2017-07-21"
-            schema :
-                type : string
-                format : date
-            required : true
-            description : |-
+        fromDate:
+            in: query
+            name: fromDate
+            example: "2017-07-21"
+            schema:
+                type: string
+                format: date
+            required: true
+            description: |-
                 Start of report. This date is inclusive
                 Value must be same date as toDate or a earlier date.
                 Value cannot be later than today
 
-        toDate :
-            in : query
-            name : toDate
-            example : "2017-07-21"
-            schema :
-                type : string
-                format : date
-            required : true
-            description : |-
+        toDate:
+            in: query
+            name: toDate
+            example: "2017-07-21"
+            schema:
+                type: string
+                format: date
+            required: true
+            description: |-
                 End of report. This date is inclusive
                 Value must be same date as fromDate or a later date.
                 Value cannot be later than today
 
-        purchase-id :
-            in : path
-            name : purchase-id
-            schema :
-                type : string
-                maxLength : 36
-            required : true
-            description : The unique id of a purchase
+        purchase-id:
+            in: path
+            name: purchase-id
+            schema:
+                type: string
+                maxLength: 36
+            required: true
+            description: The unique id of a purchase
 
         user-id:
             in: path
