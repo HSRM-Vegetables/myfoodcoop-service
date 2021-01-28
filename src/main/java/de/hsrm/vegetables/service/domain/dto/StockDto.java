@@ -37,6 +37,6 @@ public class StockDto {
     private boolean isDeleted = false;
 
     @Column(nullable = false)
-    private StockStatus stockStatus;
+    private StockStatus stockStatus = StockStatus.ORDERED;
 
 }
