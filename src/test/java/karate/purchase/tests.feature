@@ -584,7 +584,7 @@ Feature: Simple Purchases
     Then status 201
     And def stockId1 = response.id
 
-    # Create item that is out of stock
+    # Create item that is in stock
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
     And def quantityOriginal = 100.0
@@ -632,7 +632,7 @@ Feature: Simple Purchases
     Then status 200
     And def oToken = response.token
 
-    # Create item that is out of stock
+    # Create item that is ORDERED
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
     And def quantityOriginal = 100.0
@@ -641,7 +641,7 @@ Feature: Simple Purchases
     Then status 201
     And def stockId1 = response.id
 
-    # Create item that is out of stock
+    # Create item that is INSTOCK
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
     And def quantityOriginal = 100.0
