@@ -76,7 +76,7 @@ The `-Dspring-boot.run.fork=false` disables forking while running the project, w
 ### Starting a local PostgreSQL Instance
 
 This service uses a PostgreSQL database to persist data. For the convenience of the developer, a docker-compose.yaml was provided. In order to use this file, please refer to installing docker for your
-system, also make sure to install the docker-compose extension. To start the database (and adminier, a tool to manage this database) simply run `docker-compose up` in the root directory of this
+system, also make sure to install the docker-compose extension. To start the database (and adminier, a tool to manage this database) simply run `docker-compose up` in the `development` directory of this
 project. If not otherwise specified, the username is `postgres`
 and the password can be found in the docker-compose.yaml
 
