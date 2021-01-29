@@ -1,7 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.QuantitySoldItem;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.PurchasedItemDto;
@@ -16,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 

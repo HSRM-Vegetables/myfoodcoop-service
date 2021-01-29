@@ -3,6 +3,7 @@ package de.hsrm.vegetables.service.mapper;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockResponse;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,13 @@ public class StockMapper {
         response.pricePerUnit(stockDto.getPricePerUnit());
         response.description(stockDto.getDescription());
         response.setIsDeleted(stockDto.isDeleted());
+        response.sustainablyProduced(stockDto.isSustainablyProduced());
+        response.certificates(stockDto.getCertificates());
+        response.originCategory(stockDto.getOriginCategory());
+        response.producer(stockDto.getProducer());
+        response.supplier(stockDto.getSupplier());
+        response.orderDate(stockDto.getOrderDate());
+        response.deliveryDate(stockDto.getDeliveryDate());
         response.setStockStatus(stockDto.getStockStatus());
         return response;
     }

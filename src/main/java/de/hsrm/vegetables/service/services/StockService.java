@@ -1,9 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,7 +82,9 @@ public class StockService {
      * @param description  Description of the item
      * @return The full item as saved in the database
      */
-    public StockDto addStock(String name, UnitType unitType, Float quantity, Float pricePerUnit, String description, StockStatus stockStatus) {
+    public StockDto addStock(String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
+                             boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
+                             String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus) {
         if (unitType.equals(UnitType.PIECE) && quantity % 1 != 0) {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
         }
@@ -95,6 +95,13 @@ public class StockService {
         stockDto.setQuantity(quantity);
         stockDto.setPricePerUnit(pricePerUnit);
         stockDto.setDescription(description);
+        stockDto.setSustainablyProduced(sustainablyProduced);
+        stockDto.setCertificates(certificates);
+        stockDto.setOriginCategory(originCategory);
+        stockDto.setProducer(producer);
+        stockDto.setSupplier(supplier);
+        stockDto.setOrderDate(orderDate);
+        stockDto.setDeliveryDate(deliveryDate);
         stockDto.setStockStatus(stockStatus);
 
         return stockRepository.save(stockDto);
@@ -127,7 +134,9 @@ public class StockService {
      * @param description  Description of the item
      * @return The updated item
      */
-    public StockDto update(String id, String name, UnitType unitType, Float quantity, Float pricePerUnit, String description, StockStatus stockStatus) {
+    public StockDto update(String id, String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
+                           Boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
+                           String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus) {
         StockDto stockDto = stockRepository.findById(id);
 
         if (stockDto == null) {
@@ -173,6 +182,48 @@ public class StockService {
         if (stockDto.getUnitType()
                 .equals(UnitType.PIECE) && stockDto.getQuantity() % 1 != 0) {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
+        }
+
+        if (sustainablyProduced != null && sustainablyProduced != stockDto.isSustainablyProduced()) {
+            stockDto.setSustainablyProduced(sustainablyProduced);
+            changed = true;
+        }
+
+        if (certificates != null) {
+            stockDto.setCertificates(certificates);
+            changed = true;
+        }
+
+        if (originCategory != null) {
+            stockDto.setOriginCategory(originCategory);
+            changed = true;
+        }
+
+        if (originCategory != null) {
+
+            stockDto.setOriginCategory(originCategory);
+
+            changed = true;
+        }
+
+        if (producer != null) {
+            stockDto.setProducer(producer);
+            changed = true;
+        }
+
+        if (supplier != null) {
+            stockDto.setSupplier(supplier);
+            changed = true;
+        }
+
+        if (orderDate != null) {
+            stockDto.setOrderDate(orderDate);
+            changed = true;
+        }
+
+        if (deliveryDate != null) {
+            stockDto.setDeliveryDate(deliveryDate);
+            changed = true;
         }
 
         if (changed) {

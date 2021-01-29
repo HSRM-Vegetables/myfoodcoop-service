@@ -42,6 +42,35 @@ Feature: Simple Stock management
       return null;
     }
     """
+    * url baseUrl + "/v2"
+    * def name = 'Bananas'
+    * def unitType = 'PIECE'
+    * def quantity = 42.0
+    * def pricePerUnit = 4.2
+    * def description = "this is a lovely piece of produce"
+    * def descriptionChanged = "this is a lovely piece of produce with a different description"
+    * def nameChanged = 'Avocados'
+    * def unitTypeChanged = 'WEIGHT'
+    * def quantityChanged = 110.0
+    * def pricePerUnitChanged = 4.2
+    * def password = "a_funny_horse**jumps_high778"
+    * def sustainablyProduced = true
+    * def certificates =  [ "Test, "Demeter" ]
+    * def originCategory = "LOCAL"
+    * def producer = "Farmer Joe"
+    * def supplier = "Cargo bike dude"
+    * def orderDate = "2021-01-24"
+    * def deliveryDate = "2021-01-24"
+    * def sustainablyProducedChanged = false
+    * def certificatesChanged =  [ "Not Demeter" ]
+    * def originCategoryChanged = "SUPRAREGIONAL"
+    * def producerChanged = "Farmer Bob"
+    * def supplierChanged = "Not the Cargo bike dude"
+    * def orderDateChanged = "2020-01-20"
+    * def deliveryDateChanged = "2020-01-20"
+    * def stockStatus = 'INSTOCK'
+    * def defaultStockBody = { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description), sustainablyProduced: #(sustainablyProduced),certificates: #(certificates), originCategory: #(originCategory), producer: #(producer), supplier: #(supplier), orderDate: #(orderDate), deliveryDate: #(deliveryDate), stockStatus: #(stockStatus)}
+
 
   Scenario: Generate a sold item report for items sold today
     # Get token of orderer
@@ -54,7 +83,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
+    And request defaultStockBody
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -62,7 +91,7 @@ Feature: Simple Stock management
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: 'INSTOCK' }
+    And request defaultStockBody
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -83,7 +112,6 @@ Feature: Simple Stock management
     When method POST
     Then status 200
     And assert response.name == "member"
-    And assert response.price == 5.6
 
     # Get token of treasurer
     Given path 'auth', 'login'
@@ -117,7 +145,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
+    And request defaultStockBody
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -182,7 +210,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
+    And request defaultStockBody
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -233,7 +261,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
+    And request defaultStockBody
     When method POST
     Then status 201
     And def stockId = response.id
