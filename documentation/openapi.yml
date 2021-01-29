@@ -599,25 +599,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    /auth/refresh/all/{user-id}:
-        delete:
-            security:
-                -   bearerAuth: [ ]
-            tags:
-                - Authentication
-            summary: Revoke all refresh tokens for a specified user
-            operationId: revokeAllForUser
-            parameters:
-                -   $ref: '#/components/parameters/user-id'
-            responses:
-                '204':
-                    description: Tokens succesfully revoked
-                default:
-                    description: Details about the error that occured
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/error-response'
 
 components:
     securitySchemes:
