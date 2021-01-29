@@ -713,6 +713,8 @@ components:
                 - sustainablyProduced
                 - originCategory
                 - stockStatus
+                - producer
+                - supplier
             properties:
                 name:
                     $ref: '#/components/schemas/item-name'
@@ -1166,7 +1168,6 @@ components:
             type: boolean
             description: Wether this item was produced sustainably
             example: true
-            default: true
 
         certificates:
             type: array
@@ -1179,7 +1180,6 @@ components:
         originCategory:
             type: string
             example: LOCAL
-            default: UNKNOWN
             enum:
                 - LOCAL
                 - REGIONAL
