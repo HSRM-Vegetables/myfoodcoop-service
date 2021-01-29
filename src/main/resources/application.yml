@@ -30,6 +30,6 @@ logging:
 
 vegetables:
     jwt:
-        lifetime: 3600000 # (1h) Lifetime of the user jwt token in milliseconds
+        lifetime: 600000 # (10min) Lifetime of the user jwt token in milliseconds
         refreshLifetime: 1209600000 # (14d) Lifetime of a refresh token in milliseconds (watch out for int overflow)
         secret: ${JWT_SECRET} # FILLED_BY_SECRETS in this case via env vars

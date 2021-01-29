@@ -3,6 +3,9 @@ package de.hsrm.vegetables.service.mapper;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UserResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class UserMapper {
 
     private UserMapper() {
@@ -16,9 +19,16 @@ public class UserMapper {
         userResponse.setMemberId(userDto.getMemberId());
         userResponse.setId(userDto.getId());
         userResponse.setRoles(userDto.getRoles());
+        userResponse.setIsDeleted(userDto.isDeleted());
 
         return userResponse;
     }
 
+    public static List<UserResponse> listUserDtoToListUserResponse(List<UserDto> userDtos) {
+        return userDtos
+                .stream()
+                .map(UserMapper::userDtoToUserResponse)
+                .collect(Collectors.toList());
+    }
 
 }
