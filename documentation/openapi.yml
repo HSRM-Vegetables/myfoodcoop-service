@@ -10,8 +10,6 @@ servers:
 tags:
     -   name: Balance
         description: Handles balance requests
-    -   name: BalanceHistoryItem
-        description: Provides a history of balance changes
     -   name: Stock
         description: All functionality related to the stock
     -   name: Purchase
@@ -129,22 +127,21 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-
-    '/balance-history-item':
+    '/balance/history':
         get:
             security:
                 - bearerAuth: [ ]
             tags:
-                - BalanceHistoryItem
-            summary: Retrieve all previous balance history items
-            operationId: balanceHistoryItemGet
+                - Balance
+            summary: Retrieve the user's complete balance history
+            operationId: balanceHistoryGet
             responses:
                 '200':
-                    description: Successful call, returns the list of all previous balance history items
+                    description: Successful call, returns the user's complete balance history
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/balance-history-item-list-response'
+                                $ref: '#/components/schemas/balance-history-response'
                 default:
                     description: Information about the error that occured
                     content:
@@ -866,11 +863,11 @@ components:
                     example: Robby
                     type: string
 
-        balance-history-item-list-response:
-            description: List of all previous balance history items
+        balance-history-response:
+            description: A user's balance history (a list of balance history items)
             type: object
             properties:
-                blanceHistoryItems:
+                balanceHistory:
                     type: array
                     items:
                         $ref: '#/components/schemas/balance-history-item'
