@@ -1,10 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.OriginCategory;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
@@ -88,8 +84,7 @@ public class StockService {
      */
     public StockDto addStock(String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
                              boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
-                             String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus)
-    {
+                             String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus) {
         if (unitType.equals(UnitType.PIECE) && quantity % 1 != 0) {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
         }
@@ -140,7 +135,7 @@ public class StockService {
      * @return The updated item
      */
     public StockDto update(String id, String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
-                           boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
+                           Boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
                            String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus) {
         StockDto stockDto = stockRepository.findById(id);
 
@@ -189,7 +184,7 @@ public class StockService {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
         }
 
-        if (sustainablyProduced != stockDto.isSustainablyProduced()) {
+        if (sustainablyProduced != null && sustainablyProduced != stockDto.isSustainablyProduced()) {
             stockDto.setSustainablyProduced(sustainablyProduced);
             changed = true;
         }
