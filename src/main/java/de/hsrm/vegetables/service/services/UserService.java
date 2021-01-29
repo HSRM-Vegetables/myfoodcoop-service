@@ -120,8 +120,9 @@ public class UserService {
         }
 
         List<Role> roles = user.getRoles();
-        if (roles.contains(role))
+        if (roles.contains(role)) {
             throw new BadRequestError("User already has the role " + role, ErrorCode.USER_ALREADY_HAS_ROLE);
+        }
 
         roles.add(role);
         user.setRoles(roles);
@@ -142,11 +143,13 @@ public class UserService {
         }
         List<Role> roles = user.getRoles();
 
-        if (!roles.contains(role))
+        if (!roles.contains(role)) {
             throw new NotFoundError("User does not has the role" + role, ErrorCode.USER_DOESNT_HAS_ROLE);
+        }
 
-        if(role == Role.ADMIN && userRepository.countByRoles(Role.ADMIN) == 1)
+        if (role == Role.ADMIN && userRepository.countByRoles(Role.ADMIN) == 1) {
             throw new BadRequestError("Can't delete role " + role + ": User " + user.getUsername() + " is the last admin", ErrorCode.USER_IS_LAST_ADMIN);
+        }
 
         roles.remove(role);
         user.setRoles(roles);
@@ -163,7 +166,7 @@ public class UserService {
      *
      * @param deleteFilter How to treat deleted users
      * @return A list of users
-     * */
+     */
     public List<UserDto> getAll(DeleteFilter deleteFilter) {
         return switch (deleteFilter) {
             case OMIT -> userRepository.findByIsDeleted(false);
