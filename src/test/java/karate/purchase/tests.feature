@@ -608,7 +608,7 @@ Feature: Simple Purchases
     And request { items: [#(item1), #(item2)] }
     When method POST
     Then status 400
-    And match response.errorCode == 400018
+    And match response.errorCode == 400021
 
     # Check that item's quantity did not change
     Given path 'stock', stockId1
