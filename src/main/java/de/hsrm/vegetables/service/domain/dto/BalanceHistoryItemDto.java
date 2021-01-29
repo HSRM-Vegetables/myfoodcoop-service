@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-public class TransactionDto {
+public class BalanceHistoryItemDto {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -25,7 +25,7 @@ public class TransactionDto {
     private Float amount;
 
     @ManyToOne
-    // Tie this purchase to a balance and thus to a user
+    // Tie this balance history item to a balance and thus to a user
     private BalanceDto balanceDto;
 
     @PrePersist
