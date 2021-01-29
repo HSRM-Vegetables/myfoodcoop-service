@@ -883,9 +883,14 @@ components:
                     example: '2017-07-21T17:32:28Z'
                     type: string
                     format: date-time
-                amount:
+                setOrChange:
                     description: |-
-                        Amount of the balance change.
+                        True if the balance is _set to_ a new amount,
+                        false if the balance is _changed by_ an amout
+                    example: true
+                    type: boolean
+                amount:
+                    description: New balance amount or amount change, respectively
                     example: 20.0
                     type: number
                     format: float
