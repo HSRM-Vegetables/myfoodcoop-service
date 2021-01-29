@@ -10,6 +10,8 @@ servers:
 tags:
     -   name: Balance
         description: Handles balance requests
+    -   name: BalanceHistoryItem
+        description: Provides a history of balance changes
     -   name: Stock
         description: All functionality related to the stock
     -   name: Purchase
@@ -123,6 +125,51 @@ paths:
                                 $ref: '#/components/schemas/balance-response'
                 default:
                     description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+
+    '/balance-history-item':
+        get:
+            security:
+                - bearerAuth: [ ]
+            tags:
+                - BalanceHistoryItem
+            summary: Retrieve all previous balance history items
+            operationId: balanceHistoryItemGet
+            responses:
+                '200':
+                    description: Successful call, returns the list of all previous balance history items
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-history-item-list-response'
+                default:
+                    description: Information about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    '/balance-history-item/{balance-history-item-id}':
+        get:
+            security:
+                - bearerAuth: [ ]
+            tags:
+                - BalanceHistoryItem
+            summary: Retrieve one balance history item by Id
+            operationId: balanceHistoryItemGetById
+            parameters:
+                - $ref: '#/components/parameters/balance-history-item-id'
+            responses:
+                '200':
+                    description: Successful call, returns a whole balance history item
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-history-item'
+                default:
+                    description: Information about the error that occured
                     content:
                         application/json:
                             schema:
