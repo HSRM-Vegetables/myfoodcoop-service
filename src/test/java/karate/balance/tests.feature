@@ -94,7 +94,53 @@ Feature: Balance Tests
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    Then match response == { offset: 0, limit: 10, total: 0, balanceHistory: [] }
+    Then match response contains { offset: 0, limit: 10, total: 0, balanceHistory: [] }
+
+  Scenario: GET /balance/history works for user with comprehensive balance history
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    Given path '/balance/topup'
+    And header Authorization = "Bearer " + token
+    And request { amount: 20 }
+    When method POST
+    Then status 200
+    And match response contains { balance: 20 }
+
+    Given path '/balance/withdraw'
+    And header Authorization = "Bearer " + token
+    And request { amount: 10 }
+    When method POST
+    Then status 200
+    And match response contains { balance: 10 }
+
+    Given path '/balance'
+    And header Authorization = "Bearer " + token
+    And request { balance: 30 }
+    When method PATCH
+    Then status 200
+    And match response contains { balance: 30 }
+
+    Given path '/balance/history'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    Then match response == 
+    """
+    { 
+      offset: 0, 
+      limit: 10, 
+      total: 3, 
+      balanceHistory: [
+        { createdOn: '#string', changeType: 'TOPUP', amount: 10 },
+        { createdOn: '#string', changeType: 'WITHDRAW', amount: 20 },
+        { createdOn: '#string', changeType: 'SET', amount: 30 }
+      ] 
+    }
+    """
 
   Scenario: POST topup with negativ value should fail
     Given path 'auth', 'login'
