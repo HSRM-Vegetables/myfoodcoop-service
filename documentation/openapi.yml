@@ -17,7 +17,7 @@ tags:
     -   name: Reports
         description: Various reports that can be generated for different aspects of the stock, the users and the balances
     -   name: User
-        description: Login, register, or get user information
+        description: Register a user, or alter a users data
     -   name: Authentication
         description: Token management and related functionality
 paths:
@@ -132,7 +132,10 @@ paths:
                 -   bearerAuth: [ ]
             tags:
                 - Stock
-            summary: Retrieves all items currently in stock
+            description: |-
+                Retrieves all items currently in stock
+                If the requesting user does not have the role "ORDERER", the returned list of items will not contain
+                items with status "ORDERED" or "OUTOFSTOCK"
             operationId: stockGet
             parameters:
                 -   in: query
@@ -145,6 +148,14 @@ paths:
                     name: deleted
                     schema:
                         $ref: '#/components/schemas/delete-filter'
+                -   in: query
+                    description: Filters the returned elements by their status
+                    name: filterByStatus
+                    schema:
+                        description: Filters the returned elements by their status
+                        type: array
+                        items:
+                            $ref: '#/components/schemas/stockStatus'
             responses:
                 '200':
                     description: Successful call, returns the current stock
@@ -359,11 +370,47 @@ paths:
                 -   bearerAuth: [ ]
             tags:
                 - User
-            summary: Get own user data
-            operationId: userGet
+            summary: Get all users
+            operationId: getUserList
+            parameters:
+                -   in: query
+                    description: |-
+                        Controls if deleted users will be included in the results
+
+                        * OMIT: Only users which haven't been deleted will be included
+                        * INCLUDE: Delted and not deleted users will be returned
+                        * ONLY: Only return deleted users
+                    name: deleted
+                    schema:
+                        $ref: '#/components/schemas/delete-filter'
             responses:
                 '200':
-                    description: Get own user data
+                    description: Successful call
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-list-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /user/{user-id}:
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - User
+            summary: |-
+                Get user data for the specified user.
+                Also used to get own user information. To get the id of a logged in user, decode the JWT
+            operationId: userIdGet
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+            responses:
+                '200':
+                    description: Successful call, returns the user data of the specified user
                     content:
                         application/json:
                             schema:
@@ -379,11 +426,60 @@ paths:
                 -   bearerAuth: [ ]
             tags:
                 - User
-            summary: Delete user account
-            operationId: userDelete
+            summary: Soft deletes a user account
+            operationId: userIdDelete
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             responses:
                 '204':
                     description: The user account was deleted
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+    /user/{user-id}/roles/{role}:
+        post:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - User
+            summary: Adds one role to the specified user
+            operationId: userAddRole
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+                -   $ref: '#/components/parameters/role'
+            responses:
+                '200':
+                    description: The role was successfully added to the user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - User
+            summary: Removes one role from the specified user
+            operationId: userDeleteRoles
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+                -   $ref: '#/components/parameters/role'
+            responses:
+                '200':
+                    description: The role was successfully removed from the user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
                 default:
                     description: Details about the error that occured
                     content:
@@ -417,6 +513,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+
     /auth/login:
         post:
             tags:
@@ -513,52 +610,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-
-    /user/{user-id}/roles/{role}:
-        post:
-            tags:
-                - User
-            summary: Adds one role to the specified user
-            operationId: userAddRole
-            parameters:
-                -   $ref: '#/components/parameters/user-id'
-                -   $ref: '#/components/parameters/role'
-            responses:
-                '200':
-                    description: The role was successfully added to the user
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/user-response'
-                default:
-                    description: Details about the error that occured
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/error-response'
-
-        delete:
-            tags:
-                - User
-            summary: Removes one role from the specified user
-            operationId: userDeleteRoles
-            parameters:
-                -   $ref: '#/components/parameters/user-id'
-                -   $ref: '#/components/parameters/role'
-            responses:
-                '200':
-                    description: The role was successfully removed from the user
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/user-response'
-                default:
-                    description: Details about the error that occured
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/error-response'
-
 
 components:
     securitySchemes:
@@ -661,6 +712,7 @@ components:
                 - pricePerUnit
                 - sustainablyProduced
                 - originCategory
+                - stockStatus
             properties:
                 name:
                     $ref: '#/components/schemas/item-name'
@@ -686,6 +738,8 @@ components:
                     $ref: '#/components/schemas/orderDate'
                 deliveryDate:
                     $ref: '#/components/schemas/deliveryDate'
+                stockStatus:
+                    $ref: '#/components/schemas/stockStatus'
 
         stock-patch-request:
             description: |-
@@ -717,6 +771,8 @@ components:
                     $ref: '#/components/schemas/orderDate'
                 deliveryDate:
                     $ref: '#/components/schemas/deliveryDate'
+                stockStatus:
+                    $ref: '#/components/schemas/stockStatus'
 
         register-request:
             description: Data to register a user
@@ -819,6 +875,8 @@ components:
                     $ref: '#/components/schemas/orderDate'
                 deliveryDate:
                     $ref: '#/components/schemas/deliveryDate'
+                stockStatus:
+                    $ref: '#/components/schemas/stockStatus'
 
         purchase-response:
             description: Information about the users balance and the purchased cart
@@ -942,10 +1000,22 @@ components:
                     $ref: '#/components/schemas/email'
                 memberId:
                     $ref: '#/components/schemas/memberId'
+                isDeleted:
+                    type: boolean
+                    description: Wether this user is deleted
+                    example: false
                 roles:
                     type: array
                     items:
                         $ref: '#/components/schemas/role'
+
+        user-list-response:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/user-response'
 
         token-response:
             type: object
@@ -1139,6 +1209,21 @@ components:
             format: date
             example: 2021-01-24
             description: When this item was delivered
+        stockStatus:
+            description: |-
+                Describes the current status of an item \
+                The following status are available:
+                * ORDERED: The item was ordered, but it is not delivered yet
+                * INSTOCK: The item was delivered and is ready for purchase
+                * SPOILSSOON: The item spoils soon and should be bought in the near future
+                * OUTOFSTOCK: The item is out of stock and cannot be bought anymore
+            type: string
+            example: ORDERED
+            enum:
+                - ORDERED
+                - INSTOCK
+                - SPOILSSOON
+                - OUTOFSTOCK
 
     parameters:
         username:

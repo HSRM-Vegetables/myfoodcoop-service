@@ -29,6 +29,7 @@ public class StockMapper {
         response.supplier(stockDto.getSupplier());
         response.orderDate(stockDto.getOrderDate());
         response.deliveryDate(stockDto.getDeliveryDate());
+        response.setStockStatus(stockDto.getStockStatus());
         return response;
     }
 

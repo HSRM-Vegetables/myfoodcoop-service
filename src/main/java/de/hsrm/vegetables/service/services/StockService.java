@@ -3,6 +3,7 @@ package de.hsrm.vegetables.service.services;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.OriginCategory;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -40,12 +41,23 @@ public class StockService {
      * @param deleteFilter How to treat deleted items
      * @return A list of stock items
      */
-    public List<StockDto> getAll(DeleteFilter deleteFilter) {
-        return switch (deleteFilter) {
-            case OMIT -> stockRepository.findByIsDeleted(false);
-            case ONLY -> stockRepository.findByIsDeleted(true);
-            case INCLUDE -> stockRepository.findAll();
-        };
+    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter) {
+        // No filtering by status
+        if (stockFilter == null || stockFilter.isEmpty()) {
+            return switch (deleteFilter) {
+                case OMIT -> stockRepository.findByIsDeleted(false);
+                case ONLY -> stockRepository.findByIsDeleted(true);
+                case INCLUDE -> stockRepository.findAll();
+            };
+        }
+
+        // No filtering by deleted but by status
+        if (deleteFilter.equals(DeleteFilter.INCLUDE)) {
+            return stockRepository.findByStockStatusIn(stockFilter);
+        }
+
+        // filtering by stockStatus and deleted
+        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT));
     }
 
     /**
@@ -76,7 +88,7 @@ public class StockService {
      */
     public StockDto addStock(String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
                              boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
-                             String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate)
+                             String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus)
     {
         if (unitType.equals(UnitType.PIECE) && quantity % 1 != 0) {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
@@ -95,6 +107,7 @@ public class StockService {
         stockDto.setSupplier(supplier);
         stockDto.setOrderDate(orderDate);
         stockDto.setDeliveryDate(deliveryDate);
+        stockDto.setStockStatus(stockStatus);
 
         return stockRepository.save(stockDto);
     }
@@ -128,7 +141,7 @@ public class StockService {
      */
     public StockDto update(String id, String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
                            boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
-                           String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate) {
+                           String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus) {
         StockDto stockDto = stockRepository.findById(id);
 
         if (stockDto == null) {
@@ -163,6 +176,11 @@ public class StockService {
 
         if (description != null) {
             stockDto.setDescription(description);
+            changed = true;
+        }
+
+        if (stockStatus != null) {
+            stockDto.setStockStatus(stockStatus);
             changed = true;
         }
 
@@ -249,7 +267,17 @@ public class StockService {
                         throw new BadRequestError("Cannot buy deleted item " + stockDto.getId(), ErrorCode.CANNOT_PURCHASE_DELETED_ITEM);
                     }
 
-                    float price = stockDto.getPricePerUnit() * item.getAmount();
+                    // Check that purchased item is not out of stock
+                    if (stockDto.getStockStatus()
+                            .equals(StockStatus.OUTOFSTOCK)) {
+                        throw new BadRequestError("Cannot purchase OUTOFSTOCK item with id " + item.getId(), ErrorCode.ITEM_OUT_OF_STOCK);
+                    }
+
+                    // Check that purchased item is not just ordered and hence not in the store yet
+                    if (stockDto.getStockStatus()
+                            .equals(StockStatus.ORDERED)) {
+                        throw new BadRequestError("Cannot purchase ORDERED item with id " + item.getId(), ErrorCode.ITEM_NOT_IN_STOCK_YET);
+                    }
 
                     stockDto.setQuantity(stockDto.getQuantity() - item.getAmount());
 

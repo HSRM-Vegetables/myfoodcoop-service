@@ -2,24 +2,42 @@ Feature: Simple Stock management
 
   Background:
     * url baseUrl + "/v2"
+    * def password = "a_funny_horse**jumps_high778"
     * def name = 'Bananas'
     * def unitType = 'PIECE'
     * def quantity = 42.0
     * def pricePerUnit = 4.2
     * def description = "this is a lovely piece of produce"
-    * def descriptionChanged = "this is a lovely piece of produce with a different description"
-    * def nameChanged = 'Avocados'
-    * def unitTypeChanged = 'WEIGHT'
-    * def quantityChanged = 110.0
-    * def pricePerUnitChanged = 4.2
-    * def password = "a_funny_horse**jumps_high778"
     * def sustainablyProduced = true
-    * def certificates =  [ "Test, "Demeter" ]
+    * def certificates =  [ "Test", "Demeter" ]
     * def originCategory = "LOCAL"
     * def producer = "Farmer Joe"
     * def supplier = "Cargo bike dude"
     * def orderDate = "2021-01-24"
     * def deliveryDate = "2021-01-24"
+    * def stockStatus = "INSTOCK"
+    * def defaultStockBody =
+    """
+     { 
+       name: #(name),
+       unitType: #(unitType),
+       quantity: #(quantity),
+       pricePerUnit: #(pricePerUnit),
+       description: #(description),
+       sustainablyProduced: #(sustainablyProduced),
+       certificates: #(certificates),
+       originCategory: #(originCategory),
+       producer: #(producer),
+       supplier: #(supplier),
+       orderDate: #(orderDate),
+       deliveryDate: #(deliveryDate),
+       stockStatus: #(stockStatus)}
+    """
+    * def nameChanged = 'Avocados'
+    * def unitTypeChanged = 'WEIGHT'
+    * def quantityChanged = 110.0
+    * def pricePerUnitChanged = 4.2
+    * def descriptionChanged = "this is a lovely piece of produce with a different description"
     * def sustainablyProducedChanged = false
     * def certificatesChanged =  [ "Not Demeter" ]
     * def originCategoryChanged = "SUPRAREGIONAL"
@@ -27,8 +45,40 @@ Feature: Simple Stock management
     * def supplierChanged = "Not the Cargo bike dude"
     * def orderDateChanged = "2020-01-20"
     * def deliveryDateChanged = "2020-01-20"
-    * def defaultStockBody = { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description), sustainablyProduced: #(sustainablyProduced),certificates: #(certificates), originCategory: #(originCategory), producer: #(producer), supplier: #(supplier), orderDate: #(orderDate), deliveryDate: #(deliveryDate)}
-
+    * def stockStatusChanged = "SPOILSSOON"
+    * def defaultStockBodyChanged = 
+    """
+    { 
+      name: #(nameChanged),
+      unitType: #(unitTypeChanged),
+      quantity: #(quantityChanged),
+      pricePerUnit: #(pricePerUnitChanged),
+      description: #(descriptionChanged),
+      sustainablyProduced: #(sustainablyProducedChanged),
+      certificates: #(certificatesChanged),
+      originCategory: #(originCategoryChanged), 
+      producer: #(producerChanged),
+      supplier: #(supplierChanged),
+      orderDate: #(orderDateChanged),
+      deliveryDate: #(deliveryDateChanged),
+      stockStatus: #(stockStatusChanged)
+    }
+    """
+    * def filterByStatus =
+    """
+    function(arr, status) {
+      if (arr === undefined || arr === null || status === undefined || status === null) {
+        return null;
+      }
+      var filtered = []
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].stockStatus === status) {
+          filtered.push(arr[i]);
+        }
+      }
+      return filtered;
+    }
+    """
 
   Scenario: GET returns an empty list if no stock exists
     # Get token
@@ -58,12 +108,7 @@ Feature: Simple Stock management
     And request defaultStockBody
     When method POST
     Then status 201
-    And assert response.id != null
-    And assert response.name == name
-    And assert response.unitType == unitType
-    And assert response.quantity == quantity
-    And assert response.pricePerUnit == pricePerUnit
-    And assert response.description == description
+    And match response contains { id: '#uuid', name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), stockStatus: #(stockStatus) }
     And def stockId = response.id
 
     # Get the item that was just created
@@ -93,18 +138,17 @@ Feature: Simple Stock management
     # Update this stock item
     Given path 'stock', stockId
     And header Authorization = "Bearer " + token
-    And request  defaultStockBody
+    And request defaultStockBodyChanged
     When method PATCH
     Then status 200
-    And match response contains defaultStockBody
-
+    And match response contains defaultStockBodyChanged
 
     # Check that patch was successful
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains defaultStockBody
+    And match response contains defaultStockBodyChanged
     And match response.isDeleted == false
 
   Scenario: Patch of only the name works
@@ -223,14 +267,37 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch description
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { description: #(descriptionChanged) }
     When method PATCH
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), description: #(descriptionChanged) }
+  
+  Scenario: Patch of only the stockStatus works
+    # Get token
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Create Item
+    Given path '/stock'
+    And header Authorization = "Bearer " + token
+    And request defaultStockBody
+    When method POST
+    Then status 201
+    And def stockId = response.id
+
+    # Only patch stockStatus
+    Given path '/stock/' + stockId
+    And header Authorization = "Bearer " + token
+    And request { stockStatus: #(stockStatusChanged) }
+    When method PATCH
+    Then status 200
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), stockStatus: #(stockStatusChanged) }
 
   Scenario: Patch of only sustainablyProduced works
     # Get token
@@ -248,10 +315,9 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch sustainablyProduced
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { sustainablyProduced: #(sustainablyProducedChanged) }
     When method PATCH
     Then status 200
@@ -273,10 +339,9 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch certificates
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { certificates: #(certificatesChanged) }
     When method PATCH
     Then status 200
@@ -298,10 +363,9 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch originCategory
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { originCategory: #(originCategoryChanged) }
     When method PATCH
     Then status 200
@@ -323,10 +387,9 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch producer
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { producer: #(producerChanged) }
     When method PATCH
     Then status 200
@@ -348,10 +411,9 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch supplier
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { supplier: #(supplierChanged) }
     When method PATCH
     Then status 200
@@ -373,10 +435,9 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch orderDate
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { orderDate: #(orderDateChanged) }
     When method PATCH
     Then status 200
@@ -398,15 +459,13 @@ Feature: Simple Stock management
     Then status 201
     And def stockId = response.id
 
-    # Only patch pricePerUnit
+    # Only patch deliveryDate
     Given path '/stock/' + stockId
     And header Authorization = "Bearer " + token
-    And def pricePerUnitChanged = 1.22
     And request { deliveryDate: #(deliveryDateChanged) }
     When method PATCH
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), deliveryDate: #(deliveryDateChanged) }
-
 
   Scenario: Soft Delete works
     # Get token
@@ -419,7 +478,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-        And request defaultStockBody
+    And request defaultStockBody
     When method POST
     Then status 201
     And def stockId = response.id
@@ -448,7 +507,7 @@ Feature: Simple Stock management
 
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request defaultStockBody
+    And request { name: "test", unitType: "PIECE", quantity: 10.0, pricePerUnit: 5.0, stockStatus: "INSTOCK" }
     When method POST
     Then status 201
 
@@ -478,7 +537,7 @@ Feature: Simple Stock management
     # First Post
     Given path '/stock'
     And header Authorization = "Bearer " + token
-        And request defaultStockBody
+    And request defaultStockBody
     When method POST
     Then status 201
     And assert response.id != null
@@ -491,7 +550,7 @@ Feature: Simple Stock management
     # Second Post
     Given path '/stock'
     And header Authorization = "Bearer " + token
-        And request defaultStockBody
+    And request defaultStockBody
     When method POST
     Then status 201
     And assert response.id != stockId
@@ -511,7 +570,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-        And request defaultStockBody
+    And request defaultStockBody
     When method POST
     Then status 201
     And assert response.id != null
@@ -585,7 +644,7 @@ Feature: Simple Stock management
     # Create Item
     Given path '/stock'
     And header Authorization = "Bearer " + token
-        And request defaultStockBody
+    And request defaultStockBody
     When method POST
     Then status 201
     And assert response.id != null
@@ -796,3 +855,248 @@ Feature: Simple Stock management
     When method DELETE
     Then status 401
     And match response.errorCode == 401005
+
+  Scenario: Filtering by status OUTOFSTOCK works
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create stock item with status ORDERED
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'INSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Get token for member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # A member cannot filter by OUTOFSTOCK
+    Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK"
+    And header Authorization = "Bearer " + mToken
+    When method GET
+    Then status 400
+    And match response.errorCode == 400020
+
+    # Orderer filters by OUTOFSTOCK
+    Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK"
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And match each response.items contains { stockStatus: 'OUTOFSTOCK' }
+
+  Scenario: Filtering by status OUTOFSTOCK and INSTOCK works
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create stock item with status OUTOFSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'INSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Get token for member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # A member cannot filter by OUTOFSTOCK
+    Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK,INSTOCK"
+    And header Authorization = "Bearer " + mToken
+    When method GET
+    Then status 400
+    And match response.errorCode == 400020
+
+    # Orderer filters by OUTOFSTOCK and INSTOCK
+    Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK,INSTOCK"
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And match each response.items contains { stockStatus: '#? _ === "OUTOFSTOCK" || _ === "INSTOCK"' }
+
+  Scenario: A user without role ORDERER does not get items of status "ORDERED" or "OUTOFSTOCK" but an ORDERER sees everything
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Get token for member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # Create stock item with status ORDERED
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status OUTOFSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'INSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status SPOILSSOON
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'SPOILSSOON',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Get the stock as the member
+    Given path 'stock'
+    And header Authorization = "Bearer " + mToken
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And def stockOrdered = filterByStatus(response.items, "ORDERED")
+    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
+    And def stockInStock = filterByStatus(response.items, "INSTOCK")
+    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
+    And assert stockOrdered.length == 0
+    And assert stockOutOfStock.length == 0
+    And assert stockInStock.length > 0
+    And assert stockSpoilsSoon.length > 0
+
+    # Get the stock as the orderer
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And def stockOrdered = filterByStatus(response.items, "ORDERED")
+    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
+    And def stockInStock = filterByStatus(response.items, "INSTOCK")
+    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
+    And assert stockOrdered.length > 0
+    And assert stockOutOfStock.length > 0
+    And assert stockInStock.length > 0
+    And assert stockSpoilsSoon.length > 0

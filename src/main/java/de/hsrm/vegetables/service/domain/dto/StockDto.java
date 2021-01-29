@@ -2,6 +2,7 @@ package de.hsrm.vegetables.service.domain.dto;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.OriginCategory;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
@@ -54,10 +55,12 @@ public class StockDto {
 
     @Column(nullable = false)
     private String supplier;
-
+    
     private LocalDate orderDate;
-
+    
     private LocalDate deliveryDate;
-
+    
+    @Column(nullable = false)
+    private StockStatus stockStatus = StockStatus.ORDERED;
 
 }

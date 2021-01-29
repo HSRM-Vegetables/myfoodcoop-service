@@ -3,7 +3,7 @@ Feature: User controller
   Background:
     * url baseUrl + "/v2"
     * def password = "a_funny_horse**jumps_high778"
-    * def parseJwtPayload =
+    * def getUserIdFromToken =
     """
     function(token) {
         var base64Url = token.split('.')[1];
@@ -11,7 +11,9 @@ Feature: User controller
         var Base64 = Java.type('java.util.Base64');
         var decoded = Base64.getDecoder().decode(base64Str);
         var String = Java.type('java.lang.String');
-        return new String(decoded);
+        var decodedAsString = new String(decoded);
+        var decodedAsObject = JSON.parse(decodedAsString);
+        return decodedAsObject.id;
     }
     """
 
@@ -23,7 +25,7 @@ Feature: User controller
     And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
     When method POST
     Then status 201
-    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), password: '#notpresent' }
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent' }
 
   Scenario: Cannot create a user with already registered username
     Given path 'user', 'register'
@@ -68,13 +70,13 @@ Feature: User controller
     When method POST
     Then status 200
     And def token = response.token
-    And print token
+    * def userId = getUserIdFromToken(token)
 
-    Given path 'user'
+    Given path 'user', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: '#uuid', username: 'member', email: 'member@mail.com', memberId: 'memberId', password: '#notpresent', roles: '#array' }
+    And match response contains { id: '#uuid', username: 'member', email: 'member@mail.com', memberId: 'memberId', isDeleted: false, password: '#notpresent', roles: '#array' }
 
   Scenario: GET /user requires authorization
     Given path 'user'
@@ -99,7 +101,7 @@ Feature: User controller
     And def rToken = response.token
 
     # Delete user
-    Given path 'user'
+    Given path 'user', userId
     And header Authorization = "Bearer " + rToken
     When method DELETE
     Then status 204
@@ -131,80 +133,76 @@ Feature: User controller
     When method Post
     Then status 400
 
-  Scenario: Add and delete some roles to an user
-    # Create User
+  Scenario: Add and delete role to a user
+    # create new user
     Given path 'user', 'register'
-    * def username = "mustermann2"
-    * def email = "mustermann2@test.com"
-    * def memberID = "123456"
-    * def password = "testPW1234567"
-    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    And request { username: "mustermann", email: "mustermann@test.com", memberId: "123456100", password: #(password) }
     When method POST
     Then status 201
     And def userID = response.id
 
-    # Auth User
+    # Login as admin
     Given path 'auth', 'login'
-    And request { username: #(username),  password: #(password) }
+    And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
-    And def token = response.token
+    And def oToken = response.token
 
-    # Post role TREASURER
+    # add role TREASURER
     Given path 'user', userID, 'roles', 'TREASURER'
-    And header Authorization = "Bearer " + token
+    And header Authorization = "Bearer " + oToken
     And request ''
     When method POST
     Then status 200
     And match response.roles contains 'TREASURER'
 
-    # Post role ADMIN
-    Given path 'user', userID, 'roles', 'ADMIN'
-    And header Authorization = "Bearer " + token
-    And request ''
-    When method POST
-    Then status 200
-    And match response.roles contains 'ADMIN'
-
-    # Check roles
-    Given path 'user'
-    And header Authorization = "Bearer " + token
-    When method GET
-    Then status 200
-    And match response.roles contains 'TREASURER'
-    And match response.roles contains 'ADMIN'
-
-    # Delete role TREASURER
+    # remove role TREASURER
     Given path 'user', userID, 'roles', 'TREASURER'
-    And header Authorization = "Bearer " + token
+    And header Authorization = "Bearer " + oToken
     When method DELETE
     Then status 200
     And match response.roles !contains 'TREASURER'
 
-    # Delete role ADMIN
-    Given path 'user', userID, 'roles', 'ADMIN'
-    And header Authorization = "Bearer " + token
-    When method DELETE
+  Scenario Outline: Cannot add or delete roles as member, orderer or treasurer
+    # Login
+    Given path 'auth', 'login'
+    And request { username: '<username>',  password: #(password) }
+    When method POST
     Then status 200
-    And match response.roles !contains 'ADMIN'
+    And def oToken = response.token
+    * def userId = getUserIdFromToken(oToken)
 
-    # Check roles again
-    Given path 'user'
-    And header Authorization = "Bearer " + token
-    When method GET
-    Then status 200
-    And match response.roles == []
+    # Can't add role
+    Given path 'user', userId, 'roles', 'TREASURER'
+    And header Authorization = "Bearer " + oToken
+    And request ''
+    When method POST
+    Then status 401
+    And match response.errorCode == 401005
+
+    # Can't remove Role
+    Given path 'user', userId, 'roles', 'TREASURER'
+    And header Authorization = "Bearer " + oToken
+    And request ''
+    When method POST
+    Then status 401
+    And match response.errorCode == 401005
+
+    Examples:
+      | username  |
+      | member    |
+      | orderer   |
+      | treasurer |
 
   Scenario: Cannot add a role twice to a user
-    # Create User
+    # create new user
     Given path 'user', 'register'
-    * def username = "mustermann3"
-    And request { username: #(username), email: "mustermann3@test.com", memberId: "1235454456", password: #(password) }
+    And request { username: "mustermann2", email: "mustermann2@test.com", memberId: "12384524456", password: #(password) }
     When method POST
     Then status 201
     And def userID = response.id
 
-    # Auth User
+    # Login as admin
     Given path 'auth', 'login'
     And request { username: 'admin',  password: #(password) }
     When method POST
@@ -230,24 +228,236 @@ Feature: User controller
   Scenario: Cannot delete a role from a user that has not been added
     # Create User
     Given path 'user', 'register'
-    * def username = "mustermann4"
-    And request { username: #(username), email: "mustermann4@test.com", memberId: "12384524456", password: #(password) }
+    And request { username: "mustermann3", email: "mustermann3@test.com", memberId: "12384524480", password: #(password) }
     When method POST
     Then status 201
     And def userID = response.id
 
-    # Auth User
+    # Login as admin
     Given path 'auth', 'login'
     And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
 
-    # Delete role ADMIN
+    # Delete role ADMIN for new user
     Given path 'user', userID, 'roles', 'ADMIN'
     And header Authorization = "Bearer " + token
     When method DELETE
     Then status 404
     And match response.errorCode == 404006
 
+  Scenario: Cannot remove role admin when user is the last admin
+    # depends on class BaseTest that there is only one admin
 
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    * def userId = getUserIdFromToken(token)
+
+    # try to remove role admin
+    Given path 'user', userId, 'roles', 'ADMIN'
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 400
+    And match response.errorCode == 400018
+
+  Scenario: Get user data from another user
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann4"
+    * def email = "mustermann4@test.com"
+    * def memberId = "12384524481"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Get data from new user
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent', roles: '#array' }
+
+  Scenario: Error when retrieving user data from invalid user-id
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Get data from unknown user
+    Given path 'user', 'ZZZZZ9999'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 404
+    And match response.errorCode == 404005
+
+  Scenario: Error when deleting invalid user-id
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Delete unknown user
+    Given path 'user', 'ZZZZZ9999'
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 404
+    And match response.errorCode == 404005
+
+  Scenario: User is softDeleted after delete
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann5"
+    * def email = "mustermann5@test.com"
+    * def memberId = "12384524482"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: false, password: '#notpresent' }
+
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Delete new user
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 204
+
+    # Get user data
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response == { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), isDeleted: true, password: '#notpresent', roles: '#array' }
+
+  Scenario: Get all Users as admin
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And match response == { users: '#array' }
+    And match response.users[*].username contains 'admin'
+
+  Scenario: Cannot get all Users without login
+    Given path 'user'
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005
+
+  Scenario: Cannot get all Users as member
+    # Login as member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005
+
+  Scenario: Cannot get all Users as orderer
+    # Login as orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005
+
+  Scenario: Cannot get all Users as treasurer
+      # Login as treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005
+
+  Scenario: Get only deleted users
+    # Create User
+    Given path 'user', 'register'
+    And request { username: "mustermann1", email: "mustermann1@test.com", memberId: "1234", password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Login as Admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Delete new user
+    Given path 'user', userID
+    And header Authorization = "Bearer " + oToken
+    When method DELETE
+    Then status 204
+
+    # Get only deleted users
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    And param deleted = "ONLY"
+    When method GET
+    Then status 200
+    And match response == { users: '#array' }
+    And match response.users[*].username contains 'mustermann1'
+
+    # Deleted user should net be in default /users response
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And match response == { users: '#array' }
+    And match response.users[*].username !contains 'mustermann1'
+
+    # Deleted users should be in included /users resonse
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    And param deleted = "INCLUDE"
+    When method GET
+    Then status 200
+    And match response == { users: '#array' }
+    And match response.users[*].username contains 'mustermann1'
