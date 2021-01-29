@@ -826,14 +826,25 @@ components:
                     example: '2017-07-21T17:32:28Z'
                     type: string
                     format: date-time
-                setOrChange:
+                type:
                     description: |-
-                        True if the balance is _set to_ a new amount,
-                        false if the balance is _changed by_ an amout
-                    example: true
-                    type: boolean
+                        Type of balance amount change:
+                        - TOPUP: User has deposited amount
+                        - WITHDRAW: User has withdrawn amount
+                        - SET: User has fixed balance
+                        - PURCHASE: User has purchased items
+                    enum:
+                        - TOPUP
+                        - WITHDRAW
+                        - SET
+                        - PURCHASE
                 amount:
-                    description: New balance amount or amount change, respectively
+                    description: |-
+                        New balance amount or balance change, depending on type:
+                        - TOPUP: Add amount to balance
+                        - WITHDRAW: Subtract amount from balance
+                        - SET: Set balance to amount
+                        - PURCHASE: Subtract amount from balance
                     example: 20.0
                     type: number
                     format: float
