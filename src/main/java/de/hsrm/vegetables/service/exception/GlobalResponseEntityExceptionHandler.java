@@ -63,7 +63,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     @ExceptionHandler(UnauthorizedError.class)
-    public ResponseEntity<Object> handleNotFoundError(UnauthorizedError error) {
+    public ResponseEntity<Object> handleUnauthorizedError(UnauthorizedError error) {
         return this.createException(error, HttpStatus.UNAUTHORIZED);
     }
 
