@@ -151,29 +151,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/balance-history-item/{balance-history-item-id}':
-        get:
-            security:
-                - bearerAuth: [ ]
-            tags:
-                - BalanceHistoryItem
-            summary: Retrieve one balance history item by Id
-            operationId: balanceHistoryItemGetById
-            parameters:
-                - $ref: '#/components/parameters/balance-history-item-id'
-            responses:
-                '200':
-                    description: Successful call, returns a whole balance history item
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/balance-history-item'
-                default:
-                    description: Information about the error that occured
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/error-response'
 
     '/stock':
         get:
