@@ -831,6 +831,9 @@ components:
                     description: |-
                         Pagination limit that was specified in the request or default if not specified.
                         Actual length of balance history items array might be shorter.
+                total:
+                    type: integer
+                    description: Number of items in the database
                 balanceHistory:
                     type: array
                     items:
