@@ -54,7 +54,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -62,7 +62,7 @@ Feature: Simple Stock management
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -117,7 +117,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -182,7 +182,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -233,7 +233,7 @@ Feature: Simple Stock management
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId = response.id

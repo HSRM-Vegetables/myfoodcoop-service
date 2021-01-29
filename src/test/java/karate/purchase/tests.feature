@@ -41,7 +41,7 @@ Feature: Simple Purchases
     # Create item
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -111,7 +111,7 @@ Feature: Simple Purchases
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -119,7 +119,7 @@ Feature: Simple Purchases
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -206,7 +206,7 @@ Feature: Simple Purchases
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -214,7 +214,7 @@ Feature: Simple Purchases
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -275,7 +275,7 @@ Feature: Simple Purchases
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -283,7 +283,7 @@ Feature: Simple Purchases
     # Create item 2
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3 }
+    And request { name: "Pumpkin", unitType: "PIECE", quantity: 20.0, pricePerUnit: 4.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId2 = response.id
@@ -329,7 +329,7 @@ Feature: Simple Purchases
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -405,7 +405,7 @@ Feature: Simple Purchases
     # Create item 1
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -452,7 +452,7 @@ Feature: Simple Purchases
     # Create item
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.0 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.0, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -523,7 +523,7 @@ Feature: Simple Purchases
     # Create item
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3 }
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: 140.0, pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
     When method POST
     Then status 201
     And def stockId1 = response.id
@@ -566,3 +566,117 @@ Feature: Simple Purchases
     When method GET
     Then status 401
     And assert response.errorCode == 401005
+
+  Scenario: Purchasing an item with stockStatus OUTOFSTOCK is not possible
+    # Create Item with Orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create item that is out of stock
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And def quantityOriginal = 100.0
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: #(quantityOriginal), pricePerUnit: 1.3, stockStatus: 'OUTOFSTOCK' }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Create item that is in stock
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And def quantityOriginal = 100.0
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: #(quantityOriginal), pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
+    When method POST
+    Then status 201
+    And def stockId2 = response.id
+
+    # Login with member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Purchase item
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And def item2 = { id: #(stockId2), amount: 1 }
+    And request { items: [#(item1), #(item2)] }
+    When method POST
+    Then status 400
+    And match response.errorCode == 400021
+
+    # Check that item's quantity did not change
+    Given path 'stock', stockId1
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response.quantity == quantityOriginal
+
+    # Check that item's quantity did not change
+    Given path 'stock', stockId2
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response.quantity == quantityOriginal
+
+  Scenario: Purchasing an item with stockStatus ORDERED is not possible
+    # Create Item with Orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create item that is ORDERED
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And def quantityOriginal = 100.0
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: #(quantityOriginal), pricePerUnit: 1.3, stockStatus: 'ORDERED' }
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Create item that is INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And def quantityOriginal = 100.0
+    And request { name: "Bananas", unitType: "WEIGHT", quantity: #(quantityOriginal), pricePerUnit: 1.3, stockStatus: 'INSTOCK' }
+    When method POST
+    Then status 201
+    And def stockId2 = response.id
+
+    # Login with member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Purchase item
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And def item2 = { id: #(stockId2), amount: 1 }
+    And request { items: [#(item1), #(item2)] }
+    When method POST
+    Then status 400
+    And match response.errorCode == 400019
+
+    # Check that item's quantity did not change
+    Given path 'stock', stockId1
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response.quantity == quantityOriginal
+
+    # Check that item's quantity did not change
+    Given path 'stock', stockId2
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response.quantity == quantityOriginal

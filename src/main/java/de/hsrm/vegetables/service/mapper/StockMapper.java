@@ -21,6 +21,7 @@ public class StockMapper {
         response.pricePerUnit(stockDto.getPricePerUnit());
         response.description(stockDto.getDescription());
         response.setIsDeleted(stockDto.isDeleted());
+        response.setStockStatus(stockDto.getStockStatus());
         return response;
     }
 

@@ -11,6 +11,6 @@ spring:
 
 logging:
     level:
-        root: ERROR
+        root: INFO
         de.hsrm.vegetables.service.Application: INFO
         org.hibernate: INFO
