@@ -83,6 +83,19 @@ Feature: Balance Tests
     Then status 200
     Then match response.balance == newBalance
 
+  Scenario: GET /balance/history works for user with empty balance history
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    Given path '/balance/history'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    Then match response == { offset: 0, limit: 10, total: 0, balanceHistory: [] }
+
   Scenario: POST topup with negativ value should fail
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }
