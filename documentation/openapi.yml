@@ -133,6 +133,17 @@ paths:
                 - Balance
             summary: Retrieve the user's complete balance history
             operationId: balanceHistoryGet
+            parameters:
+                -   in: query
+                    name: offset
+                    schema:
+                        type: integer
+                    description: The number of items to skip before starting to collect the result set
+                -   in: query
+                    name: limit
+                    schema:
+                        type: integer
+                    description: The numbers of items to return
             responses:
                 '200':
                     description: Successful call, returns the user's complete balance history
@@ -810,6 +821,14 @@ components:
             description: A user's balance history (a list of balance history items)
             type: object
             properties:
+                offset:
+                    type: integer
+                    description: Pagination offset that was passed to the request
+                limit:
+                    type: integer
+                    description: |-
+                        Pagination limit that was passed to the request.
+                        Actual length of balance history items array might be shorter.
                 balanceHistory:
                     type: array
                     items:
