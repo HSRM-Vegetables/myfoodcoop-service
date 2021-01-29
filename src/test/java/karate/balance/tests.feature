@@ -180,6 +180,12 @@ Feature: Balance Tests
     Then status 401
     And match response.errorCode == 401005
 
+  Scenario: GET /balance/history requires authorization
+    Given path '/balance/history'
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005
+
   Scenario: New user has a balance of 0
     Given path 'user', 'register'
     And request { username: 'MaxMuster', email: 'MaxMuster8@test.com', memberId: '49', password: #(password) }
