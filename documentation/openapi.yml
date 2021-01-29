@@ -826,7 +826,7 @@ components:
                     example: '2017-07-21T17:32:28Z'
                     type: string
                     format: date-time
-                type:
+                changeType:
                     description: |-
                         Type of balance amount change:
                         - TOPUP: User has deposited amount
