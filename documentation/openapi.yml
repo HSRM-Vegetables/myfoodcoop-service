@@ -132,7 +132,10 @@ paths:
                 -   bearerAuth: [ ]
             tags:
                 - Stock
-            summary: Retrieves all items currently in stock
+            description: |-
+                Retrieves all items currently in stock
+                If the requesting user does not have the role "ORDERER", the returned list of items will not contain
+                items with status "ORDERED" or "OUTOFSTOCK"
             operationId: stockGet
             parameters:
                 -   in: query
@@ -1067,14 +1070,14 @@ components:
                 The following status are available:
                 * ORDERED: The item was ordered, but it is not delivered yet
                 * INSTOCK: The item was delivered and is ready for purchase
-                * PERISHESSOON: The item perishes soon and should be bought in the near future
+                * SPOILSSOON: The item spoils soon and should be bought in the near future
                 * OUTOFSTOCK: The item is out of stock and cannot be bought anymore
             type: string
             example: ORDERED
             enum:
                 - ORDERED
                 - INSTOCK
-                - PERISHESSOON
+                - SPOILSSOON
                 - OUTOFSTOCK
 
     parameters:

@@ -15,6 +15,21 @@ Feature: Simple Stock management
     * def password = "a_funny_horse**jumps_high778"
     * def stockStatus = "ORDERED"
     * def stockStatusChanged = "INSTOCK"
+    * def filterByStatus =
+    """
+    function(arr, status) {
+      if (arr === undefined || arr === null || status === undefined || status === null) {
+        return null;
+      }
+      var filtered = []
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].stockStatus === status) {
+          filtered.push(arr[i]);
+        }
+      }
+      return filtered;
+    }
+    """
 
   Scenario: GET returns an empty list if no stock exists
     # Get token
@@ -669,10 +684,18 @@ Feature: Simple Stock management
     Then status 200
     And def mToken = response.token
 
-    # Get only stock items with status ORDERED
+    # A member cannot filter by OUTOFSTOCK
     Given path 'stock'
     And param filterByStatus = "OUTOFSTOCK"
     And header Authorization = "Bearer " + mToken
+    When method GET
+    Then status 400
+    And match response.errorCode == 400020
+
+    # Orderer filters by OUTOFSTOCK
+    Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK"
+    And header Authorization = "Bearer " + oToken
     When method GET
     Then status 200
     And assert response.items.length > 0
@@ -727,11 +750,132 @@ Feature: Simple Stock management
     Then status 200
     And def mToken = response.token
 
-    # Get only stock items with status OUTOFSTOCK or INSTOCK
+    # A member cannot filter by OUTOFSTOCK
     Given path 'stock'
     And param filterByStatus = "OUTOFSTOCK,INSTOCK"
     And header Authorization = "Bearer " + mToken
     When method GET
+    Then status 400
+    And match response.errorCode == 400020
+
+    # Orderer filters by OUTOFSTOCK and INSTOCK
+    Given path 'stock'
+    And param filterByStatus = "OUTOFSTOCK,INSTOCK"
+    And header Authorization = "Bearer " + oToken
+    When method GET
     Then status 200
     And assert response.items.length > 0
     And match each response.items contains { stockStatus: '#? _ === "OUTOFSTOCK" || _ === "INSTOCK"' }
+
+  Scenario: A user without role ORDERER does not get items of status "ORDERED" or "OUTOFSTOCK" but an ORDERER sees everything
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Get token for member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # Create stock item with status ORDERED
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status OUTOFSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'OUTOFSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'INSTOCK',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status SPOILSSOON
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: #(name),
+      unitType: #(unitType),
+      quantity: #(quantity),
+      pricePerUnit: #(pricePerUnit),
+      description: #(description),
+      stockStatus: 'SPOILSSOON',
+     }
+    """
+    When method POST
+    Then status 201
+
+    # Get the stock as the member
+    Given path 'stock'
+    And header Authorization = "Bearer " + mToken
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And def stockOrdered = filterByStatus(response.items, "ORDERED")
+    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
+    And def stockInStock = filterByStatus(response.items, "INSTOCK")
+    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
+    And assert stockOrdered.length == 0
+    And assert stockOutOfStock.length == 0
+    And assert stockInStock.length > 0
+    And assert stockSpoilsSoon.length > 0
+
+    # Get the stock as the orderer
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And def stockOrdered = filterByStatus(response.items, "ORDERED")
+    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
+    And def stockInStock = filterByStatus(response.items, "INSTOCK")
+    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
+    And assert stockOrdered.length > 0
+    And assert stockOutOfStock.length > 0
+    And assert stockInStock.length > 0
+    And assert stockSpoilsSoon.length > 0
