@@ -866,6 +866,33 @@ components:
                     example: Robby
                     type: string
 
+        balance-history-item-list-response:
+            description: List of all previous balance history items
+            type: object
+            properties:
+                blanceHistoryItems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/balance-history-item'
+
+        balance-history-item:
+            description: Contains information about a whole balance history item
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                createdOn:
+                    description: Date and time the balance history item was created at
+                    example: '2017-07-21T17:32:28Z'
+                    type: string
+                    format: date-time
+                amount:
+                    description: |-
+                        Amount of the balance change.
+                    example: 20.0
+                    type: number
+                    format: float
+
         all-stock-response:
             type: object
             properties:
