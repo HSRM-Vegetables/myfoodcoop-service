@@ -274,7 +274,7 @@ Feature: Simple Stock management
     When method PATCH
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), description: #(descriptionChanged) }
-  
+
   Scenario: Patch of only the stockStatus works
     # Get token
     Given path 'auth', 'login'
@@ -497,7 +497,7 @@ Feature: Simple Stock management
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit) }
     And match response.isDeleted == true
 
-  Scenario: POST can create an item without a description
+  Scenario: Create stock item with minimal content
     # Get token
     Given path 'auth', 'login'
     And request { username: 'orderer',  password: #(password) }
@@ -507,7 +507,20 @@ Feature: Simple Stock management
 
     Given path '/stock'
     And header Authorization = "Bearer " + token
-    And request { name: "test", unitType: "PIECE", quantity: 10.0, pricePerUnit: 5.0, stockStatus: "INSTOCK" }
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+    }
+    """
     When method POST
     Then status 201
 
@@ -867,33 +880,27 @@ Feature: Simple Stock management
     # Create stock item with status ORDERED
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'OUTOFSTOCK',
-     }
-    """
+    And request defaultStockBody
     When method POST
     Then status 201
 
-    # Create stock item with status INSTOCK
+    # Create stock item with status OUTOFSTOCK
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
     And request
+    And request
     """
     {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'INSTOCK',
-     }
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "OUTOFSTOCK",
+    }
     """
     When method POST
     Then status 201
@@ -936,13 +943,16 @@ Feature: Simple Stock management
     And request
     """
     {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'OUTOFSTOCK',
-     }
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "OUTOFSTOCK",
+    }
     """
     When method POST
     Then status 201
@@ -953,13 +963,16 @@ Feature: Simple Stock management
     And request
     """
     {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'INSTOCK',
-     }
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+    }
     """
     When method POST
     Then status 201
@@ -1009,13 +1022,16 @@ Feature: Simple Stock management
     And request
     """
     {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'OUTOFSTOCK',
-     }
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "ORDERED",
+    }
     """
     When method POST
     Then status 201
@@ -1026,13 +1042,16 @@ Feature: Simple Stock management
     And request
     """
     {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'OUTOFSTOCK',
-     }
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "OUTOFSTOCK",
+    }
     """
     When method POST
     Then status 201
@@ -1043,13 +1062,16 @@ Feature: Simple Stock management
     And request
     """
     {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'INSTOCK',
-     }
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+    }
     """
     When method POST
     Then status 201
@@ -1060,13 +1082,16 @@ Feature: Simple Stock management
     And request
     """
     {
-      name: #(name),
-      unitType: #(unitType),
-      quantity: #(quantity),
-      pricePerUnit: #(pricePerUnit),
-      description: #(description),
-      stockStatus: 'SPOILSSOON',
-     }
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "SPOILSSOON",
+    }
     """
     When method POST
     Then status 201
