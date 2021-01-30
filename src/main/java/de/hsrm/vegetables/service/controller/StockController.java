@@ -108,7 +108,8 @@ public class StockController implements StockApi {
                 stockPatchRequest.getSupplier(),
                 stockPatchRequest.getOrderDate(),
                 stockPatchRequest.getDeliveryDate(),
-                stockPatchRequest.getStockStatus()
+                stockPatchRequest.getStockStatus(),
+                stockPatchRequest.getVat()
         );
 
         StockResponse response = StockMapper.stockDtoToStockResponse(updatedStock);
@@ -131,7 +132,8 @@ public class StockController implements StockApi {
                 stockPostRequest.getSupplier(),
                 stockPostRequest.getOrderDate(),
                 stockPostRequest.getDeliveryDate(),
-                stockPostRequest.getStockStatus()
+                stockPostRequest.getStockStatus(),
+                stockPostRequest.getVat()
         );
         StockResponse stockResponse = StockMapper.stockDtoToStockResponse(stockDto);
         return new ResponseEntity<>(stockResponse, HttpStatus.CREATED);

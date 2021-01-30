@@ -1253,16 +1253,19 @@ components:
             description: Contains all distinct vat rates and the amount paid for this rate for the whole purchase
             type: array
             items:
-                type: object
-                description: A single vat rate for a purchase
-                properties:
-                    vat:
-                        $ref: '#/components/schemas/vat'
-                    amount:
-                        type: number
-                        format: float
-                        description: The amount of VAT paid for this VAT rate
-                        example: 14.7
+                $ref: '#/components/schemas/vatDetailItem'
+
+        vatDetailItem:
+            type: object
+            description: A single vat rate for a purchase
+            properties:
+                vat:
+                    $ref: '#/components/schemas/vat'
+                amount:
+                    type: number
+                    format: float
+                    description: The amount of VAT paid for this VAT rate
+                    example: 14.7
 
         vat:
             description: The VAT applicable for this item. The vat is a number in the interval ]0,1]

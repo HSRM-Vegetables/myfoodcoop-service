@@ -16,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +39,7 @@ public class PurchaseService {
      * @param cartItems  The amounts of the items purchased
      * @return The completed purchase
      */
-    public PurchaseDto purchaseItems(BalanceDto balanceDto, List<StockDto> stockItems, List<CartItem> cartItems, Float totalPrice) {
+    public PurchaseDto purchaseItems(BalanceDto balanceDto, List<StockDto> stockItems, List<CartItem> cartItems, Float totalPrice, Float totalVat) {
         List<PurchasedItemDto> purchasedItems = cartItems
                 .stream()
                 .map(item -> {
@@ -59,6 +60,8 @@ public class PurchaseService {
                     purchasedItemDto.setStockDto(associatedStockDto.get());
                     purchasedItemDto.setUnitType(associatedStockDto.get()
                             .getUnitType());
+                    purchasedItemDto.setVat(associatedStockDto.get()
+                            .getVat());
 
                     return purchasedItemDto;
                 })
@@ -69,6 +72,7 @@ public class PurchaseService {
         purchaseDto.setTotalPrice(totalPrice);
         purchaseDto.setPurchasedItems(purchasedItems);
         purchaseDto.setBalanceDto(balanceDto);
+        purchaseDto.setTotalVat(totalVat);
 
         return purchaseRepository.save(purchaseDto);
     }
@@ -103,10 +107,10 @@ public class PurchaseService {
      * Find all purchases between fromDate and toDate
      *
      * @param fromDateConverted start of time window of the purchase list
-     * @param toDateConverted end of time window of the purchase list
+     * @param toDateConverted   end of time window of the purchase list
      * @return A list of purchases in the given time
      */
-    public List<PurchaseDto> findAllByCreatedOnBetween(OffsetDateTime fromDateConverted, OffsetDateTime toDateConverted){
+    public List<PurchaseDto> findAllByCreatedOnBetween(OffsetDateTime fromDateConverted, OffsetDateTime toDateConverted) {
         return purchaseRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
     }
 }

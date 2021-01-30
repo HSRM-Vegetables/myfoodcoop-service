@@ -1,7 +1,6 @@
 package de.hsrm.vegetables.service.domain.dto;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.OriginCategory;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import lombok.Data;
@@ -45,7 +44,7 @@ public class StockDto {
     private boolean sustainablyProduced = true;
 
     @ElementCollection
-    private List<String> certificates = new ArrayList<String>();
+    private List<String> certificates = new ArrayList<>();
 
     @Column(nullable = false)
     private OriginCategory originCategory = OriginCategory.UNKNOWN;
@@ -55,12 +54,15 @@ public class StockDto {
 
     @Column(nullable = false)
     private String supplier;
-    
+
     private LocalDate orderDate;
-    
+
     private LocalDate deliveryDate;
-    
+
     @Column(nullable = false)
     private StockStatus stockStatus = StockStatus.ORDERED;
+
+    @Column(nullable = false)
+    private Float vat = 0.19f;
 
 }

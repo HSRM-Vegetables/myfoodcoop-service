@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ public class StockService {
      */
     public StockDto addStock(String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
                              boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
-                             String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus) {
+                             String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus, Float vat) {
         if (unitType.equals(UnitType.PIECE) && quantity % 1 != 0) {
             throw new BadRequestError("Cannot have a fractional quantity with UnitType PIECE", ErrorCode.NO_FRACTIONAL_QUANTITY);
         }
@@ -103,6 +104,7 @@ public class StockService {
         stockDto.setOrderDate(orderDate);
         stockDto.setDeliveryDate(deliveryDate);
         stockDto.setStockStatus(stockStatus);
+        stockDto.setVat(vat);
 
         return stockRepository.save(stockDto);
     }
@@ -136,7 +138,7 @@ public class StockService {
      */
     public StockDto update(String id, String name, UnitType unitType, Float quantity, Float pricePerUnit, String description,
                            Boolean sustainablyProduced, List<String> certificates, OriginCategory originCategory,
-                           String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus) {
+                           String producer, String supplier, LocalDate orderDate, LocalDate deliveryDate, StockStatus stockStatus, Float vat) {
         StockDto stockDto = stockRepository.findById(id);
 
         if (stockDto == null) {
@@ -200,9 +202,7 @@ public class StockService {
         }
 
         if (originCategory != null) {
-
             stockDto.setOriginCategory(originCategory);
-
             changed = true;
         }
 
@@ -223,6 +223,11 @@ public class StockService {
 
         if (deliveryDate != null) {
             stockDto.setDeliveryDate(deliveryDate);
+            changed = true;
+        }
+
+        if (vat != null) {
+            stockDto.setVat(vat);
             changed = true;
         }
 
@@ -308,6 +313,64 @@ public class StockService {
         return round(totalPrice, 2);
     }
 
+    public static Float calculateVatAmount(List<StockDto> stockItems, List<CartItem> cartItems) {
+        Float totalVat = cartItems
+                .stream()
+                .map(cartItem -> {
+                    Optional<StockDto> associatedStockDtoOpt = stockItems
+                            .stream()
+                            .filter(stockItem -> stockItem.getId()
+                                    .equals(cartItem.getId()))
+                            .findFirst();
+
+                    if (associatedStockDtoOpt.isEmpty()) {
+                        throw new InternalError("No matching stock item was found in stockItems", ErrorCode.STOCK_DTO_NOT_FOUND);
+                    }
+
+                    StockDto associatedStockDto = associatedStockDtoOpt.get();
+
+                    return associatedStockDto
+                            .getPricePerUnit() * cartItem.getAmount() * associatedStockDto.getVat();
+                })
+                .reduce(0f, Float::sum);
+        return round(totalVat, 2);
+    }
+
+    public static List<VatDetailItem> getVatDetails(List<StockDto> stockItems, List<CartItem> cartItems) {
+        ArrayList<Float> distinctVats = new ArrayList<>();
+        // Find all distinct vat rates in the stock
+        stockItems.forEach(stockDto -> {
+            if (!distinctVats.contains(stockDto.getVat())) {
+                distinctVats.add(stockDto.getVat());
+            }
+        });
+
+        return distinctVats.stream()
+                .map(vat -> {
+                    // get all stock with that specific vat
+                    List<StockDto> stockWithSpecificVat = stockItems.stream()
+                            .filter(stockDto -> stockDto.getVat()
+                                    .equals(vat))
+                            .collect(Collectors.toList());
+
+                    // Find all cart items associated to these stock items
+                    List<CartItem> cartWithSpecificVat = cartItems.stream()
+                            .filter(cartItem -> stockWithSpecificVat.stream()
+                                    .anyMatch(stockDto -> stockDto.getId()
+                                            .equals(cartItem.getId()))
+                            )
+                            .collect(Collectors.toList());
+
+                    // Calculate vat amount for that subset of items
+                    Float vatAmount = calculateVatAmount(stockWithSpecificVat, cartWithSpecificVat);
+                    VatDetailItem vatDetailItem = new VatDetailItem();
+                    vatDetailItem.setVat(vat);
+                    vatDetailItem.setAmount(vatAmount);
+                    return vatDetailItem;
+                })
+                .collect(Collectors.toList());
+    }
+
     /**
      * counts how often an item with a given id exists in the list
      *
@@ -330,7 +393,7 @@ public class StockService {
      * @param places How many decimal places to round to
      * @return The rounded number with places decimal places
      */
-    private static float round(float value, int places) {
+    public static float round(float value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 
         BigDecimal bd = new BigDecimal(Float.toString(value));
