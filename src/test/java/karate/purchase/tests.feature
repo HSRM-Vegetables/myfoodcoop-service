@@ -42,6 +42,7 @@ Feature: Simple Purchases
       producer: "producer",
       supplier: "supplier",
       stockStatus: "INSTOCK",
+      vat: 0.19
     }
     """
 
@@ -605,6 +606,7 @@ Feature: Simple Purchases
       producer: "producer",
       supplier: "supplier",
       stockStatus: "OUTOFSTOCK",
+      vat: 0.19
     }
     """
     When method POST
@@ -673,6 +675,7 @@ Feature: Simple Purchases
       producer: "producer",
       supplier: "supplier",
       stockStatus: "ORDERED",
+      vat: 0.19
     }
     """
     When method POST

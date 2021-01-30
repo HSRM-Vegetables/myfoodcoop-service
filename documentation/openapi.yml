@@ -715,6 +715,7 @@ components:
                 - stockStatus
                 - producer
                 - supplier
+                - vat
             properties:
                 name:
                     $ref: '#/components/schemas/item-name'
@@ -742,6 +743,8 @@ components:
                     $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         stock-patch-request:
             description: |-
@@ -775,6 +778,8 @@ components:
                     $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         register-request:
             description: Data to register a user
@@ -879,6 +884,8 @@ components:
                     $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         purchase-response:
             description: Information about the users balance and the purchased cart
@@ -1209,6 +1216,7 @@ components:
             format: date
             example: 2021-01-24
             description: When this item was delivered
+
         stockStatus:
             description: |-
                 Describes the current status of an item \
@@ -1224,6 +1232,14 @@ components:
                 - INSTOCK
                 - SPOILSSOON
                 - OUTOFSTOCK
+
+        vat:
+            description: The VAT applicable for this item. The vat is a number in the interval ]0,1]
+            type: number
+            format: float
+            example: 0.19
+            minimum: 0
+            maximum: 1
 
     parameters:
         username:
