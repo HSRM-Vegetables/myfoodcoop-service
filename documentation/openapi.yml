@@ -514,14 +514,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/error-response'
 
-    /auth/login/role/{role}:
+    /auth/login:
         post:
             tags:
                 - Authentication
             summary: Retrieve tokens to authenticate the user against this API
             operationId: login
-            parameters:
-                -   $ref: '#/components/parameters/role'
             requestBody:
                 description:
                     User login data
@@ -810,14 +808,11 @@ components:
             required:
                 - username
                 - password
-                - role
             properties:
                 username:
                     $ref: '#/components/schemas/username'
                 password:
                     $ref: '#/components/schemas/password'
-                role:
-                    $ref: '#/components/schemas/role'
 
         #
         # Response Schemas

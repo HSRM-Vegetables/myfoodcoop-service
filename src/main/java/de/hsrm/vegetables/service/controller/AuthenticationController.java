@@ -34,22 +34,23 @@ public class AuthenticationController implements AuthenticationApi {
     @NonNull
     private final UserService userService;
 
-    //@Override
-    @PreAuthorize("hasRole('MEMBER')")
+    @Override
     public ResponseEntity<TokenResponse> login(LoginRequest loginRequest) {
         TokenResponse response = new TokenResponse();
         UserDto user;
 
         try {
             user = userService.getUserByUsername(loginRequest.getUsername());
-            List<Role> roles = user.getRoles();
-            if (!roles.contains(Role.MEMBER)){
-                throw new UnauthorizedError("User does not belong to role 'Member'", ErrorCode.USER_DOESNT_HAS_ROLE);
-            }
 
         } catch (NotFoundError e) {
             // Mask not found error
             throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+        }
+
+        // ony user with role Member can access
+        List<Role> roles = user.getRoles();
+        if (!roles.contains(Role.MEMBER)){
+            throw new UnauthorizedError("User does not belong to role 'Member'", ErrorCode.USER_NOT_ACTIVATED);
         }
 
         String token = userService.generateToken(user, loginRequest.getPassword());
