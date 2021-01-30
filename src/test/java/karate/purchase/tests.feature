@@ -30,6 +30,21 @@ Feature: Simple Purchases
     }
     """
 
+    * def findVatDetailWithVatRate =
+    """
+    function(arr, vat) {
+      if (arr === undefined || arr === null || vat === undefined || vat === null) {
+        return null;
+      }
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].vat === vat) {
+          return arr[i];
+        }
+      }
+      return null;
+    }
+    """
+
     * def defaultStockPostBody =
     """
     {
@@ -76,9 +91,13 @@ Feature: Simple Purchases
     And request { items: [#(item1)] }
     When method POST
     Then status 200
-    And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number' }
+    And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
     And assert response.name == "member"
     And assert response.price == 1.3
+    And assert response.totalVat == 0.247
+    And assert response.vatDetails.length == 1
+    And assert response.vatDetails[0].vat == 0.19
+    And assert response.vatDetails[0].amount == 0.247
     And def purchaseId = response.id
 
     # Check that stock was reduced
@@ -140,6 +159,28 @@ Feature: Simple Purchases
     Then status 201
     And def stockId2 = response.id
 
+    # Create item 3
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 140.0,
+      pricePerUnit: 1.3,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+      vat: 0.16
+    }
+    """
+    When method POST
+    Then status 201
+    And def stockId3 = response.id
+
     # Login with member
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }
@@ -159,12 +200,19 @@ Feature: Simple Purchases
     And header Authorization = "Bearer " + token
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
-    And request { items: [#(item1), #(item2)] }
+    And def item3 = { id: #(stockId3), amount: 1 }
+    And request { items: [#(item1), #(item2), #(item3)] }
     When method POST
     Then status 200
-    And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number' }
+    And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
     And assert response.name == "member"
-    And assert response.price == 2.6
+    And assert response.price == 3.9
+    And assert response.totalVat == 0.702
+    And assert vatDetails.length == 2
+    And def vatRateOne = findVatDetailWithVatRate(response.vatDetails, 0.19)
+    And match vatRateOne == { vat: 0.19, amount: 0.494 }
+    And def vatRateTwo = findVatDetailWithVatRate(response.vatDetails, 0.16)
+    And match vatRateTwo == { vat: 0.16, amount: 0.208 }
     And def purchaseId = response.id
 
     # Check stock was reduced on first item
@@ -193,10 +241,16 @@ Feature: Simple Purchases
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
+    And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array', totalVat: '#number', vatDetails: '#array'}
     And match each response.items contains { id: '#uuid', name: '#string', amount: '#number', pricePerUnit: '#number', unitType: '#string' }
     And def calculatedPrice = calcPrice(response.items)
     And assert response.totalPrice == calculatedPrice
+    And assert response.totalVat == 0.702
+    And assert vatDetails.length == 2
+    And def vatRateOne = findVatDetailWithVatRate(response.vatDetails, 0.19)
+    And match vatRateOne == { vat: 0.19, amount: 0.494 }
+    And def vatRateTwo = findVatDetailWithVatRate(response.vatDetails, 0.16)
+    And match vatRateTwo == { vat: 0.16, amount: 0.208 }
 
     # Check that purchase exists in list
     Given path '/purchase'

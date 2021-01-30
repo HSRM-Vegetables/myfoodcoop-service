@@ -905,6 +905,10 @@ components:
                     type: number
                     format: float
                     example: 17.43
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
+                vatDetails:
+                    $ref: '#/components/schemas/vatDetails'
         quantity-sold-list:
             type: object
             description: A list of items sold in a time window
@@ -970,6 +974,10 @@ components:
                     example: 69.0
                     type: number
                     format: float
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
+                vatDetails:
+                    $ref: '#/components/schemas/vatDetails'
                 items:
                     type: array
                     items:
@@ -997,6 +1005,8 @@ components:
                     format: float
                 unitType:
                     $ref: '#/components/schemas/unitType'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         user-response:
             type: object
@@ -1232,6 +1242,27 @@ components:
                 - INSTOCK
                 - SPOILSSOON
                 - OUTOFSTOCK
+
+        totalVat:
+            description: The amount of tax that was paid
+            example: 42.7
+            type: number
+            format: float
+
+        vatDetails:
+            description: Contains all distinct vat rates and the amount paid for this rate for the whole purchase
+            type: array
+            items:
+                type: object
+                description: A single vat rate for a purchase
+                properties:
+                    vat:
+                        $ref: '#/components/schemas/vat'
+                    amount:
+                        type: number
+                        format: float
+                        description: The amount of VAT paid for this VAT rate
+                        example: 14.7
 
         vat:
             description: The VAT applicable for this item. The vat is a number in the interval ]0,1]
