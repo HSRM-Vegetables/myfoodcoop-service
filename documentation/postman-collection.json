@@ -175,13 +175,23 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/stock",
+                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
                         "stock"
+                      ],
+                      "query": [
+                        {
+                          "key": "deleted",
+                          "value": "OMIT"
+                        },
+                        {
+                          "key": "filterByStatus",
+                          "value": "ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK"
+                        }
                       ]
                     }
                   },
