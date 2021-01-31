@@ -1225,17 +1225,21 @@ components:
             properties:
                 offset:
                     type: integer
+                    minimum: 0
                     description: |-
                         The effective number of items to skip before starting to collect the result set
                         (i.e. as specified in the request or default if not specified)
                 limit:
                     type: integer
+                    minimum: 0
                     description: |-
                         The effective numbers of items to return
                         (i.e. as specified in the request or default if not specified)
                         Actual length of balance history items array might be shorter.
                 total:
                     type: integer
+                    minimum: 0
+                    description: Number of items in the database
 
     parameters:
         username:
