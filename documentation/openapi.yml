@@ -894,18 +894,7 @@ components:
                     type: string
                     format: date-time
                 changeType:
-                    type: string
-                    description: |-
-                        Type of balance amount change:
-                        - TOPUP: User has deposited a certain amount to his balance
-                        - WITHDRAW: User has withdrawn a certain amount from his balance
-                        - SET: User has set his balance to a certain amount
-                        - PURCHASE: User has purchased items of a certain amount
-                    enum:
-                        - TOPUP
-                        - WITHDRAW
-                        - SET
-                        - PURCHASE
+                    $ref: '#/components/schemas/changeType'
                 amount:
                     description: |-
                         New balance amount or balance change, depending on the type
@@ -1334,6 +1323,20 @@ components:
                     type: integer
                     minimum: 0
                     description: Number of items in the database
+
+        changeType:
+            description: |-
+                Type of balance amount change:
+                - TOPUP: User has deposited a certain amount to his balance
+                - WITHDRAW: User has withdrawn a certain amount from his balance
+                - SET: User has set his balance to a certain amount
+                - PURCHASE: User has purchased items of a certain amount
+            type: string
+            enum:
+                - TOPUP
+                - WITHDRAW
+                - SET
+                - PURCHASE
 
     parameters:
         username:
