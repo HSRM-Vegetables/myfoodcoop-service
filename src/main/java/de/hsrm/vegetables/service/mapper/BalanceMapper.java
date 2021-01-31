@@ -21,6 +21,7 @@ public class BalanceMapper {
 
         balanceHistoryItem.setId(balanceHistoryItemDto.getId());
         balanceHistoryItem.setCreatedOn(balanceHistoryItemDto.getCreatedOn());
+        balanceHistoryItem.setBalanceChangeType(balanceHistoryItemDto.getBalanceChangeType());
         balanceHistoryItem.setAmount(balanceHistoryItemDto.getAmount());
 
         return balanceHistoryItem;
