@@ -893,8 +893,8 @@ components:
                     example: '2017-07-21T17:32:28Z'
                     type: string
                     format: date-time
-                changeType:
-                    $ref: '#/components/schemas/changeType'
+                balanceChangeType:
+                    $ref: '#/components/schemas/balanceChangeType'
                 amount:
                     description: |-
                         New balance amount or balance change, depending on the type
@@ -1324,7 +1324,7 @@ components:
                     minimum: 0
                     description: Number of items in the database
 
-        changeType:
+        balanceChangeType:
             description: |-
                 Type of balance amount change:
                 - TOPUP: User has deposited a certain amount to his balance

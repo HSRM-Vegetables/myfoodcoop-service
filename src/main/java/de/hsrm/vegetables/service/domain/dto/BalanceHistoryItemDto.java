@@ -1,5 +1,8 @@
 package de.hsrm.vegetables.service.domain.dto;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceChangeType;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.ChangeType;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -20,6 +23,9 @@ public class BalanceHistoryItemDto {
 
     @Column
     private OffsetDateTime createdOn;
+
+    @Column(nullable = false)
+    private BalanceChangeType balanceChangeType;
 
     @Column(nullable = false)
     private Float amount;
