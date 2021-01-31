@@ -101,6 +101,13 @@ public class StockController implements StockApi {
                 stockPatchRequest.getQuantity(),
                 stockPatchRequest.getPricePerUnit(),
                 stockPatchRequest.getDescription(),
+                stockPatchRequest.getSustainablyProduced(),
+                stockPatchRequest.getCertificates(),
+                stockPatchRequest.getOriginCategory(),
+                stockPatchRequest.getProducer(),
+                stockPatchRequest.getSupplier(),
+                stockPatchRequest.getOrderDate(),
+                stockPatchRequest.getDeliveryDate(),
                 stockPatchRequest.getStockStatus()
         );
 
@@ -111,11 +118,19 @@ public class StockController implements StockApi {
     @Override
     @PreAuthorize("hasRole('ORDERER')")
     public ResponseEntity<StockResponse> stockPost(StockPostRequest stockPostRequest) {
-        StockDto stockDto = stockService.addStock(stockPostRequest.getName(),
+        StockDto stockDto = stockService.addStock(
+                stockPostRequest.getName(),
                 stockPostRequest.getUnitType(),
                 stockPostRequest.getQuantity(),
                 stockPostRequest.getPricePerUnit(),
                 stockPostRequest.getDescription(),
+                stockPostRequest.getSustainablyProduced(),
+                stockPostRequest.getCertificates(),
+                stockPostRequest.getOriginCategory(),
+                stockPostRequest.getProducer(),
+                stockPostRequest.getSupplier(),
+                stockPostRequest.getOrderDate(),
+                stockPostRequest.getDeliveryDate(),
                 stockPostRequest.getStockStatus()
         );
         StockResponse stockResponse = StockMapper.stockDtoToStockResponse(stockDto);

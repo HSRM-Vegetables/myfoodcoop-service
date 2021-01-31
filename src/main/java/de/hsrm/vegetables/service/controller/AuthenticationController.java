@@ -3,6 +3,7 @@ package de.hsrm.vegetables.service.controller;
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.AuthenticationApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.LoginRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.RefreshRequest;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.TokenResponse;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v2")
@@ -35,11 +37,19 @@ public class AuthenticationController implements AuthenticationApi {
     public ResponseEntity<TokenResponse> login(LoginRequest loginRequest) {
         TokenResponse response = new TokenResponse();
         UserDto user;
+
         try {
             user = userService.getUserByUsername(loginRequest.getUsername());
+
         } catch (NotFoundError e) {
             // Mask not found error
             throw new UnauthorizedError("Username or password incorrect", ErrorCode.USERNAME_OR_PASSWORD_WRONG);
+        }
+
+        // ony user with role Member can access
+        List<Role> roles = user.getRoles();
+        if (!roles.contains(Role.MEMBER)){
+            throw new UnauthorizedError("User does not belong to role 'Member'", ErrorCode.USER_NOT_ACTIVATED);
         }
 
         String token = userService.generateToken(user, loginRequest.getPassword());

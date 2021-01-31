@@ -746,7 +746,11 @@ components:
                 - unitType
                 - quantity
                 - pricePerUnit
+                - sustainablyProduced
+                - originCategory
                 - stockStatus
+                - producer
+                - supplier
             properties:
                 name:
                     $ref: '#/components/schemas/item-name'
@@ -758,11 +762,27 @@ components:
                     $ref: '#/components/schemas/pricePerUnit'
                 description:
                     $ref: '#/components/schemas/item-description'
+                sustainablyProduced:
+                    $ref: '#/components/schemas/sustainablyProduced'
+                certificates:
+                    $ref: '#/components/schemas/certificates'
+                originCategory:
+                    $ref: '#/components/schemas/originCategory'
+                producer:
+                    $ref: '#/components/schemas/producer'
+                supplier:
+                    $ref: '#/components/schemas/supplier'
+                orderDate:
+                    $ref: '#/components/schemas/orderDate'
+                deliveryDate:
+                    $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
 
         stock-patch-request:
-            description: All data of an item that can be updated
+            description: |-
+                All data of an item that can be updated \
+                When updating the certificates, the passed array will replace the array in the database
             type: object
             properties:
                 name:
@@ -775,6 +795,20 @@ components:
                     $ref: '#/components/schemas/pricePerUnit'
                 description:
                     $ref: '#/components/schemas/item-description'
+                sustainablyProduced:
+                    $ref: '#/components/schemas/sustainablyProduced'
+                certificates:
+                    $ref: '#/components/schemas/certificates'
+                originCategory:
+                    $ref: '#/components/schemas/originCategory'
+                producer:
+                    $ref: '#/components/schemas/producer'
+                supplier:
+                    $ref: '#/components/schemas/supplier'
+                orderDate:
+                    $ref: '#/components/schemas/orderDate'
+                deliveryDate:
+                    $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
 
@@ -809,7 +843,7 @@ components:
             type: object
             required:
                 - username
-                - passowrd
+                - password
             properties:
                 username:
                     $ref: '#/components/schemas/username'
@@ -911,6 +945,20 @@ components:
                     type: boolean
                     description: Wether this item is deleted
                     example: false
+                sustainablyProduced:
+                    $ref: '#/components/schemas/sustainablyProduced'
+                certificates:
+                    $ref: '#/components/schemas/certificates'
+                originCategory:
+                    $ref: '#/components/schemas/originCategory'
+                producer:
+                    $ref: '#/components/schemas/producer'
+                supplier:
+                    $ref: '#/components/schemas/supplier'
+                orderDate:
+                    $ref: '#/components/schemas/orderDate'
+                deliveryDate:
+                    $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
 
@@ -1198,6 +1246,51 @@ components:
             example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
             maxLength: 10000
 
+        sustainablyProduced:
+            type: boolean
+            description: Wether this item was produced sustainably
+            example: true
+
+        certificates:
+            type: array
+            description: A list of all certificates this item has
+            items:
+                type: string
+                example: Demeter
+                maxLength: 255
+
+        originCategory:
+            type: string
+            example: LOCAL
+            enum:
+                - LOCAL
+                - REGIONAL
+                - SUPRAREGIONAL
+                - UNKNOWN
+
+        producer:
+            type: string
+            description: The producer of this item
+            example: Farmer Joe
+            maxLength: 255
+
+        supplier:
+            type: string
+            description: The supplier of this item
+            example: Frederiks cargo bike delivery service
+            maxLength: 255
+
+        orderDate:
+            type: string
+            format: date
+            example: 2021-01-24
+            description: When this item was ordered
+
+        deliveryDate:
+            type: string
+            format: date
+            example: 2021-01-24
+            description: When this item was delivered
         stockStatus:
             description: |-
                 Describes the current status of an item \
