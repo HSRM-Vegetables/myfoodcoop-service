@@ -363,6 +363,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    '/reports/balance-overview':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - Reports
+            summary: Get the current balance of all users
+            operationId: balanceOverview
+            parameters:
+                -   in: query
+                    description: |-
+                        Controls if deleted users will be included in the results
+
+                        * OMIT: Only users which haven't been deleted will be included
+                        * INCLUDE: Delted and not deleted users will be returned
+                        * ONLY: Only return deleted users
+                    name: deleted
+                    schema:
+                        $ref: '#/components/schemas/delete-filter'
+            responses:
+              '200':
+                  description: Successful call
+                  content:
+                      application/json:
+                          schema:
+                              $ref: '#/components/schemas/balance-overview-list'
+              default:
+                  description: Details about the error that occured
+                  content:
+                      application/json:
+                          schema:
+                              $ref: '#/components/schemas/error-response'
 
     /user:
         get:
@@ -826,14 +858,35 @@ components:
                 - name
             properties:
                 balance:
-                    description: The current balance
-                    example: 10
-                    type: number
-                    format: float
+                    $ref: '#/components/schemas/balance'
                 name:
                     description: The name of the owner of this balance
                     example: Robby
                     type: string
+
+        balance-overview-list:
+            description: A list of all users and their balances
+            type: object
+            properties:
+              users:
+                  type: array
+                  items:
+                      $ref: '#/components/schemas/balance-overview-item'
+
+        balance-overview-item:
+            description: Contains informations of a user and its current balance
+            type: object
+            properties:
+              balance:
+                  $ref: '#/components/schemas/balance'
+              username:
+                  $ref: '#/components/schemas/username'
+              id:
+                  $ref: '#/components/schemas/uuid'
+              isDeleted:
+                  type: boolean
+                  description: Wether this user is deleted
+                  example: false
 
         all-stock-response:
             type: object
@@ -1224,6 +1277,12 @@ components:
                 - INSTOCK
                 - SPOILSSOON
                 - OUTOFSTOCK
+
+        balance:
+            description: The current balance
+            example: 10
+            type: number
+            format: float
 
     parameters:
         username:

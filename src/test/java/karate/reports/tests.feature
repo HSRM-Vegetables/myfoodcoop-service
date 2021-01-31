@@ -417,3 +417,91 @@ Feature: Simple Stock management
     When method GET
     Then status 401
     And match response.errorCode == 401005
+
+  Scenario: Generate a balance overview report
+    # Login
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].isDeleted == false
+
+  Scenario: Newly registered user is included in balance overview report
+    # Create User
+    Given path 'user', 'register'
+    * def username = "mustermann"
+    And request { username: #(username), email: "mustermann@test.com", memberId: 1234000, password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Login as treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users contains { username: #(username), balance: 0 }
+
+  Scenario: Balance overview report for deleted users
+    # Create User
+    Given path 'user', 'register'
+    And request { username: "mustermann1", email: "mustermann1@test.com", memberId: "1234001", password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Login as Admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Delete new user
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 204
+
+    # Generate report for deleted users only
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    And param deleted = "ONLY"
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].username contains "mustermann1"
+    And match response.users[*].isDeleted == true
+
+    # Deleted user should not be in default report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].username !contains "mustermann1"
+
+    # Deleted user should be in included report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    And param deleted = "INCLUDE"
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].username contains "mustermann1"
