@@ -807,7 +807,7 @@ components:
             type: object
             required:
                 - username
-                - passowrd
+                - password
             properties:
                 username:
                     $ref: '#/components/schemas/username'
