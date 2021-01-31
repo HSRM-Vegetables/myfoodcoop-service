@@ -860,6 +860,7 @@ components:
                     type: string
                     format: date-time
                 changeType:
+                    type: string
                     description: |-
                         Type of balance amount change:
                         - TOPUP: User has deposited a certain amount to his balance
