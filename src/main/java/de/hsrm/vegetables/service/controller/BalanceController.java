@@ -12,7 +12,6 @@ import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.BalanceMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
-import de.hsrm.vegetables.service.services.BalanceHistoryItemService;
 import de.hsrm.vegetables.service.services.BalanceService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +33,6 @@ public class BalanceController implements BalanceApi {
 
     @NonNull
     private final BalanceService balanceService;
-
-    @NonNull
-    private final BalanceHistoryItemService balanceHistoryItemService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
@@ -65,7 +61,7 @@ public class BalanceController implements BalanceApi {
             balanceDto = balanceService.createEmptyBalance(name);
         }
 
-        List<BalanceHistoryItemDto> balanceHistoryItems = balanceHistoryItemService.getBalanceHistoryItems(balanceDto);
+        List<BalanceHistoryItemDto> balanceHistoryItems = balanceService.getBalanceHistoryItems(balanceDto);
 
         for (var balanceHistoryItem : balanceHistoryItems) {
             if (!balanceDto.getName().equals(balanceHistoryItem.getBalanceDto().getName())) {
