@@ -10,7 +10,7 @@ import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
-import de.hsrm.vegetables.service.mapper.Mapper;
+import de.hsrm.vegetables.service.mapper.BalanceMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceHistoryItemService;
 import de.hsrm.vegetables.service.services.BalanceService;
@@ -50,7 +50,7 @@ public class BalanceController implements BalanceApi {
             balanceDto = balanceService.createEmptyBalance(name);
         }
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class BalanceController implements BalanceApi {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = balanceService.upsert(name, request.getBalance());
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
@@ -97,7 +97,7 @@ public class BalanceController implements BalanceApi {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = balanceService.topup(name, request.getAmount());
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class BalanceController implements BalanceApi {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = balanceService.withdraw(name, request.getAmount());
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     private String getUsernameFromSecurityContext() {
