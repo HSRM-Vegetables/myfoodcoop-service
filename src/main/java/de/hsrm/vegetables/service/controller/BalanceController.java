@@ -76,7 +76,7 @@ public class BalanceController implements BalanceApi {
 
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
         balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems.stream()
-                .map()
+                .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
                 .collect(Collectors.toList()));
 
         return ResponseEntity.ok(balanceHistoryResponse);
