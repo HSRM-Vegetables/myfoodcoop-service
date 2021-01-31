@@ -131,7 +131,7 @@ paths:
                 - bearerAuth: [ ]
             tags:
                 - Balance
-            summary: Retrieve the user's complete balance history
+            summary: Retrieve the user's balance history
             operationId: balanceHistoryGet
             parameters:
                 -   in: query
@@ -139,16 +139,18 @@ paths:
                     description: The number of items to skip before starting to collect the result set
                     schema:
                         type: integer
+                        minimum: 0
                         default: 0
                 -   in: query
                     name: limit
                     description: The numbers of items to return
                     schema:
                         type: integer
+                        minimum: 0
                         default: 10
             responses:
                 '200':
-                    description: Successful call, returns the user's complete balance history
+                    description: Successful call, returns the user's balance history
                     content:
                         application/json:
                             schema:
@@ -836,21 +838,24 @@ components:
                     type: string
 
         balance-history-response:
-            description: A user's balance history (a list of balance history items)
+            description: A user's balance history
             type: object
             properties:
                 offset:
                     type: integer
-                    description: Pagination offset that was specified in the request or default if not specified
+                    description: |-
+                        The effective number of items to skip before starting to collect the result set
+                        (i.e. as specified in the request or default if not specified)
                 limit:
                     type: integer
                     description: |-
-                        Pagination limit that was specified in the request or default if not specified.
+                        The effective numbers of items to return
+                        (i.e. as specified in the request or default if not specified)
                         Actual length of balance history items array might be shorter.
                 total:
                     type: integer
                     description: Number of items in the database
-                balanceHistory:
+                balanceHistoryItems:
                     type: array
                     items:
                         $ref: '#/components/schemas/balance-history-item'
@@ -869,10 +874,10 @@ components:
                 changeType:
                     description: |-
                         Type of balance amount change:
-                        - TOPUP: User has deposited amount
-                        - WITHDRAW: User has withdrawn amount
-                        - SET: User has fixed balance
-                        - PURCHASE: User has purchased items
+                        - TOPUP: User has deposited a certain amount to his balance
+                        - WITHDRAW: User has withdrawn a certain amount from his balance
+                        - SET: User has set his balance to a certain amount
+                        - PURCHASE: User has purchased items of a certain amount
                     enum:
                         - TOPUP
                         - WITHDRAW
@@ -880,11 +885,11 @@ components:
                         - PURCHASE
                 amount:
                     description: |-
-                        New balance amount or balance change, depending on type:
-                        - TOPUP: Add amount to balance
-                        - WITHDRAW: Subtract amount from balance
-                        - SET: Set balance to amount
-                        - PURCHASE: Subtract amount from balance
+                        New balance amount or balance change, depending on the type
+                        - TOPUP: Added amount
+                        - WITHDRAW: Subtracted amount
+                        - SET: Set amount
+                        - PURCHASE: Subtracted amount
                     example: 20.0
                     type: number
                     format: float
