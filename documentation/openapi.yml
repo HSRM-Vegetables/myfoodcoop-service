@@ -841,20 +841,8 @@ components:
             description: A user's balance history
             type: object
             properties:
-                offset:
-                    type: integer
-                    description: |-
-                        The effective number of items to skip before starting to collect the result set
-                        (i.e. as specified in the request or default if not specified)
-                limit:
-                    type: integer
-                    description: |-
-                        The effective numbers of items to return
-                        (i.e. as specified in the request or default if not specified)
-                        Actual length of balance history items array might be shorter.
-                total:
-                    type: integer
-                    description: Number of items in the database
+                pagination:
+                    $ref: '#/components/schemas/pagination'
                 balanceHistoryItems:
                     type: array
                     items:
@@ -1224,6 +1212,30 @@ components:
                 - INSTOCK
                 - SPOILSSOON
                 - OUTOFSTOCK
+
+        pagination:
+            description: |-
+                Effective values of the request's pagination query parameters
+                and additional information useful for pagination in the frontend
+            type: object
+            required:
+                - offset
+                - limit
+                - total
+            properties:
+                offset:
+                    type: integer
+                    description: |-
+                        The effective number of items to skip before starting to collect the result set
+                        (i.e. as specified in the request or default if not specified)
+                limit:
+                    type: integer
+                    description: |-
+                        The effective numbers of items to return
+                        (i.e. as specified in the request or default if not specified)
+                        Actual length of balance history items array might be shorter.
+                total:
+                    type: integer
 
     parameters:
         username:
