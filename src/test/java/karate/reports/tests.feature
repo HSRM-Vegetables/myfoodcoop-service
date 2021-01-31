@@ -432,12 +432,12 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And match response contains { users: '#array'}
-    And match response.users[*].isDeleted == false
+    And match each response.users contains { isDeleted: false }
 
   Scenario: Newly registered user is included in balance overview report
     # Create User
     Given path 'user', 'register'
-    * def username = "mustermann"
+    * def username = 'mustermann'
     And request { username: #(username), email: "mustermann@test.com", memberId: 1234000, password: #(password) }
     When method POST
     Then status 201
@@ -456,12 +456,45 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And match response contains { users: '#array'}
-    And match response.users contains { username: #(username), balance: 0 }
+    And match response.users[*].username contains username
+
+  Scenario: Balance changes
+    * def username = 'member'
+
+    # Login
+    Given path 'auth', 'login'
+    And request { username: #(username),  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Set Balance
+    Given path '/balance'
+    And header Authorization = "Bearer " + token
+    And request { balance: 987.65 }
+    When method PATCH
+    Then status 200
+
+    # Login as Treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate Report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users contains { username: #(username), balance: 987.65, id: '#string', isDeleted: false }
 
   Scenario: Balance overview report for deleted users
     # Create User
     Given path 'user', 'register'
-    And request { username: "mustermann1", email: "mustermann1@test.com", memberId: "1234001", password: #(password) }
+    * def username = 'mustermann2'
+    And request { username: #(username), email: "mustermann2@test.com", memberId: "1234002", password: #(password) }
     When method POST
     Then status 201
     And def userID = response.id
@@ -479,6 +512,13 @@ Feature: Simple Stock management
     When method DELETE
     Then status 204
 
+    # Login as Treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
     # Generate report for deleted users only
     Given path 'reports', 'balance-overview'
     And header Authorization = "Bearer " + token
@@ -486,8 +526,8 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And match response contains { users: '#array'}
-    And match response.users[*].username contains "mustermann1"
-    And match response.users[*].isDeleted == true
+    And match response.users[*].username contains username
+    And match each response.users contains { isDeleted: true }
 
     # Deleted user should not be in default report
     Given path 'reports', 'balance-overview'
@@ -495,7 +535,7 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And match response contains { users: '#array'}
-    And match response.users[*].username !contains "mustermann1"
+    And match response.users[*].username !contains username
 
     # Deleted user should be in included report
     Given path 'reports', 'balance-overview'
@@ -504,4 +544,4 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And match response contains { users: '#array'}
-    And match response.users[*].username contains "mustermann1"
+    And match response.users[*].username contains username
