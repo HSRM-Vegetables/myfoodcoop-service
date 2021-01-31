@@ -2,12 +2,17 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceHistoryResponse;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
+import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
+import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.Mapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
+import de.hsrm.vegetables.service.services.BalanceHistoryItemService;
 import de.hsrm.vegetables.service.services.BalanceService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Min;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/v2")
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
@@ -25,6 +34,9 @@ public class BalanceController implements BalanceApi {
 
     @NonNull
     private final BalanceService balanceService;
+
+    @NonNull
+    private final BalanceHistoryItemService balanceHistoryItemService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
@@ -39,6 +51,35 @@ public class BalanceController implements BalanceApi {
         }
 
         return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<BalanceHistoryResponse> balanceHistoryGet(@Min(0) Integer offset, @Min(0) Integer limit) {
+        String name = getUsernameFromSecurityContext();
+        BalanceDto balanceDto = null;
+
+        try {
+            balanceDto = balanceService.getBalance(name);
+        } catch (NotFoundError e) {
+            balanceDto = balanceService.createEmptyBalance(name);
+        }
+
+        List<BalanceHistoryItemDto> balanceHistoryItems = balanceHistoryItemService.getBalanceHistoryItems(balanceDto);
+
+        for (var balanceHistoryItem : balanceHistoryItems) {
+            if (!balanceDto.getName().equals(balanceHistoryItem.getBalanceDto().getName())) {
+                throw new UnauthorizedError("The associated name for that balance history item does not match Header X-Username",
+                        ErrorCode.USERNAME_DOES_NOT_MATCH_PURCHASE);
+            }
+        }
+
+        BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
+        balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems.stream()
+                .map()
+                .collect(Collectors.toList()));
+
+        return ResponseEntity.ok(balanceHistoryResponse);
     }
 
     @Override
