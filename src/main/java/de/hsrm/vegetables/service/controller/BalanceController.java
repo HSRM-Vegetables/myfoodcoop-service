@@ -51,7 +51,7 @@ public class BalanceController implements BalanceApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceHistoryResponse> balanceHistoryGet(@Min(0) Integer offset, @Min(0) Integer limit) {
+    public ResponseEntity<BalanceHistoryResponse> balanceHistoryGet(Integer offset, Integer limit) {
         String name = getUsernameFromSecurityContext();
         BalanceDto balanceDto = null;
 

@@ -94,7 +94,19 @@ Feature: Balance Tests
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    Then match response contains { offset: 0, limit: 10, total: 0, balanceHistory: [] }
+    Then match response ==
+    """
+    {
+      pagination: {
+        offset: 0,
+        limit: 10,
+        total: 0
+      },
+      balanceHistoryItems: []
+    }
+    """
+
+    Then match response contains { offset: 0, limit: 10, total: 0, balanceHistoryItems: [] }
 
   Scenario: GET /balance/history works for user with comprehensive balance history
     Given path 'auth', 'login'
@@ -128,17 +140,19 @@ Feature: Balance Tests
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    Then match response == 
+    Then match response ==
     """
-    { 
-      offset: 0, 
-      limit: 10, 
-      total: 3, 
-      balanceHistory: [
-        { createdOn: '#string', changeType: 'TOPUP', amount: 10 },
-        { createdOn: '#string', changeType: 'WITHDRAW', amount: 20 },
-        { createdOn: '#string', changeType: 'SET', amount: 30 }
-      ] 
+    {
+      pagination: {
+        offset: 0,
+        limit: 10,
+        total: 3
+      },
+      balanceHistoryItems: [
+        { createdOn: '#string', balanceChangeType: 'TOPUP', amount: 10 },
+        { createdOn: '#string', balanceChangeType: 'WITHDRAW', amount: 20 },
+        { createdOn: '#string', balanceChangeType: 'SET', amount: 30 }
+      ]
     }
     """
 
