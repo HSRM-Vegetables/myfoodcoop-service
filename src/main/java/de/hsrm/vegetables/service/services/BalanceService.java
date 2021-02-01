@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceChangeType;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -111,6 +112,12 @@ public class BalanceService {
     public BalanceDto topup(String name, Float amount) {
         BalanceDto balance = getBalance(name);
         balance.setAmount(balance.getAmount() + amount);
+
+        BalanceHistoryItemDto balanceHistoryItem = new BalanceHistoryItemDto();
+        balanceHistoryItem.setBalanceDto(balance);
+        balanceHistoryItem.setBalanceChangeType(BalanceChangeType.TOPUP);
+        balanceHistoryItem.setAmount(amount);
+        balanceHistoryItemRepository.save(balanceHistoryItem);
 
         return balanceRepository.save(balance);
     }
