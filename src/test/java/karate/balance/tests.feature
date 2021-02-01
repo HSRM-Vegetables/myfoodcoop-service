@@ -113,26 +113,26 @@ Feature: Balance Tests
     Then status 200
     And def token = response.token
 
+    Given path '/balance'
+    And header Authorization = "Bearer " + token
+    And request { balance: 10.0 }
+    When method PATCH
+    Then status 200
+    And match response contains { balance: 10.0 }
+
     Given path '/balance/topup'
     And header Authorization = "Bearer " + token
-    And request { amount: 20 }
+    And request { amount: 20.0 }
     When method POST
     Then status 200
-    And match response contains { balance: 20 }
+    And match response contains { balance: 30.0 }
 
     Given path '/balance/withdraw'
     And header Authorization = "Bearer " + token
-    And request { amount: 10 }
+    And request { amount: 40.0 }
     When method POST
     Then status 200
-    And match response contains { balance: 10 }
-
-    Given path '/balance'
-    And header Authorization = "Bearer " + token
-    And request { balance: 30 }
-    When method PATCH
-    Then status 200
-    And match response contains { balance: 30 }
+    And match response contains { balance: -10.0 }
 
     Given path '/balance/history'
     And header Authorization = "Bearer " + token
@@ -144,12 +144,12 @@ Feature: Balance Tests
       pagination: {
         offset: 0,
         limit: 10,
-        total: 3
+        total: 2
       },
       balanceHistoryItems: [
-        { createdOn: '#string', balanceChangeType: 'TOPUP', amount: 10 },
-        { createdOn: '#string', balanceChangeType: 'WITHDRAW', amount: 20 },
-        { createdOn: '#string', balanceChangeType: 'SET', amount: 30 }
+        { createdOn: '#string', balanceChangeType: 'SET', amount: 10.0 },
+        { createdOn: '#string', balanceChangeType: 'TOPUP', amount: 30.0 },
+        { createdOn: '#string', balanceChangeType: 'WITHDRAW', amount: -10.0 },
       ]
     }
     """
