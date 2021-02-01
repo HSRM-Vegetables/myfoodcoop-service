@@ -159,4 +159,20 @@ public class BalanceService {
         return balanceHistoryItemRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
     }
 
+    /**
+     * Create and save a balance history item
+     *
+     * @param balanceDto The changed balance the balance history item refers to
+     * @param balanceChangeType The type of balance change (TOPUP, WITHDRAW, etc.)
+     * @param amount The amount the balance was changed by or changed to
+     */
+    private void saveBalanceChange(BalanceDto balanceDto, BalanceChangeType balanceChangeType, float amount) {
+        BalanceHistoryItemDto balanceHistoryItem = new BalanceHistoryItemDto();
+
+        balanceHistoryItem.setBalanceDto(balanceDto);
+        balanceHistoryItem.setBalanceChangeType(balanceChangeType);
+        balanceHistoryItem.setAmount(amount);
+
+        balanceHistoryItemRepository.save(balanceHistoryItem);
+    }
 }
