@@ -106,8 +106,6 @@ Feature: Balance Tests
     }
     """
 
-    Then match response contains { offset: 0, limit: 10, total: 0, balanceHistoryItems: [] }
-
   Scenario: GET /balance/history works for user with comprehensive balance history
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }

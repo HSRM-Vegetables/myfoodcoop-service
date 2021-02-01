@@ -1,15 +1,12 @@
 package de.hsrm.vegetables.service.domain.dto;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceChangeType;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.ChangeType;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
-import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)

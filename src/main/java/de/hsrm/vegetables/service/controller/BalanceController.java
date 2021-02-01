@@ -1,10 +1,7 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceHistoryResponse;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
@@ -71,9 +68,16 @@ public class BalanceController implements BalanceApi {
         }
 
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
+
         balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems.stream()
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
                 .collect(Collectors.toList()));
+
+        Pagination pagination = new Pagination();
+        pagination.setOffset(offset);
+        pagination.setLimit(limit);
+        pagination.setTotal(balanceHistoryItems.size());
+        balanceHistoryResponse.setPagination(pagination);
 
         return ResponseEntity.ok(balanceHistoryResponse);
     }
