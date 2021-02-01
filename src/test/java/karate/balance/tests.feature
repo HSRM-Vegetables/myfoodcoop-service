@@ -4,6 +4,77 @@ Feature: Balance Tests
     * url baseUrl + "/v2"
     * def password = "a_funny_horse**jumps_high778"
 
+  Scenario: GET /balance/history works for user with empty balance history
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    Given path '/balance/history'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    Then match response ==
+    """
+    {
+      pagination: {
+        offset: 0,
+        limit: 10,
+        total: 1
+      },
+      balanceHistoryItems: [
+        { id: '#string', createdOn: '#string', balanceChangeType: 'SET', amount: 500.0 }
+       ]
+    }
+    """
+
+  Scenario: GET /balance/history works for user with comprehensive balance history
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    Given path '/balance/topup'
+    And header Authorization = "Bearer " + token
+    And request { amount: 10.0 }
+    When method POST
+    Then status 200
+
+    Given path '/balance/withdraw'
+    And header Authorization = "Bearer " + token
+    And request { amount: 20.0 }
+    When method POST
+    Then status 200
+
+    Given path '/balance'
+    And header Authorization = "Bearer " + token
+    And request { balance: 30.0 }
+    When method PATCH
+    Then status 200
+
+    Given path '/balance/history'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    Then match response ==
+    """
+    {
+      pagination: {
+        offset: 0,
+        limit: 10,
+        total: 4
+      },
+      balanceHistoryItems: [
+        { id: '#string', createdOn: '#string', balanceChangeType: 'SET', amount: 500.0 },
+        { id: '#string', createdOn: '#string', balanceChangeType: 'TOPUP', amount: 10.0 },
+        { id: '#string', createdOn: '#string', balanceChangeType: 'WITHDRAW', amount: 20.0 },
+        { id: '#string', createdOn: '#string', balanceChangeType: 'SET', amount: 30.0 }
+      ]
+    }
+    """
+
   Scenario: PATCH allows to set the balance for user
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }
@@ -82,77 +153,6 @@ Feature: Balance Tests
     When method GET
     Then status 200
     Then match response.balance == newBalance
-
-  Scenario: GET /balance/history works for user with empty balance history
-    Given path 'auth', 'login'
-    And request { username: 'member',  password: #(password) }
-    When method POST
-    Then status 200
-    And def token = response.token
-
-    Given path '/balance/history'
-    And header Authorization = "Bearer " + token
-    When method GET
-    Then status 200
-    Then match response ==
-    """
-    {
-      pagination: {
-        offset: 0,
-        limit: 10,
-        total: 0
-      },
-      balanceHistoryItems: []
-    }
-    """
-
-  Scenario: GET /balance/history works for user with comprehensive balance history
-    Given path 'auth', 'login'
-    And request { username: 'member',  password: #(password) }
-    When method POST
-    Then status 200
-    And def token = response.token
-
-    Given path '/balance'
-    And header Authorization = "Bearer " + token
-    And request { balance: 10.0 }
-    When method PATCH
-    Then status 200
-    And match response contains { balance: 10.0 }
-
-    Given path '/balance/topup'
-    And header Authorization = "Bearer " + token
-    And request { amount: 20.0 }
-    When method POST
-    Then status 200
-    And match response contains { balance: 30.0 }
-
-    Given path '/balance/withdraw'
-    And header Authorization = "Bearer " + token
-    And request { amount: 40.0 }
-    When method POST
-    Then status 200
-    And match response contains { balance: -10.0 }
-
-    Given path '/balance/history'
-    And header Authorization = "Bearer " + token
-    When method GET
-    Then status 200
-    Then match response ==
-    """
-    {
-      pagination: {
-        offset: 0,
-        limit: 10,
-        total: 2
-      },
-      balanceHistoryItems: [
-        { createdOn: '#string', balanceChangeType: 'SET', amount: 10.0 },
-        { createdOn: '#string', balanceChangeType: 'TOPUP', amount: 30.0 },
-        { createdOn: '#string', balanceChangeType: 'WITHDRAW', amount: -10.0 },
-      ]
-    }
-    """
 
   Scenario: POST topup with negativ value should fail
     Given path 'auth', 'login'
