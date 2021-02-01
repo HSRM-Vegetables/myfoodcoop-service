@@ -540,6 +540,31 @@
                     }
                   },
                   "response": []
+                },
+                {
+                  "name": "GET /reports/balance-overview",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/reports/balance-overview",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "reports",
+                        "balance-overview"
+                      ]
+                    }
+                  },
+                  "response": []
                 }
               ]
             },
