@@ -883,6 +883,8 @@ components:
                   $ref: '#/components/schemas/username'
               id:
                   $ref: '#/components/schemas/uuid'
+              memberId:
+                  $ref: '#/components/schemas/memberId'
               isDeleted:
                   type: boolean
                   description: Wether this user is deleted

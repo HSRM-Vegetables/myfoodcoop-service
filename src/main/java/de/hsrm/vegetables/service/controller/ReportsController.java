@@ -124,6 +124,7 @@ public class ReportsController implements ReportsApi {
                 BalanceOverviewItem item = new BalanceOverviewItem();
                 item.setId(user.getId());
                 item.setUsername(user.getUsername());
+                item.setMemberId(user.getMemberId());
                 item.setIsDeleted(user.isDeleted());
                 item.setBalance(balanceService
                     .getBalance(user.getUsername())

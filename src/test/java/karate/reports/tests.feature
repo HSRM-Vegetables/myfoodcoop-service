@@ -488,7 +488,7 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And match response contains { users: '#array'}
-    And match response.users contains { username: #(username), balance: 987.65, id: '#string', isDeleted: false }
+    And match response.users contains { username: #(username), balance: 987.65, id: '#string', memberId: '#string', isDeleted: false }
 
   Scenario: Balance overview report for deleted users
     # Create User
