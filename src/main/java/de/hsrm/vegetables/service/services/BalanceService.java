@@ -82,6 +82,8 @@ public class BalanceService {
         BalanceDto balance = getBalance(name);
         balance.setAmount(balance.getAmount() - amount);
 
+        saveBalanceChange(balance, BalanceChangeType.WITHDRAW, amount);
+
         return balanceRepository.save(balance);
     }
 
@@ -96,6 +98,8 @@ public class BalanceService {
      */
     public BalanceDto withdraw(BalanceDto balance, Float amount) {
         balance.setAmount(balance.getAmount() - amount);
+
+        saveBalanceChange(balance, BalanceChangeType.WITHDRAW, amount);
 
         return balanceRepository.save(balance);
     }
@@ -113,11 +117,7 @@ public class BalanceService {
         BalanceDto balance = getBalance(name);
         balance.setAmount(balance.getAmount() + amount);
 
-        BalanceHistoryItemDto balanceHistoryItem = new BalanceHistoryItemDto();
-        balanceHistoryItem.setBalanceDto(balance);
-        balanceHistoryItem.setBalanceChangeType(BalanceChangeType.TOPUP);
-        balanceHistoryItem.setAmount(amount);
-        balanceHistoryItemRepository.save(balanceHistoryItem);
+        saveBalanceChange(balance, BalanceChangeType.TOPUP, amount);
 
         return balanceRepository.save(balance);
     }
@@ -135,7 +135,11 @@ public class BalanceService {
         balance.setName(name);
         balance.setAmount(amount);
 
-        return balanceRepository.save(balance);
+        BalanceDto balanceDto = balanceRepository.save(balance);
+
+        saveBalanceChange(balance, BalanceChangeType.SET, amount);
+
+        return balanceDto;
     }
 
     /**
