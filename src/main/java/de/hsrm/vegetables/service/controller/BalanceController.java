@@ -9,6 +9,7 @@ import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.service.mapper.Mapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
+import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class BalanceController implements BalanceApi {
 
     @NonNull
     private final BalanceService balanceService;
+
+    @NonNull
+    private final UserService userService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
@@ -75,6 +79,13 @@ public class BalanceController implements BalanceApi {
                 .getPrincipal();
 
         return userPrincipal.getUsername();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('TREASURER')")
+    public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
+        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId).getUsername());
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
 }

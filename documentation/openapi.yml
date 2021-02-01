@@ -125,6 +125,29 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    '/balance/{user-id}':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - Balance
+            summary: Gets the current balance for the specified user
+            operationId: userBalanceGet
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+            responses:
+                '200':
+                    description: The current value of the balance for the specified user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
     '/stock':
         get:

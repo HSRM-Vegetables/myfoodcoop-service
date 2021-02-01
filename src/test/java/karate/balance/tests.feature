@@ -3,6 +3,19 @@ Feature: Balance Tests
   Background:
     * url baseUrl + "/v2"
     * def password = "a_funny_horse**jumps_high778"
+    * def getUserIdFromToken =
+    """
+    function(token) {
+        var base64Url = token.split('.')[1];
+        var base64Str = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var Base64 = Java.type('java.util.Base64');
+        var decoded = Base64.getDecoder().decode(base64Str);
+        var String = Java.type('java.lang.String');
+        var decodedAsString = new String(decoded);
+        var decodedAsObject = JSON.parse(decodedAsString);
+        return decodedAsObject.id;
+    }
+    """
 
   Scenario: PATCH allows to set the balance for user
     Given path 'auth', 'login'
@@ -212,3 +225,68 @@ Feature: Balance Tests
     When method GET
     Then status 200
     And match response.balance == 0
+
+  Scenario: Get current balance of another user
+    # Login as member and get id
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def userId = getUserIdFromToken(response.token)
+
+    # Login as treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Get balance for member
+    Given path 'balance', userId
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { balance: '#number' }
+
+  Scenario: Cannot get balance for another user without login
+    Given path 'balance', '123'
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005
+
+  Scenario: Error when trying to get balance for invalid user-id
+    # Login as treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Try to get balance for unknown user
+    Given path 'balance', 'ZZZZZ9999'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 404
+    And match response.errorCode == 404005
+
+  Scenario: Error when trying to get balance for another user as member
+    # Login as admin and get userId
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def userId = getUserIdFromToken(response.token)
+
+    # Login as member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Try to get balance for admin
+    Given path 'balance', userId
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005

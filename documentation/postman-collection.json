@@ -139,6 +139,37 @@
                     }
                   },
                   "response": []
+                },
+                {
+                  "name": "GET /balance/{user-id}",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/balance/:user-id",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance",
+                        ":user-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
                 }
               ]
             },
