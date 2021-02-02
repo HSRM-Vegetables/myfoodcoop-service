@@ -45,7 +45,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','TREASURER')")
     public ResponseEntity<UserListResponse> getUserList(DeleteFilter deleted) {
         List<UserResponse> users = UserMapper.listUserDtoToListUserResponse(userService.getAll(deleted));
         UserListResponse response = new UserListResponse();
@@ -97,7 +97,8 @@ public class UserController implements UserApi {
 
     private void checkAccessingOwnUser(UserPrincipal userPrincipal, String userId) {
         if (!userId.equals(userPrincipal.getId()) && !userPrincipal.getRoles()
-                .contains(Role.ADMIN)) {
+                .contains(Role.ADMIN) && !userPrincipal.getRoles()
+                .contains(Role.TREASURER)) {
             throw new UnauthorizedError("Access Denied", ErrorCode.METHOD_ONLY_ALLOWED_FOR_OWN_USER);
         }
     }
