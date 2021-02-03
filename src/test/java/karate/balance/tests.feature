@@ -300,3 +300,90 @@ Feature: Balance Tests
     When method GET
     Then status 401
     And match response.errorCode == 401010
+
+  Scenario Outline: Error when trying to patch balance for another user
+    # Login as member and get userId
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def userId = getUserIdFromToken(response.token)
+
+    # Login
+    Given path 'auth', 'login'
+    And request { username: '<username>',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Try to patch balance for member
+    Given path 'balance', userId
+    And header Authorization = "Bearer " + token
+    And request { balance: 5 }
+    When method PATCH
+    Then status 401
+    And match response.errorCode == 401010
+
+    Examples:
+      | username  |
+      | treasurer |
+      | orderer   |
+      | admin     |
+
+  Scenario Outline: Error when trying to topup for another user
+    # Login as member and get userId
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def userId = getUserIdFromToken(response.token)
+
+    # Login
+    Given path 'auth', 'login'
+    And request { username: '<username>',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Try to patch balance for member
+    Given path 'balance', userId, 'topup'
+    And header Authorization = "Bearer " + token
+    And request { amount: 2 }
+    When method POST
+    Then status 401
+    And match response.errorCode == 401010
+
+    Examples:
+      | username  |
+      | treasurer |
+      | orderer   |
+      | admin     |
+
+  Scenario Outline: Error when trying to withdraw for another user
+    # Login as member and get userId
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def userId = getUserIdFromToken(response.token)
+
+    # Login
+    Given path 'auth', 'login'
+    And request { username: '<username>',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Try to patch balance for member
+    Given path 'balance', userId, 'withdraw'
+    And header Authorization = "Bearer " + token
+    And request { amount: 2 }
+    When method POST
+    Then status 401
+    And match response.errorCode == 401010
+
+    Examples:
+      | username  |
+      | treasurer |
+      | orderer   |
+      | admin     |
