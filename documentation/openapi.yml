@@ -172,7 +172,16 @@ paths:
             tags:
                 - Balance
             summary: Retrieve the user's balance history
-            operationId: balanceHistoryGet
+            description: |-
+                Gets the current balance history for the specified user.
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
+                |TREASURER | for any userId |
+            operationId: userBalanceHistoryGet
             parameters:
                 -   $ref: '#/components/parameters/user-id'
                 -   in: query

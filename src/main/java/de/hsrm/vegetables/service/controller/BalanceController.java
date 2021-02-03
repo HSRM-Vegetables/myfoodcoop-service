@@ -47,7 +47,7 @@ public class BalanceController implements BalanceApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
-    public ResponseEntity<BalanceHistoryResponse> balanceHistoryGet(String userId, Integer offset, Integer limit) {
+    public ResponseEntity<BalanceHistoryResponse> userBalanceHistoryGet(String userId, Integer offset, Integer limit) {
         BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId).getUsername());
 
         List<BalanceHistoryItemDto> balanceHistoryItems = balanceService.getBalanceHistoryItems(balanceDto);

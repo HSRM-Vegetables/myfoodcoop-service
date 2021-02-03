@@ -23,8 +23,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance/history'
+    Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -48,26 +49,27 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance/topup'
+    Given path 'balance', userId, 'topup'
     And header Authorization = "Bearer " + token
     And request { amount: 10.0 }
     When method POST
     Then status 200
 
-    Given path '/balance/withdraw'
+    Given path 'balance', userId, 'withdraw'
     And header Authorization = "Bearer " + token
     And request { amount: 20.0 }
     When method POST
     Then status 200
 
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 30.0 }
     When method PATCH
     Then status 200
 
-    Given path '/balance/history'
+    Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
