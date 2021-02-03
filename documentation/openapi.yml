@@ -29,7 +29,7 @@ paths:
                 - Balance
             summary: Gets the current balance for the specified user
             description: |-
-                Gets the current balance for the specified user. \
+                Gets the current balance for the specified user.
 
                 ### Access Restrictions
                 The following roles are required to access this endpoint. Any role not in this list is not allowed access
@@ -60,7 +60,7 @@ paths:
                 - Balance
             summary: Changes the balance for the specified user
             description: |-
-                Changes the balance for the specified user.\
+                Changes the balance for the specified user.
 
                 ### Access Restrictions
                 The following roles are required to access this endpoint. Any role not in this list is not allowed access
@@ -97,7 +97,7 @@ paths:
                 - Balance
             summary: Topup the balance for the specified user
             description: |-
-                Topup the balance for the specified user.\
+                Topup the balance for the specified user.
 
                 ### Access Restrictions
                 The following roles are required to access this endpoint. Any role not in this list is not allowed access
@@ -135,7 +135,7 @@ paths:
                 - Balance
             summary: Withdraw the balance for the specified user
             description: |-
-                Withdraw the balance for the specified user.\
+                Withdraw the balance for the specified user.
 
                 ### Access Restrictions
                 The following roles are required to access this endpoint. Any role not in this list is not allowed access
@@ -444,7 +444,7 @@ paths:
                 - User
             summary: Get all users
             description: |-
-                Get all users.\
+                Get all users.
 
                 ### Access Restrictions
                 The following roles are required to access this endpoint. Any role not in this list is not allowed access
@@ -484,7 +484,7 @@ paths:
                 - User
             summary: Get user data for the specified user.
             description: |-
-                Get user data for the specified user. \
+                Get user data for the specified user.
                 Also used to get own user information. To get the id of a logged in user, decode the JWT
 
                 ### Access Restrictions
