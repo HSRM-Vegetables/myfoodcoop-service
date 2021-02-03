@@ -24,7 +24,7 @@ paths:
     '/balance/{user-id}':
         get:
             security:
-                -   ownUserOrTreasurer: [ ]
+                -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Gets the current balance for the specified user
