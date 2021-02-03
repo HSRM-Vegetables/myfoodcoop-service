@@ -328,9 +328,9 @@ public class StockService {
                     }
 
                     StockDto associatedStockDto = associatedStockDtoOpt.get();
-
-                    return associatedStockDto
-                            .getPricePerUnit() * cartItem.getAmount() * associatedStockDto.getVat();
+                    float vat = associatedStockDto.getVat();
+                    return round((associatedStockDto
+                            .getPricePerUnit() * cartItem.getAmount() ) / (1f + vat) * vat, 2);
                 })
                 .reduce(0f, Float::sum);
         return round(totalVat, 2);

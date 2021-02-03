@@ -94,10 +94,10 @@ Feature: Simple Purchases
     And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
     And assert response.name == "member"
     And assert response.price == 1.3
-    And assert response.totalVat == 0.25
+    And assert response.totalVat == 0.21
     And assert response.vatDetails.length == 1
     And assert response.vatDetails[0].vat == 0.19
-    And assert response.vatDetails[0].amount == 0.25
+    And assert response.vatDetails[0].amount == 0.21
     And def purchaseId = response.id
 
     # Check that stock was reduced
@@ -207,12 +207,12 @@ Feature: Simple Purchases
     And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
     And assert response.name == "member"
     And assert response.price == 3.9
-    And assert response.totalVat == 0.7
+    And assert response.totalVat == 0.6
     And assert response.vatDetails.length == 2
     And def vatRateOne = findVatDetailWithVatRate(response.vatDetails, 0.19)
-    And match vatRateOne == { vat: 0.19, amount: 0.49 }
+    And match vatRateOne == { vat: 0.19, amount: 0.42 }
     And def vatRateTwo = findVatDetailWithVatRate(response.vatDetails, 0.16)
-    And match vatRateTwo == { vat: 0.16, amount: 0.21 }
+    And match vatRateTwo == { vat: 0.16, amount: 0.18 }
     And def purchaseId = response.id
 
     # Check stock was reduced on first item
@@ -245,12 +245,12 @@ Feature: Simple Purchases
     And match each response.items contains { id: '#uuid', name: '#string', amount: '#number', pricePerUnit: '#number', unitType: '#string' }
     And def calculatedPrice = calcPrice(response.items)
     And assert response.totalPrice == calculatedPrice
-    And assert response.totalVat == 0.7
+    And assert response.totalVat == 0.6
     And assert response.vatDetails.length == 2
     And def vatRateOne = findVatDetailWithVatRate(response.vatDetails, 0.19)
-    And match vatRateOne == { vat: 0.19, amount: 0.49 }
+    And match vatRateOne == { vat: 0.19, amount: 0.42 }
     And def vatRateTwo = findVatDetailWithVatRate(response.vatDetails, 0.16)
-    And match vatRateTwo == { vat: 0.16, amount: 0.21 }
+    And match vatRateTwo == { vat: 0.16, amount: 0.18 }
 
     # Check that purchase exists in list
     Given path '/purchase'

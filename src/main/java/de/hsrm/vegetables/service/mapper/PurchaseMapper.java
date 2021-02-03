@@ -66,7 +66,8 @@ public class PurchaseMapper {
 
                     // Calculate vat amount for these items
                     Float amount = purchasedItemsWithVat.stream()
-                            .map(purchasedItemDto -> purchasedItemDto.getAmount() * purchasedItemDto.getPricePerUnit() * purchasedItemDto.getVat())
+                            .map(purchasedItemDto -> ((purchasedItemDto.getAmount() * purchasedItemDto.getPricePerUnit())
+                                    / (1f + purchasedItemDto.getVat()) * purchasedItemDto.getVat()))
                             .reduce(0f, Float::sum);
 
                     VatDetailItem vatDetailItem = new VatDetailItem();

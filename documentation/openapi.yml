@@ -1081,7 +1081,7 @@ components:
 
         pricePerUnit:
             description: |-
-                How much money in Euro one unit of this item costs.
+                How much money in Euro one unit of this item costs. The price is the gross price, including VAT.
                 A unit is defined based on the unitType
                   * WEIGHT: A unit is 1.0 Kg
                   * PIECE: A unit is 1.0 pieces
