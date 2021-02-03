@@ -299,7 +299,7 @@ Feature: Balance Tests
     And header Authorization = "Bearer " + token
     When method GET
     Then status 401
-    And match response.errorCode == 401010
+    And match response.errorCode == 401005
 
   Scenario Outline: Error when trying to patch balance for another user
     # Login as member and get userId
@@ -322,7 +322,7 @@ Feature: Balance Tests
     And request { balance: 5 }
     When method PATCH
     Then status 401
-    And match response.errorCode == 401010
+    And match response.errorCode == 401005
 
     Examples:
       | username  |
@@ -351,7 +351,7 @@ Feature: Balance Tests
     And request { amount: 2 }
     When method POST
     Then status 401
-    And match response.errorCode == 401010
+    And match response.errorCode == 401005
 
     Examples:
       | username  |
@@ -380,7 +380,7 @@ Feature: Balance Tests
     And request { amount: 2 }
     When method POST
     Then status 401
-    And match response.errorCode == 401010
+    And match response.errorCode == 401005
 
     Examples:
       | username  |
