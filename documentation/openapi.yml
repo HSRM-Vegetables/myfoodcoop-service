@@ -426,12 +426,12 @@ paths:
                 -   bearerAuth: [ ]
             tags:
                 - User
-            summary: Updates data of an User
+            summary: Updates data of a User
             operationId: userPatch
             parameters:
                 -   $ref: '#/components/parameters/user-id'
             requestBody:
-                description: All data of an user that can be updated
+                description: All data of a user that can be updated
                 required: true
                 content:
                     application/json:
@@ -1049,12 +1049,10 @@ components:
                         $ref: '#/components/schemas/user-response'
 
         user-patch-request:
-            description: All data of an user that can be updated
+            description: All data of a user that can be updated
             type: object
-            required:
-                - role
             properties:
-                passwort:
+                password:
                     $ref: '#/components/schemas/password'
                 email:
                     $ref: '#/components/schemas/email'
