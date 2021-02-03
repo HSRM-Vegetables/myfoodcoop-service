@@ -3,10 +3,7 @@ package de.hsrm.vegetables.service.controller;
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.UserApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
-import de.hsrm.vegetables.service.exception.ErrorCode;
-import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.UserMapper;
-import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
@@ -15,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,7 +41,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','TREASURER')")
     public ResponseEntity<UserListResponse> getUserList(DeleteFilter deleted) {
         List<UserResponse> users = UserMapper.listUserDtoToListUserResponse(userService.getAll(deleted));
         UserListResponse response = new UserListResponse();
@@ -54,29 +50,15 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER') or hasRole('ADMIN'))")
     public ResponseEntity<UserResponse> userIdGet(String userId) {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        // A non-Admin is only allowed to call this method for themselves
-        checkAccessingOwnUser(userPrincipal, userId);
-
         UserResponse response = UserMapper.userDtoToUserResponse(userService.getUserById(userId));
         return ResponseEntity.ok(response);
     }
 
     @Override
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")
     public ResponseEntity<Void> userIdDelete(String userId) {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        // A non-Admin is only allowed to call this method for themselves
-        checkAccessingOwnUser(userPrincipal, userId);
-
         userService.softDeleteUser(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -93,13 +75,6 @@ public class UserController implements UserApi {
     public ResponseEntity<UserResponse> userDeleteRoles(String userId, String role) {
         UserResponse response = UserMapper.userDtoToUserResponse(userService.deleteRole(userId, Role.valueOf(role)));
         return ResponseEntity.ok(response);
-    }
-
-    private void checkAccessingOwnUser(UserPrincipal userPrincipal, String userId) {
-        if (!userId.equals(userPrincipal.getId()) && !userPrincipal.getRoles()
-                .contains(Role.ADMIN)) {
-            throw new UnauthorizedError("Access Denied", ErrorCode.METHOD_ONLY_ALLOWED_FOR_OWN_USER);
-        }
     }
 
 }

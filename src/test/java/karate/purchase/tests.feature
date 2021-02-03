@@ -61,6 +61,20 @@ Feature: Simple Purchases
     }
     """
 
+    * def getUserIdFromToken =
+    """
+    function(token) {
+        var base64Url = token.split('.')[1];
+        var base64Str = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var Base64 = Java.type('java.util.Base64');
+        var decoded = Base64.getDecoder().decode(base64Str);
+        var String = Java.type('java.lang.String');
+        var decodedAsString = new String(decoded);
+        var decodedAsObject = JSON.parse(decodedAsString);
+        return decodedAsObject.id;
+    }
+    """
+
   Scenario: Purchase a single item
     # Create Item with Orderer
     Given path 'auth', 'login'
@@ -83,6 +97,7 @@ Feature: Simple Purchases
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Purchase item
     Given path '/purchase'
@@ -108,7 +123,7 @@ Feature: Simple Purchases
     And match response contains { quantity: 139.0 }
 
     # Check that the balance was reduced
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -187,9 +202,10 @@ Feature: Simple Purchases
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Set members balance to 500
-    Given path 'balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 500 }
     When method PATCH
@@ -230,7 +246,7 @@ Feature: Simple Purchases
     And match response contains { quantity: 139.0 }
 
     # Check that the balance was reduced
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -295,9 +311,10 @@ Feature: Simple Purchases
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Set members balance to 500
-    Given path 'balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 500 }
     When method PATCH
@@ -328,7 +345,7 @@ Feature: Simple Purchases
     And match response contains { quantity: 140.0 }
 
     # Check that the balance wasn't reduced
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -341,6 +358,7 @@ Feature: Simple Purchases
     When method POST
     Then status 200
     And def oToken = response.token
+    And def userId = getUserIdFromToken(oToken)
 
     # Create item 1
     Given path '/stock'
@@ -370,6 +388,7 @@ Feature: Simple Purchases
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Purchase items
     Given path '/purchase'
@@ -382,7 +401,7 @@ Feature: Simple Purchases
     And assert response.errorCode == 400011
 
     # Check that the balance wasn't reduced
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -410,9 +429,10 @@ Feature: Simple Purchases
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Set members balance to 500
-    Given path 'balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 500 }
     When method PATCH
@@ -437,7 +457,7 @@ Feature: Simple Purchases
     And assert response.quantity == -60
 
     # Check that the balance was reduced
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -486,9 +506,10 @@ Feature: Simple Purchases
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Set members balance to 500
-    Given path 'balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 500 }
     When method PATCH
@@ -505,7 +526,7 @@ Feature: Simple Purchases
     And assert response.errorCode == 400010
 
     # Check that the balance wasn't reduced
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200

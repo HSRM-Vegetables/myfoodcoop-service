@@ -16,7 +16,7 @@
               "name": "balance",
               "item": [
                 {
-                  "name": "GET /balance/:name",
+                  "name": "GET /balance/{user-id}",
                   "request": {
                     "method": "GET",
                     "header": [
@@ -27,20 +27,27 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/balance",
+                      "raw": "{{URL}}/v2/balance/:user-id",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
-                        "balance"
+                        "balance",
+                        ":user-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
                   "response": []
                 },
                 {
-                  "name": "PATCH /balance/:name",
+                  "name": "PATCH /balance/{user-id}",
                   "request": {
                     "method": "PATCH",
                     "header": [
@@ -60,20 +67,27 @@
                       }
                     },
                     "url": {
-                      "raw": "{{URL}}/v2/balance",
+                      "raw": "{{URL}}/v2/balance/:user-id",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
-                        "balance"
+                        "balance",
+                        ":user-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
                   "response": []
                 },
                 {
-                  "name": "POST /balance/:name/topup",
+                  "name": "POST /balance/{user-id}/topup",
                   "request": {
                     "method": "POST",
                     "header": [
@@ -93,21 +107,28 @@
                       }
                     },
                     "url": {
-                      "raw": "{{URL}}/v2/balance/topup",
+                      "raw": "{{URL}}/v2/balance/:user-id/topup",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
                         "balance",
+                        ":user-id",
                         "topup"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
                   "response": []
                 },
                 {
-                  "name": "POST /balance/:name/withdraw",
+                  "name": "POST /balance/{user-id}/withdraw",
                   "request": {
                     "method": "POST",
                     "header": [
@@ -127,14 +148,21 @@
                       }
                     },
                     "url": {
-                      "raw": "{{URL}}/v2/balance/withdraw",
+                      "raw": "{{URL}}/v2/balance/:user-id/withdraw",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
                         "balance",
+                        ":user-id",
                         "withdraw"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
@@ -546,6 +574,31 @@
                           "key": "toDate",
                           "value": "{{today}}"
                         }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "GET /reports/balance-overview",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/reports/balance-overview",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "reports",
+                        "balance-overview"
                       ]
                     }
                   },

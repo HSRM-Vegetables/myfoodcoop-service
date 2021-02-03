@@ -21,15 +21,25 @@ tags:
     -   name: Authentication
         description: Token management and related functionality
 paths:
-    '/balance':
+    '/balance/{user-id}':
         get:
             security:
                 -   bearerAuth: [ ]
             tags:
                 - Balance
-            summary: Gets the current balance of the user
-            description: 'Gets the current balance of the user, or 0 if the user is currently not known'
-            operationId: balanceGet
+            summary: Gets the current balance for the specified user
+            description: |-
+                Gets the current balance for the specified user.
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
+                |TREASURER | for any userId |
+            operationId: userBalanceGet
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             responses:
                 '200':
                     description: The current value of the balance for the specified user
@@ -49,7 +59,17 @@ paths:
             tags:
                 - Balance
             summary: Changes the balance for the specified user
+            description: |-
+                Changes the balance for the specified user.
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
             operationId: balancePatch
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             requestBody:
                 required: true
                 content:
@@ -69,14 +89,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/balance/topup':
+    '/balance/{user-id}/topup':
         post:
             security:
                 -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Topup the balance for the specified user
+            description: |-
+                Topup the balance for the specified user.
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
             operationId: balanceTopup
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             requestBody:
                 description: 'Top up the balance with the amount, containing a positive value'
                 required: true
@@ -97,14 +127,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/balance/withdraw':
+    '/balance/{user-id}/withdraw':
         post:
             security:
                 -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Withdraw the balance for the specified user
+            description: |-
+                Withdraw the balance for the specified user.
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
             operationId: balanceWithdraw
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             requestBody:
                 description: 'Withdraw the amount from the balance, containing a positive value'
                 required: true
@@ -363,6 +403,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    '/reports/balance-overview':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - Reports
+            summary: Get the current balance of all users
+            operationId: balanceOverview
+            parameters:
+                -   in: query
+                    description: |-
+                        Controls if deleted users will be included in the results
+
+                        * OMIT: Only users which haven't been deleted will be included
+                        * INCLUDE: Delted and not deleted users will be returned
+                        * ONLY: Only return deleted users
+                    name: deleted
+                    schema:
+                        $ref: '#/components/schemas/delete-filter'
+            responses:
+                '200':
+                    description: Successful call
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-overview-list'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
     /user:
         get:
@@ -371,6 +443,14 @@ paths:
             tags:
                 - User
             summary: Get all users
+            description: |-
+                Get all users.
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                - ADMIN
+                - TREASURER
+
             operationId: getUserList
             parameters:
                 -   in: query
@@ -402,9 +482,17 @@ paths:
                 -   bearerAuth: [ ]
             tags:
                 - User
-            summary: |-
+            summary: Get user data for the specified user.
+            description: |-
                 Get user data for the specified user.
                 Also used to get own user information. To get the id of a logged in user, decode the JWT
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
+                |ADMIN     | for any userId |
             operationId: userIdGet
             parameters:
                 -   $ref: '#/components/parameters/user-id'
@@ -427,6 +515,14 @@ paths:
             tags:
                 - User
             summary: Soft deletes a user account
+            description: |-
+                Soft deletes a user account
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
+                |ADMIN     | for any userId |
             operationId: userIdDelete
             parameters:
                 -   $ref: '#/components/parameters/user-id'
@@ -446,6 +542,13 @@ paths:
             tags:
                 - User
             summary: Adds one role to the specified user
+            description: |-
+                Adds one role to the specified user
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |ADMIN     | for any userId |
             operationId: userAddRole
             parameters:
                 -   $ref: '#/components/parameters/user-id'
@@ -469,6 +572,13 @@ paths:
             tags:
                 - User
             summary: Removes one role from the specified user
+            description: |-
+                Removes one role from the specified user
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |ADMIN     | for any userId |
             operationId: userDeleteRoles
             parameters:
                 -   $ref: '#/components/parameters/user-id'
@@ -519,6 +629,9 @@ paths:
             tags:
                 - Authentication
             summary: Retrieve tokens to authenticate the user against this API
+            description: |-
+                Retrieve tokens to authenticate the user against this API.\
+                A user needs the role MEMBER in order to retrieve a token. And users without this role are considered as not activated.
             operationId: login
             requestBody:
                 description:
@@ -831,14 +944,37 @@ components:
                 - name
             properties:
                 balance:
-                    description: The current balance
-                    example: 10
-                    type: number
-                    format: float
+                    $ref: '#/components/schemas/balance'
                 name:
                     description: The name of the owner of this balance
                     example: Robby
                     type: string
+
+        balance-overview-list:
+            description: A list of all users and their balances
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/balance-overview-item'
+
+        balance-overview-item:
+            description: Contains informations of a user and its current balance
+            type: object
+            properties:
+                balance:
+                    $ref: '#/components/schemas/balance'
+                username:
+                    $ref: '#/components/schemas/username'
+                id:
+                    $ref: '#/components/schemas/uuid'
+                memberId:
+                    $ref: '#/components/schemas/memberId'
+                isDeleted:
+                    type: boolean
+                    description: Whether this user is deleted
+                    example: false
 
         all-stock-response:
             type: object
@@ -1242,6 +1378,12 @@ components:
                 - INSTOCK
                 - SPOILSSOON
                 - OUTOFSTOCK
+
+        balance:
+            description: The current balance
+            example: 10
+            type: number
+            format: float
 
         totalVat:
             description: The amount of tax that was paid
