@@ -495,8 +495,8 @@ Feature: User controller
     And match response == { users: '#array' }
     And match response.users[*].username contains 'mustermann1'
 
-
   Scenario: User(Member) update own email
+
     # Create User
     Given path 'user', 'register'
     * def username = "mustermannTEST"
@@ -507,14 +507,14 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-     # Login as admin
+    # Login as ADMIN
     Given path 'auth', 'login'
     And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def rToken = response.token
 
-    # add role MEMEBR
+    # add role MEMBER
     Given path 'user', userId, 'roles', 'MEMBER'
     And header Authorization = "Bearer " + rToken
     And request ''
@@ -554,14 +554,14 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-    # Login as admin
+    # Login as ADMIN
     Given path 'auth', 'login'
     And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def mToken = response.token
 
-    # add role MEMEBR
+    # add role MEMBER
     Given path 'user', userId, 'roles', 'MEMBER'
     And header Authorization = "Bearer " + mToken
     And request ''
@@ -602,14 +602,14 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-     # Login as admin
+    # Login as ADMIN
     Given path 'auth', 'login'
     And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def rToken = response.token
 
-    # add role MEMEBR
+    # add role MEMBER
     Given path 'user', userId, 'roles', 'MEMBER'
     And header Authorization = "Bearer " + rToken
     And request ''
@@ -635,7 +635,7 @@ Feature: User controller
 
   Scenario: Admin update user's email and memberId
 
-     # Create User
+    # Create User
     Given path 'user', 'register'
     * def username = "mustermannTEST4"
     * def email = "mustermannTEST4@test.com"
@@ -645,14 +645,14 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-     # Login as admin
+    # Login as ADMIN
     Given path 'auth', 'login'
     And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def aToken = response.token
 
-    # add role MEMEBR
+    # add role MEMBER
     Given path 'user', userId, 'roles', 'MEMBER'
     And header Authorization = "Bearer " + aToken
     And request ''
@@ -682,10 +682,9 @@ Feature: User controller
     Then status 200
     And match response contains { id: '#uuid', username: #(username), email: #(emailChanged), memberId: #(memberIdChanged), isDeleted: false}
 
-
   Scenario: Admin update user's password
 
-     # Create User
+    # Create User
     Given path 'user', 'register'
     * def username = "mustermannTEST5"
     * def email = "mustermannTEST5@test.com"
@@ -695,14 +694,14 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
-     # Login as admin
+    # Login as ADMIN
     Given path 'auth', 'login'
     And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
     And def aToken = response.token
 
-    # add role MEMEBR
+    # add role MEMBER
     Given path 'user', userId, 'roles', 'MEMBER'
     And header Authorization = "Bearer " + aToken
     And request ''
@@ -725,7 +724,7 @@ Feature: User controller
     When method PATCH
     Then status 200
 
-      # Check that login was successful
+    # Check that login was successful
     Given path 'auth', 'login'
     And request { username:  #(username),  password: #(passwordChanged) }
     When method POST
