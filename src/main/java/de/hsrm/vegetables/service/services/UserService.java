@@ -207,7 +207,7 @@ public class UserService {
         }
 
         if (password != null) {
-            userDto.setPassword(password);
+            userDto.setPassword(passwordEncoder.encode(password));
             changed = true;
         }
 

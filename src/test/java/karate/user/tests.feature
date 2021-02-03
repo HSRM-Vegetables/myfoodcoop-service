@@ -579,14 +579,14 @@ Feature: User controller
     Given path 'user', userId
     And header Authorization = "Bearer " + mToken
     * def passwordChanged = "3945r8484hbdsnjxcmkciw"
-    And request { password: #(passwordChanged)}
+    And request { password: #(passwordChanged) }
     When method PATCH
     Then status 200
     And def mToken = response.token
 
     # Check that login was successful
     Given path 'auth', 'login'
-    And request { username: "mustermannTEST2",  password: "3945r8484hbdsnjxcmkciw" }
+    And request { username:  #(username),  password: #(passwordChanged) }
     When method POST
     Then status 200
     And def mToken = response.token
@@ -633,7 +633,7 @@ Feature: User controller
     Then status 401
     And match response.errorCode == 401005
 
-  Scenario: Admin update user's data
+  Scenario: Admin update user's email and memberId
 
      # Create User
     Given path 'user', 'register'
@@ -650,11 +650,11 @@ Feature: User controller
     And request { username: 'admin',  password: #(password) }
     When method POST
     Then status 200
-    And def rToken = response.token
+    And def aToken = response.token
 
     # add role MEMEBR
     Given path 'user', userId, 'roles', 'MEMBER'
-    And header Authorization = "Bearer " + rToken
+    And header Authorization = "Bearer " + aToken
     And request ''
     When method POST
     Then status 200
@@ -669,15 +669,64 @@ Feature: User controller
 
     # ADMIN update User´s data (# Patch all)
     Given path 'user', userId
-    And header Authorization = "Bearer " + rToken
-    * def memberIdChanged = "00000012456972"
-    * def emailChanged = "newmustermannTEST@test.com"
-    And request { memberId: #(memberIdChanged)}
+    And header Authorization = "Bearer " + aToken
+    * def memberIdChanged = "09772"
+    * def emailChanged = "newmannTEST@test.com"
+    And request { memberId: #(memberIdChanged), email: #(emailChanged)}
     When method PATCH
-    Then status 401
+    Then status 200
 
     Given path 'user', userId
-    And header Authorization = "Bearer " + rToken
+    And header Authorization = "Bearer " + aToken
     When method GET
     Then status 200
-    And match response contains { id: '#uuid', username:'#(username), email: #(emailChanged), memberId: #(memberIdChanged), isDeleted: false, password: #(password) }
+    And match response contains { id: '#uuid', username: #(username), email: #(emailChanged), memberId: #(memberIdChanged), isDeleted: false}
+
+
+  Scenario: Admin update user's password
+
+     # Create User
+    Given path 'user', 'register'
+    * def username = "mustermannTEST5"
+    * def email = "mustermannTEST5@test.com"
+    * def memberId = "52228555"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userId = response.id
+
+     # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def aToken = response.token
+
+    # add role MEMEBR
+    Given path 'user', userId, 'roles', 'MEMBER'
+    And header Authorization = "Bearer " + aToken
+    And request ''
+    When method POST
+    Then status 200
+    And match response.roles contains 'MEMBER'
+
+    Given path 'auth', 'login'
+    And request { username:  #(username),  password: #(password) }
+    When method POST
+    Then status 200
+    And def uToken = response.token
+    * def userId = getUserIdFromToken(uToken)
+
+    # ADMIN update User´s data (# Patch all)
+    Given path 'user', userId
+    And header Authorization = "Bearer " + aToken
+    * def passwordChanged = "keingutespasswort"
+    And request { password: #(passwordChanged)}
+    When method PATCH
+    Then status 200
+
+      # Check that login was successful
+    Given path 'auth', 'login'
+    And request { username:  #(username),  password: #(passwordChanged) }
+    When method POST
+    Then status 200

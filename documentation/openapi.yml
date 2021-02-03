@@ -1,4 +1,4 @@
-openapi: 3.0.3
+#openapi: 3.0.3
 info:
     description: This is the specification for the Stadtgemüse Service.
     version: 2.0.0
