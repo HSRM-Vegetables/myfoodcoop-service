@@ -421,6 +421,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+        patch:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - User
+            summary: Updates data of an User
+            operationId: userPatch
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+            requestBody:
+                description: All data of an user that can be updated
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user-patch-request'
+            responses:
+                '200':
+                    description: Successful call, returns the updated user data
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
         delete:
             security:
                 -   bearerAuth: [ ]
@@ -1019,6 +1048,18 @@ components:
                     items:
                         $ref: '#/components/schemas/user-response'
 
+        user-patch-request:
+            description: All data of an user that can be updated
+            type: object
+            required:
+                - role
+            properties:
+                passwort:
+                    $ref: '#/components/schemas/password'
+                email:
+                    $ref: '#/components/schemas/email'
+                memberId:
+                    $ref: '#/components/schemas/memberId'
         token-response:
             type: object
             properties:
