@@ -84,7 +84,26 @@ Feature: Simple Stock management
     * def orderDateChanged = "2020-01-20"
     * def deliveryDateChanged = "2020-01-20"
     * def stockStatus = 'INSTOCK'
-    * def defaultStockBody = { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description), sustainablyProduced: #(sustainablyProduced),certificates: #(certificates), originCategory: #(originCategory), producer: #(producer), supplier: #(supplier), orderDate: #(orderDate), deliveryDate: #(deliveryDate), stockStatus: #(stockStatus)}
+    * def vat = 0.19
+    * def defaultStockBody =
+    """
+      {
+        name: #(name),
+        unitType: #(unitType),
+        quantity: #(quantity),
+        pricePerUnit: #(pricePerUnit),
+        description: #(description),
+        sustainablyProduced: #(sustainablyProduced),
+        certificates: #(certificates),
+        originCategory: #(originCategory),
+        producer: #(producer),
+        supplier: #(supplier),
+        orderDate: #(orderDate),
+        deliveryDate: #(deliveryDate),
+        stockStatus: #(stockStatus),
+        vat: #(vat)
+      }
+    """
 
 
   Scenario: Generate a sold item report for items sold today

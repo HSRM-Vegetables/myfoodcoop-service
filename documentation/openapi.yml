@@ -828,6 +828,7 @@ components:
                 - stockStatus
                 - producer
                 - supplier
+                - vat
             properties:
                 name:
                     $ref: '#/components/schemas/item-name'
@@ -855,6 +856,8 @@ components:
                     $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         stock-patch-request:
             description: |-
@@ -888,6 +891,8 @@ components:
                     $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         register-request:
             description: Data to register a user
@@ -1015,6 +1020,8 @@ components:
                     $ref: '#/components/schemas/deliveryDate'
                 stockStatus:
                     $ref: '#/components/schemas/stockStatus'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         purchase-response:
             description: Information about the users balance and the purchased cart
@@ -1034,6 +1041,10 @@ components:
                     type: number
                     format: float
                     example: 17.43
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
+                vatDetails:
+                    $ref: '#/components/schemas/vatDetails'
         quantity-sold-list:
             type: object
             description: A list of items sold in a time window
@@ -1099,6 +1110,10 @@ components:
                     example: 69.0
                     type: number
                     format: float
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
+                vatDetails:
+                    $ref: '#/components/schemas/vatDetails'
                 items:
                     type: array
                     items:
@@ -1126,6 +1141,8 @@ components:
                     format: float
                 unitType:
                     $ref: '#/components/schemas/unitType'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         user-response:
             type: object
@@ -1200,7 +1217,7 @@ components:
 
         pricePerUnit:
             description: |-
-                How much money in Euro one unit of this item costs.
+                How much money in Euro one unit of this item costs. The price is the gross price, including VAT.
                 A unit is defined based on the unitType
                   * WEIGHT: A unit is 1.0 Kg
                   * PIECE: A unit is 1.0 pieces
@@ -1345,6 +1362,7 @@ components:
             format: date
             example: 2021-01-24
             description: When this item was delivered
+
         stockStatus:
             description: |-
                 Describes the current status of an item \
@@ -1366,6 +1384,38 @@ components:
             example: 10
             type: number
             format: float
+
+        totalVat:
+            description: The amount of tax that was paid
+            example: 42.7
+            type: number
+            format: float
+
+        vatDetails:
+            description: Contains all distinct vat rates and the amount paid for this rate for the whole purchase
+            type: array
+            items:
+                $ref: '#/components/schemas/vatDetailItem'
+
+        vatDetailItem:
+            type: object
+            description: A single vat rate for a purchase
+            properties:
+                vat:
+                    $ref: '#/components/schemas/vat'
+                amount:
+                    type: number
+                    format: float
+                    description: The amount of VAT paid for this VAT rate
+                    example: 14.7
+
+        vat:
+            description: The VAT applicable for this item. The vat is a number in the interval ]0,1]
+            type: number
+            format: float
+            example: 0.19
+            minimum: 0
+            maximum: 1
 
     parameters:
         username:
