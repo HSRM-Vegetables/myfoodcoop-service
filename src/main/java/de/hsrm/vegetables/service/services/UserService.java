@@ -177,17 +177,17 @@ public class UserService {
     /**
      * Updates data of a User.
      *
-     * @param userid  Id of the User to update
-     * @param memberid  memberId of the User to update
+     * @param userId  Id of the User to update
+     * @param memberId  memberId of the User to update
      * @param email     email-Address of the user to update
      * @param password  password of the user to update
      * @return The updated user
      */
-    public UserDto update(String userid, String memberid, String email, String password) {
-        UserDto userDto = userRepository.findById(userid);
+    public UserDto update(String userId, String memberId, String email, String password) {
+        UserDto userDto = userRepository.findById(userId);
 
         if (userDto == null) {
-            throw new NotFoundError("No User found with this id", ErrorCode. NO_USER_FOUND);
+            throw new NotFoundError("No User found with this id", ErrorCode.NO_USER_FOUND);
         }
 
         if (userDto.isDeleted()) {
@@ -196,8 +196,8 @@ public class UserService {
 
         boolean changed = false;
 
-        if (memberid != null) {
-            userDto.setMemberId(memberid);
+        if (memberId != null) {
+            userDto.setMemberId(memberId);
             changed = true;
         }
 
