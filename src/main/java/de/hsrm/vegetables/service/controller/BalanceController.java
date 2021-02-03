@@ -10,6 +10,7 @@ import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.BalanceMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
+import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/v2")
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
@@ -30,32 +34,21 @@ public class BalanceController implements BalanceApi {
     @NonNull
     private final BalanceService balanceService;
 
+    @NonNull
+    private final UserService userService;
+
     @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balanceGet() {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = null;
-
-        try {
-            balanceDto = balanceService.getBalance(name);
-        } catch (NotFoundError e) {
-            balanceDto = balanceService.createEmptyBalance(name);
-        }
-
+    @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
+    public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
+        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
+                .getUsername());
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceHistoryResponse> balanceHistoryGet(Integer offset, Integer limit) {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = null;
-
-        try {
-            balanceDto = balanceService.getBalance(name);
-        } catch (NotFoundError e) {
-            balanceDto = balanceService.createEmptyBalance(name);
-        }
+    @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
+    public ResponseEntity<BalanceHistoryResponse> balanceHistoryGet(String userId, Integer offset, Integer limit) {
+        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId).getUsername());
 
         List<BalanceHistoryItemDto> balanceHistoryItems = balanceService.getBalanceHistoryItems(balanceDto);
 
@@ -81,40 +74,42 @@ public class BalanceController implements BalanceApi {
         return ResponseEntity.ok(balanceHistoryResponse);
     }
 
+
     @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balancePatch(BalancePatchRequest request) {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = balanceService.upsert(name, request.getBalance());
+    @PreAuthorize("hasRole('MEMBER') and #userId == authentication.principal.id")
+    public ResponseEntity<BalanceResponse> balancePatch(String userId, BalancePatchRequest request) {
+        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
+
+        BalanceDto balanceDto = balanceService.upsert(userPrincipal.getUsername(), request.getBalance());
 
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balanceTopup(BalanceAmountRequest request) {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = balanceService.topup(name, request.getAmount());
+    @PreAuthorize("hasRole('MEMBER') and #userId == authentication.principal.id")
+    public ResponseEntity<BalanceResponse> balanceTopup(String userId, BalanceAmountRequest request) {
+        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
+
+        BalanceDto balanceDto = balanceService.topup(userPrincipal.getUsername(), request.getAmount());
 
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balanceWithdraw(BalanceAmountRequest request) {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = balanceService.withdraw(name, request.getAmount());
+    @PreAuthorize("hasRole('MEMBER') and #userId == authentication.principal.id")
+    public ResponseEntity<BalanceResponse> balanceWithdraw(String userId, BalanceAmountRequest request) {
+        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
+
+        BalanceDto balanceDto = balanceService.withdraw(userPrincipal.getUsername(), request.getAmount());
 
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
-    private String getUsernameFromSecurityContext() {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
+    private UserPrincipal getUserPrincipalFromSecurityContext() {
+        return (UserPrincipal) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
-
-        return userPrincipal.getUsername();
     }
 
 }

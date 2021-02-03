@@ -16,6 +16,7 @@ Feature: Simple Stock management
     * def orderDate = "2021-01-24"
     * def deliveryDate = "2021-01-24"
     * def stockStatus = "INSTOCK"
+    * def vat = 0.19
     * def defaultStockBody =
     """
      { 
@@ -31,7 +32,9 @@ Feature: Simple Stock management
        supplier: #(supplier),
        orderDate: #(orderDate),
        deliveryDate: #(deliveryDate),
-       stockStatus: #(stockStatus)}
+       stockStatus: #(stockStatus),
+       vat: #(vat)
+       }
     """
     * def nameChanged = 'Avocados'
     * def unitTypeChanged = 'WEIGHT'
@@ -46,6 +49,7 @@ Feature: Simple Stock management
     * def orderDateChanged = "2020-01-20"
     * def deliveryDateChanged = "2020-01-20"
     * def stockStatusChanged = "SPOILSSOON"
+    * def vatChanged = 0.16
     * def defaultStockBodyChanged = 
     """
     { 
@@ -61,7 +65,8 @@ Feature: Simple Stock management
       supplier: #(supplierChanged),
       orderDate: #(orderDateChanged),
       deliveryDate: #(deliveryDateChanged),
-      stockStatus: #(stockStatusChanged)
+      stockStatus: #(stockStatusChanged),
+      vat: #(vatChanged)
     }
     """
     * def filterByStatus =
@@ -467,6 +472,30 @@ Feature: Simple Stock management
     Then status 200
     And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), deliveryDate: #(deliveryDateChanged) }
 
+  Scenario: Patch of only vat works
+    # Get token
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Create Item
+    Given path '/stock'
+    And header Authorization = "Bearer " + token
+    And request defaultStockBody
+    When method POST
+    Then status 201
+    And def stockId = response.id
+
+    # Only patch vat
+    Given path '/stock/' + stockId
+    And header Authorization = "Bearer " + token
+    And request { vat: #(vatChanged) }
+    When method PATCH
+    Then status 200
+    And match response contains { id: #(stockId), name: #(name), unitType: #(unitType), quantity: #(quantity), vat: #(vatChanged) }
+
   Scenario: Soft Delete works
     # Get token
     Given path 'auth', 'login'
@@ -519,6 +548,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "INSTOCK",
+      vat: 0.19
     }
     """
     When method POST
@@ -900,6 +930,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "OUTOFSTOCK",
+      vat: 0.19
     }
     """
     When method POST
@@ -952,6 +983,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "OUTOFSTOCK",
+      vat: 0.19
     }
     """
     When method POST
@@ -972,6 +1004,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "INSTOCK",
+      vat: 0.19
     }
     """
     When method POST
@@ -1031,6 +1064,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "ORDERED",
+      vat: 0.19
     }
     """
     When method POST
@@ -1051,6 +1085,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "OUTOFSTOCK",
+      vat: 0.19
     }
     """
     When method POST
@@ -1071,6 +1106,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "INSTOCK",
+      vat: 0.19
     }
     """
     When method POST
@@ -1091,6 +1127,7 @@ Feature: Simple Stock management
       producer: "producer",
       supplier: "supplier",
       stockStatus: "SPOILSSOON",
+      vat: 0.19
     }
     """
     When method POST

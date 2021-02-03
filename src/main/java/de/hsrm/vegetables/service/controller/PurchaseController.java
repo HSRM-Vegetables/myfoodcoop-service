@@ -55,16 +55,21 @@ public class PurchaseController implements PurchaseApi {
         // Calculate the total price of the cart
         Float totalPrice = StockService.calculatePrice(stockItems, purchaseRequest.getItems());
 
+        // Calculate the total vat
+        Float totalVat = StockService.calculateVatAmount(stockItems, purchaseRequest.getItems());
+
         // Get the balance
         balanceDto = balanceService.withdraw(balanceDto, totalPrice);
 
-        PurchaseDto purchaseDto = purchaseService.purchaseItems(balanceDto, stockItems, purchaseRequest.getItems(), totalPrice);
+        PurchaseDto purchaseDto = purchaseService.purchaseItems(balanceDto, stockItems, purchaseRequest.getItems(), totalPrice, totalVat);
 
         PurchaseResponse response = new PurchaseResponse();
         response.setName(username);
         response.setPrice(totalPrice);
         response.setBalance(balanceDto.getAmount());
         response.setId(purchaseDto.getId());
+        response.setTotalVat(totalVat);
+        response.setVatDetails(StockService.getVatDetails(stockItems, purchaseRequest.getItems()));
 
         return ResponseEntity.ok(response);
     }

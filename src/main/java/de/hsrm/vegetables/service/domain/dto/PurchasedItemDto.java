@@ -33,4 +33,8 @@ public class PurchasedItemDto {
     @Column(nullable = false)
     // UnitType at time of purchase
     private UnitType unitType;
+
+    @Column(nullable = false)
+    // VAT at time of purchase
+    private Float vat;
 }

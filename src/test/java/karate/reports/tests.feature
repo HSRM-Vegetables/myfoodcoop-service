@@ -42,6 +42,21 @@ Feature: Simple Stock management
       return null;
     }
     """
+
+    * def getUserIdFromToken =
+    """
+    function(token) {
+        var base64Url = token.split('.')[1];
+        var base64Str = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var Base64 = Java.type('java.util.Base64');
+        var decoded = Base64.getDecoder().decode(base64Str);
+        var String = Java.type('java.lang.String');
+        var decodedAsString = new String(decoded);
+        var decodedAsObject = JSON.parse(decodedAsString);
+        return decodedAsObject.id;
+    }
+    """
+
     * url baseUrl + "/v2"
     * def name = 'Bananas'
     * def unitType = 'PIECE'
@@ -69,7 +84,26 @@ Feature: Simple Stock management
     * def orderDateChanged = "2020-01-20"
     * def deliveryDateChanged = "2020-01-20"
     * def stockStatus = 'INSTOCK'
-    * def defaultStockBody = { name: #(name), unitType: #(unitType), quantity: #(quantity), pricePerUnit: #(pricePerUnit), description: #(description), sustainablyProduced: #(sustainablyProduced),certificates: #(certificates), originCategory: #(originCategory), producer: #(producer), supplier: #(supplier), orderDate: #(orderDate), deliveryDate: #(deliveryDate), stockStatus: #(stockStatus)}
+    * def vat = 0.19
+    * def defaultStockBody =
+    """
+      {
+        name: #(name),
+        unitType: #(unitType),
+        quantity: #(quantity),
+        pricePerUnit: #(pricePerUnit),
+        description: #(description),
+        sustainablyProduced: #(sustainablyProduced),
+        certificates: #(certificates),
+        originCategory: #(originCategory),
+        producer: #(producer),
+        supplier: #(supplier),
+        orderDate: #(orderDate),
+        deliveryDate: #(deliveryDate),
+        stockStatus: #(stockStatus),
+        vat: #(vat)
+      }
+    """
 
 
   Scenario: Generate a sold item report for items sold today
@@ -417,3 +451,132 @@ Feature: Simple Stock management
     When method GET
     Then status 401
     And match response.errorCode == 401005
+
+  Scenario: Generate a balance overview report
+    # Login
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match each response.users contains { isDeleted: false }
+
+  Scenario: Newly registered user is included in balance overview report
+    # Create User
+    Given path 'user', 'register'
+    * def username = 'mustermann'
+    And request { username: #(username), email: "mustermann@test.com", memberId: 1234000, password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Login as treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].username contains username
+
+  Scenario: Balance changes
+    * def username = 'member'
+
+    # Login
+    Given path 'auth', 'login'
+    And request { username: #(username),  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    And def userId = getUserIdFromToken(token)
+
+    # Set Balance
+    Given path 'balance', userId
+    And header Authorization = "Bearer " + token
+    And request { balance: 987.65 }
+    When method PATCH
+    Then status 200
+
+    # Login as Treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate Report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users contains { username: #(username), balance: 987.65, id: '#string', memberId: '#string', isDeleted: false }
+
+  Scenario: Balance overview report for deleted users
+    # Create User
+    Given path 'user', 'register'
+    * def username = 'mustermann2'
+    And request { username: #(username), email: "mustermann2@test.com", memberId: "1234002", password: #(password) }
+    When method POST
+    Then status 201
+    And def userID = response.id
+
+    # Login as Admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Delete new user
+    Given path 'user', userID
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 204
+
+    # Login as Treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report for deleted users only
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    And param deleted = "ONLY"
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].username contains username
+    And match each response.users contains { isDeleted: true }
+
+    # Deleted user should not be in default report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].username !contains username
+
+    # Deleted user should be in included report
+    Given path 'reports', 'balance-overview'
+    And header Authorization = "Bearer " + token
+    And param deleted = "INCLUDE"
+    When method GET
+    Then status 200
+    And match response contains { users: '#array'}
+    And match response.users[*].username contains username

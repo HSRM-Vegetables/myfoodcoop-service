@@ -16,7 +16,7 @@
               "name": "balance",
               "item": [
                 {
-                  "name": "GET /balance/:name",
+                  "name": "GET /balance/{user-id}",
                   "request": {
                     "method": "GET",
                     "header": [
@@ -27,20 +27,27 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/balance",
+                      "raw": "{{URL}}/v2/balance/:user-id",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
-                        "balance"
+                        "balance",
+                        ":user-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
                   "response": []
                 },
                 {
-                  "name": "PATCH /balance/:name",
+                  "name": "PATCH /balance/{user-id}",
                   "request": {
                     "method": "PATCH",
                     "header": [
@@ -60,20 +67,27 @@
                       }
                     },
                     "url": {
-                      "raw": "{{URL}}/v2/balance",
+                      "raw": "{{URL}}/v2/balance/:user-id",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
-                        "balance"
+                        "balance",
+                        ":user-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
                   "response": []
                 },
                 {
-                  "name": "POST /balance/:name/topup",
+                  "name": "POST /balance/{user-id}/topup",
                   "request": {
                     "method": "POST",
                     "header": [
@@ -93,21 +107,28 @@
                       }
                     },
                     "url": {
-                      "raw": "{{URL}}/v2/balance/topup",
+                      "raw": "{{URL}}/v2/balance/:user-id/topup",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
                         "balance",
+                        ":user-id",
                         "topup"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
                   "response": []
                 },
                 {
-                  "name": "POST /balance/:name/withdraw",
+                  "name": "POST /balance/{user-id}/withdraw",
                   "request": {
                     "method": "POST",
                     "header": [
@@ -127,14 +148,21 @@
                       }
                     },
                     "url": {
-                      "raw": "{{URL}}/v2/balance/withdraw",
+                      "raw": "{{URL}}/v2/balance/:user-id/withdraw",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
                         "balance",
+                        ":user-id",
                         "withdraw"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
                       ]
                     }
                   },
@@ -175,13 +203,23 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/stock",
+                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
                         "stock"
+                      ],
+                      "query": [
+                        {
+                          "key": "deleted",
+                          "value": "OMIT"
+                        },
+                        {
+                          "key": "filterByStatus",
+                          "value": "ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK"
+                        }
                       ]
                     }
                   },
@@ -225,7 +263,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"name\": \"Kartoffeln\",\r\n    \"unitType\": \"WEIGHT\",\r\n    \"quantity\": 42,\r\n    \"pricePerUnit\": 1.33,\r\n    \"description\": \"Die Kartoffeln vom Bauern Jupp\"\r\n}",
+                      "raw": "{\r\n    \"name\": \"Kartoffeln\",\r\n    \"unitType\": \"WEIGHT\",\r\n    \"quantity\": 42,\r\n    \"pricePerUnit\": 1.33,\r\n    \"description\": \"Die Kartoffeln vom Bauern Jupp\",\r\n    \"supplier\": \"Cargo Bike Carlo\",\r\n    \"sustainablyProduced\": true,\r\n    \"originCategory\": \"LOCAL\",\r\n    \"vat\": 0.16,\r\n    \"stockStatus\": \"INSTOCK\",\r\n    \"producer\": \"Bauer Jupp\"\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -540,6 +578,31 @@
                     }
                   },
                   "response": []
+                },
+                {
+                  "name": "GET /reports/balance-overview",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/reports/balance-overview",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "reports",
+                        "balance-overview"
+                      ]
+                    }
+                  },
+                  "response": []
                 }
               ]
             },
@@ -553,11 +616,6 @@
                       "listen": "test",
                       "script": {
                         "exec": [
-                          "// Get id of first stock item and save it to a variable\r",
-                          "\r",
-                          "const user = pm.response.json();\r",
-                          "\r",
-                          "pm.collectionVariables.set(\"userId\", user.id);\r",
                           ""
                         ],
                         "type": "text/javascript"
@@ -569,8 +627,8 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "{{token}}",
-                        "type": "text"
+                        "type": "text",
+                        "value": "{{token}}"
                       }
                     ],
                     "url": {
@@ -587,7 +645,49 @@
                   "response": []
                 },
                 {
-                  "name": "DELETE /user",
+                  "name": "GET /user/{user-id}",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript"
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/user/:userId",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "user",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "{{userId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "DELETE /user/{user-id}",
                   "request": {
                     "method": "DELETE",
                     "header": [
@@ -598,13 +698,20 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/user",
+                      "raw": "{{URL}}/v2/user/:userId",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
-                        "user"
+                        "user",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": ""
+                        }
                       ]
                     }
                   },
@@ -792,6 +899,10 @@
                   "    }",
                   "    },() => {}); ",
                   "",
+                  "    const tokenBody = token.split(\".\")[1];",
+                  "    const tokenBodyAsString = atob(tokenBody);",
+                  "    const tokenDecoded = JSON.parse(tokenBodyAsString);",
+                  "    pm.collectionVariables.set(\"userId\", tokenDecoded.id);",
                   "",
                   "    pm.collectionVariables.set(\"token\", \"Bearer \" + token);",
                   "});"

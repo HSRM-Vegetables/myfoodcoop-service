@@ -1,14 +1,15 @@
 package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.ReportsApi;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.QuantitySoldItem;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.QuantitySoldList;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
+import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.PurchaseService;
 import de.hsrm.vegetables.service.services.StockService;
+import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v2")
@@ -35,6 +37,12 @@ public class ReportsController implements ReportsApi {
 
     @NonNull
     private final StockService stockService;
+
+    @NonNull
+    private UserService userService;
+
+    @NonNull
+    private BalanceService balanceService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
@@ -102,5 +110,29 @@ public class ReportsController implements ReportsApi {
         });
 
         return new ArrayList<>(purchaseQuantityByStockId.values());
+    }
+
+    @Override
+    @PreAuthorize("hasRole('TREASURER')")
+    public ResponseEntity<BalanceOverviewList> balanceOverview(DeleteFilter deleted) {
+        BalanceOverviewList response = new BalanceOverviewList();
+
+        response.setUsers(
+            userService.getAll(deleted)
+            .stream()
+            .map(user -> {
+                BalanceOverviewItem item = new BalanceOverviewItem();
+                item.setId(user.getId());
+                item.setUsername(user.getUsername());
+                item.setMemberId(user.getMemberId());
+                item.setIsDeleted(user.isDeleted());
+                item.setBalance(balanceService
+                    .getBalance(user.getUsername())
+                    .getAmount());
+                return item;
+            })
+            .collect(Collectors.toList()));
+
+        return ResponseEntity.ok(response);
     }
 }
