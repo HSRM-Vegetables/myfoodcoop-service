@@ -1,7 +1,6 @@
 package de.hsrm.vegetables.service.services;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
@@ -173,6 +172,49 @@ public class UserService {
             case ONLY -> userRepository.findByIsDeleted(true);
             case INCLUDE -> userRepository.findAll();
         };
+    }
+
+    /**
+     * Updates data of a User.
+     *
+     * @param userid  Id of the User to update
+     * @param memberid  memberId of the User to update
+     * @param email     email-Address of the user to update
+     * @param password  password of the user to update
+     * @return The updated user
+     */
+    public UserDto update(String userid, String memberid, String email, String password) {
+        UserDto userDto = userRepository.findById(userid);
+
+        if (userDto == null) {
+            throw new NotFoundError("No User found with this id", ErrorCode. NO_USER_FOUND);
+        }
+
+        if (userDto.isDeleted()) {
+            throw new BadRequestError("Cannot update user, User is deleted", ErrorCode.USER_IS_DELETED);
+        }
+
+        boolean changed = false;
+
+        if (memberid != null) {
+            userDto.setMemberId(memberid);
+            changed = true;
+        }
+
+        if (email != null) {
+            userDto.setEmail(email);
+            changed = true;
+        }
+
+        if (password != null) {
+            userDto.setPassword(password);
+            changed = true;
+        }
+
+        if (changed) {
+            userDto = userRepository.save(userDto);
+        }
+        return userDto;
     }
 
 }
