@@ -910,7 +910,7 @@ components:
                   $ref: '#/components/schemas/memberId'
               isDeleted:
                   type: boolean
-                  description: Wether this user is deleted
+                  description: Whether this user is deleted
                   example: false
 
         all-stock-response:
