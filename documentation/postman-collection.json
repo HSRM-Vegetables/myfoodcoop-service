@@ -16,131 +16,6 @@
               "name": "balance",
               "item": [
                 {
-                  "name": "GET /balance/:name",
-                  "request": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "{{token}}",
-                        "type": "text"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{URL}}/v2/balance",
-                      "host": [
-                        "{{URL}}"
-                      ],
-                      "path": [
-                        "v2",
-                        "balance"
-                      ]
-                    }
-                  },
-                  "response": []
-                },
-                {
-                  "name": "PATCH /balance/:name",
-                  "request": {
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "{{token}}",
-                        "type": "text"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\r\n    \"balance\": 10\r\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{URL}}/v2/balance",
-                      "host": [
-                        "{{URL}}"
-                      ],
-                      "path": [
-                        "v2",
-                        "balance"
-                      ]
-                    }
-                  },
-                  "response": []
-                },
-                {
-                  "name": "POST /balance/:name/topup",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "{{token}}",
-                        "type": "text"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\r\n    \"amount\": 5\r\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{URL}}/v2/balance/topup",
-                      "host": [
-                        "{{URL}}"
-                      ],
-                      "path": [
-                        "v2",
-                        "balance",
-                        "topup"
-                      ]
-                    }
-                  },
-                  "response": []
-                },
-                {
-                  "name": "POST /balance/:name/withdraw",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "{{token}}",
-                        "type": "text"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\r\n    \"amount\": 10\r\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{URL}}/v2/balance/withdraw",
-                      "host": [
-                        "{{URL}}"
-                      ],
-                      "path": [
-                        "v2",
-                        "balance",
-                        "withdraw"
-                      ]
-                    }
-                  },
-                  "response": []
-                },
-                {
                   "name": "GET /balance/{user-id}",
                   "request": {
                     "method": "GET",
@@ -160,6 +35,128 @@
                         "v2",
                         "balance",
                         ":user-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "PATCH /balance/{user-id}",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"balance\": 10\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/balance/:user-id",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance",
+                        ":user-id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /balance/{user-id}/topup",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"amount\": 5\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/balance/:user-id/topup",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance",
+                        ":user-id",
+                        "topup"
+                      ],
+                      "variable": [
+                        {
+                          "key": "user-id",
+                          "value": "{{userId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /balance/{user-id}/withdraw",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"amount\": 10\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/balance/:user-id/withdraw",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "balance",
+                        ":user-id",
+                        "withdraw"
                       ],
                       "variable": [
                         {
@@ -848,6 +845,10 @@
                   "    }",
                   "    },() => {}); ",
                   "",
+                  "    const tokenBody = token.split(\".\")[1];",
+                  "    const tokenBodyAsString = atob(tokenBody);",
+                  "    const tokenDecoded = JSON.parse(tokenBodyAsString);",
+                  "    pm.collectionVariables.set(\"userId\", tokenDecoded.id);",
                   "",
                   "    pm.collectionVariables.set(\"token\", \"Bearer \" + token);",
                   "});"
