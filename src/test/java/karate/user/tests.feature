@@ -94,6 +94,21 @@ Feature: User controller
     Then status 201
     And def userId = response.id
 
+     # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # add role MEMEBR
+    Given path 'user', userId, 'roles', 'MEMBER'
+    And header Authorization = "Bearer " + oToken
+    And request ''
+    When method POST
+    Then status 200
+    And match response.roles contains 'MEMBER'
+
     Given path 'auth', 'login'
     And request { username:  #(username),  password: #(password) }
     When method POST
@@ -162,6 +177,24 @@ Feature: User controller
     When method DELETE
     Then status 200
     And match response.roles !contains 'TREASURER'
+
+  Scenario: User without Member-Role can not access
+
+    Given path 'user', 'register'
+    * def username = "robbyTest"
+    * def email = "robbyTest@test.com"
+    * def memberId = "42228123"
+    And request { username: #(username), email: #(email), memberId: #(memberId), password: #(password) }
+    When method POST
+    Then status 201
+    And def userId = response.id
+
+    # try to log in without membership
+    Given path 'auth', 'login'
+    And request { username:  #(username),  password: #(password) }
+    When method POST
+    Then status 401
+    And def rToken = response.token
 
   Scenario Outline: Cannot add or delete roles as member, orderer or treasurer
     # Login
