@@ -32,8 +32,6 @@ public class BalanceController implements BalanceApi {
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
     public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
-        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
-
         BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
                 .getUsername());
         return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
