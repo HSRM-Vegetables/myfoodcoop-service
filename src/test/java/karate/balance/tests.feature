@@ -23,8 +23,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 5 }
     When method PATCH
@@ -37,8 +38,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance'
+    Given path '/balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -50,21 +52,22 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     * def newBalance = response.balance + 2.0
 
-    Given path '/balance/topup'
+    Given path 'balance', userId, 'topup'
     And header Authorization = "Bearer " + token
     And request { amount: 2 }
     When method POST
     Then status 200
     And match response contains { balance: #(newBalance) }
 
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -76,21 +79,22 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
     * def newBalance = response.balance - 3.0
 
-    Given path '/balance/withdraw'
+    Given path 'balance', userId, 'withdraw'
     And header Authorization = "Bearer " + token
     And request { amount: 3 }
     When method POST
     Then status 200
     And match response contains { balance: #(newBalance) }
 
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -102,8 +106,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance/topup'
+    Given path 'balance', userId, 'topup'
     And header Authorization = "Bearer " + token
     And request { amount: -3 }
     When method POST
@@ -116,8 +121,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance/withdraw'
+    Given path 'balance', userId, 'withdraw'
     And header Authorization = "Bearer " + token
     And request { amount: -3 }
     When method POST
@@ -130,8 +136,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { foo: -3 }
     When method PATCH
@@ -144,8 +151,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance/topup'
+    Given path 'balance', userId, 'topup'
     And header Authorization = "Bearer " + token
     And request { foo: -3 }
     When method POST
@@ -158,36 +166,37 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path '/balance/withdraw'
+    Given path 'balance', userId, 'withdraw'
     And header Authorization = "Bearer " + token
     And request { foo: -3 }
     When method POST
     Then status 400
     And assert response.errorCode == 400005
 
-  Scenario: GET /balance requires authorization
-    Given path '/balance'
+  Scenario: GET /balance/user-id requires authorization
+    Given path 'balance', 1234
     When method GET
     Then status 401
     And match response.errorCode == 401005
 
-  Scenario: PATCH /balance requires authorization
-    Given path '/balance'
+  Scenario: PATCH /balance/user-id requires authorization
+    Given path 'balance', 1234
     And request { balance: 5 }
     When method PATCH
     Then status 401
     And match response.errorCode == 401005
 
-  Scenario: POST /balance/topup requires authorization
-    Given path '/balance/topup'
+  Scenario: POST /balance/user-id/topup requires authorization
+    Given path 'balance', 1234, 'topup'
     And request { amount: 5 }
     When method POST
     Then status 401
     And match response.errorCode == 401005
 
-  Scenario: POST /balance/withdraw requires authorization
-    Given path '/balance/withdraw'
+  Scenario: POST /balance/user-id/withdraw requires authorization
+    Given path 'balance', 1234, 'withdraw'
     And request { amount: 5 }
     When method POST
     Then status 401
@@ -219,8 +228,9 @@ Feature: Balance Tests
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
-    Given path 'balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
@@ -289,4 +299,4 @@ Feature: Balance Tests
     And header Authorization = "Bearer " + token
     When method GET
     Then status 401
-    And match response.errorCode == 401005
+    And match response.errorCode == 401010

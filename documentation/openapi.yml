@@ -21,15 +21,16 @@ tags:
     -   name: Authentication
         description: Token management and related functionality
 paths:
-    '/balance':
+    '/balance/{user-id}':
         get:
             security:
                 -   bearerAuth: [ ]
             tags:
                 - Balance
-            summary: Gets the current balance of the user
-            description: 'Gets the current balance of the user, or 0 if the user is currently not known'
-            operationId: balanceGet
+            summary: Gets the current balance for the specified user
+            operationId: userBalanceGet
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             responses:
                 '200':
                     description: The current value of the balance for the specified user
@@ -50,6 +51,8 @@ paths:
                 - Balance
             summary: Changes the balance for the specified user
             operationId: balancePatch
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             requestBody:
                 required: true
                 content:
@@ -69,7 +72,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/balance/topup':
+    '/balance/{user-id}/topup':
         post:
             security:
                 -   bearerAuth: [ ]
@@ -77,6 +80,8 @@ paths:
                 - Balance
             summary: Topup the balance for the specified user
             operationId: balanceTopup
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             requestBody:
                 description: 'Top up the balance with the amount, containing a positive value'
                 required: true
@@ -97,7 +102,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
-    '/balance/withdraw':
+    '/balance/{user-id}/withdraw':
         post:
             security:
                 -   bearerAuth: [ ]
@@ -105,6 +110,8 @@ paths:
                 - Balance
             summary: Withdraw the balance for the specified user
             operationId: balanceWithdraw
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
             requestBody:
                 description: 'Withdraw the amount from the balance, containing a positive value'
                 required: true
@@ -112,29 +119,6 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/balance-amount-request'
-            responses:
-                '200':
-                    description: The current value of the balance for the specified user
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/balance-response'
-                default:
-                    description: Details about the error that occured
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/error-response'
-    '/balance/{user-id}':
-        get:
-            security:
-                -   bearerAuth: [ ]
-            tags:
-                - Balance
-            summary: Gets the current balance for the specified user
-            operationId: userBalanceGet
-            parameters:
-                -   $ref: '#/components/parameters/user-id'
             responses:
                 '200':
                     description: The current value of the balance for the specified user

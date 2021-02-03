@@ -42,6 +42,21 @@ Feature: Simple Stock management
       return null;
     }
     """
+
+    * def getUserIdFromToken =
+    """
+    function(token) {
+        var base64Url = token.split('.')[1];
+        var base64Str = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var Base64 = Java.type('java.util.Base64');
+        var decoded = Base64.getDecoder().decode(base64Str);
+        var String = Java.type('java.lang.String');
+        var decodedAsString = new String(decoded);
+        var decodedAsObject = JSON.parse(decodedAsString);
+        return decodedAsObject.id;
+    }
+    """
+
     * url baseUrl + "/v2"
     * def name = 'Bananas'
     * def unitType = 'PIECE'
@@ -467,9 +482,10 @@ Feature: Simple Stock management
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Set Balance
-    Given path '/balance'
+    Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 987.65 }
     When method PATCH

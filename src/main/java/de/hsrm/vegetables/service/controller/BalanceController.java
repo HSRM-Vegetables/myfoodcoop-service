@@ -4,8 +4,11 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
+import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.Mapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
@@ -32,60 +35,71 @@ public class BalanceController implements BalanceApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balanceGet() {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = null;
+    public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
+        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
-        try {
-            balanceDto = balanceService.getBalance(name);
-        } catch (NotFoundError e) {
-            balanceDto = balanceService.createEmptyBalance(name);
+        // A non-Treasurer is only allowed to call this method for themselves
+        if (!userPrincipal.getRoles().contains(Role.TREASURER)) {
+            checkAccessingOwnUser(userPrincipal, userId);
         }
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
-    }
-
-    @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balancePatch(BalancePatchRequest request) {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = balanceService.upsert(name, request.getBalance());
-
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
-    }
-
-    @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balanceTopup(BalanceAmountRequest request) {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = balanceService.topup(name, request.getAmount());
-
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
-    }
-
-    @Override
-    @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<BalanceResponse> balanceWithdraw(BalanceAmountRequest request) {
-        String name = getUsernameFromSecurityContext();
-        BalanceDto balanceDto = balanceService.withdraw(name, request.getAmount());
-
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
-    }
-
-    private String getUsernameFromSecurityContext() {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        return userPrincipal.getUsername();
-    }
-
-    @Override
-    @PreAuthorize("hasRole('TREASURER')")
-    public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
         BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId).getUsername());
         return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
     }
+
+
+    @Override
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<BalanceResponse> balancePatch(String userId, BalancePatchRequest request) {
+        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
+
+        // a user is only allowed to call this method for himself
+        checkAccessingOwnUser(userPrincipal, userId);
+
+        BalanceDto balanceDto = balanceService.upsert(userPrincipal.getUsername(), request.getBalance());
+
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<BalanceResponse> balanceTopup(String userId, BalanceAmountRequest request) {
+        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
+
+        // a user is only allowed to call this method for himself
+        checkAccessingOwnUser(userPrincipal, userId);
+
+        BalanceDto balanceDto = balanceService.topup(userPrincipal.getUsername(), request.getAmount());
+
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<BalanceResponse> balanceWithdraw(String userId, BalanceAmountRequest request) {
+        UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
+
+        // a user is only allowed to call this method for himself
+        checkAccessingOwnUser(userPrincipal, userId);
+
+        BalanceDto balanceDto = balanceService.withdraw(userPrincipal.getUsername(), request.getAmount());
+
+        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+    }
+
+    private UserPrincipal getUserPrincipalFromSecurityContext() {
+        return (UserPrincipal) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+    }
+
+    private void checkAccessingOwnUser(UserPrincipal userPrincipal, String userId) {
+        if (!userId.equals(userPrincipal.getId())) {
+            throw new UnauthorizedError("Access Denied", ErrorCode.METHOD_ONLY_ALLOWED_FOR_OWN_USER);
+        }
+    }
+
+
 
 }

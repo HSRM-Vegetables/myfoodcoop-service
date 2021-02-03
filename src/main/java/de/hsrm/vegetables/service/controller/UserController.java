@@ -60,7 +60,7 @@ public class UserController implements UserApi {
                 .getAuthentication()
                 .getPrincipal();
 
-        // A non-Admin is only allowed to call this method for themselves
+        // A non-Admin and non-Treasurer is only allowed to call this method for themselves
         checkAccessingOwnUser(userPrincipal, userId);
 
         UserResponse response = UserMapper.userDtoToUserResponse(userService.getUserById(userId));
