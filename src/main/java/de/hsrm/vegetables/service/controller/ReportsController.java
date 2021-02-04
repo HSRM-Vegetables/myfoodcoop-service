@@ -123,7 +123,7 @@ public class ReportsController implements ReportsApi {
                         // update tax
                         soldItem.setTotalVat(soldItem.getTotalVat() + vatPaid);
                         // update gross price
-                        soldItem.setGrossAmount(soldItem.getGrossAmount() + grossPrice);
+                        soldItem.setGrossAmount(StockService.round(soldItem.getGrossAmount() + grossPrice, 2));
                     }
                 }));
 
