@@ -59,6 +59,7 @@ public class ReportsController implements ReportsApi {
         List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
         QuantitySoldList response = new QuantitySoldList();
         response.setItems(soldItems);
+
         return ResponseEntity.ok(response);
     }
 

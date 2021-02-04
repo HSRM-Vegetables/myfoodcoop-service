@@ -85,6 +85,20 @@ public class PurchaseService {
     }
 
     /**
+     * Find all purchases with a user's balance that were created between fromDate and toDate.
+     *
+     * @param balanceDto The balance of the user who purchased the item
+     * @param fromDateConverted start of time window of the purchase list
+     * @param toDateConverted end of time window of the purchase list
+     * @return A list of purchases by the given balance and in the given time
+     */
+    public List<PurchaseDto> findAllByBalanceDtoAndCreatedOnBetween(
+            BalanceDto balanceDto, OffsetDateTime fromDateConverted, OffsetDateTime toDateConverted) {
+
+        return purchaseRepository.findAllByBalanceDtoAndCreatedOnBetween(balanceDto, fromDateConverted, toDateConverted);
+    }
+
+    /**
      * Find one purchase by id
      *
      * @param id Unique id of the purchase

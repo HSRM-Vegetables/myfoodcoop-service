@@ -14,6 +14,8 @@ public interface PurchaseRepository extends JpaRepository<PurchaseDto, Long> {
 
     List<PurchaseDto> findAllByBalanceDto(BalanceDto balanceDto);
 
+    List<PurchaseDto> findAllByBalanceDtoAndCreatedOnBetween(BalanceDto balanceDto, OffsetDateTime fromDate, OffsetDateTime toDate);
+
     PurchaseDto findById(String id);
 
     List<PurchaseDto> findAllByCreatedOnBetween(OffsetDateTime fromDate, OffsetDateTime toDate);
