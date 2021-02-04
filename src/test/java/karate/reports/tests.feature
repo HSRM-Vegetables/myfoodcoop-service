@@ -163,11 +163,11 @@ Feature: Simple Stock management
     When method GET
     Then status 200
     And assert response.items.length >= 2
-    And match response contains { items: '#array', totalVat: '#number', vatDetails: '#array' }
+    And match response contains { items: '#array', totalVat: '#number', vatDetails: '#array', grossAmount: '#number' }
     And def firstItem = findItemWithId(response.items, stockId1)
     And def secondItem = findItemWithId(response.items, stockId2)
-    And match firstItem contains { id: #(stockId1), totalVat: '#number', vat: '#number' }
-    And match secondItem contains { id: #(stockId2), totalVat: '#number', vat: '#number' }
+    And match firstItem contains { id: #(stockId1), totalVat: '#number', vat: '#number', grossAmount: '#number' }
+    And match secondItem contains { id: #(stockId2), totalVat: '#number', vat: '#number', grossAmount: '#number' }
 
   Scenario: Items sold in separate purchases will appear as single item in report
     # Get token of orderer

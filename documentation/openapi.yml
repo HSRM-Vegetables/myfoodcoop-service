@@ -1057,6 +1057,8 @@ components:
                     $ref: '#/components/schemas/totalVat'
                 vatDetails:
                     $ref: '#/components/schemas/vatDetails'
+                grossAmount:
+                    $ref: '#/components/schemas/grossAmount'
 
         quantity-sold-item:
             type: object
@@ -1090,6 +1092,8 @@ components:
                     $ref: '#/components/schemas/totalVat'
                 vat:
                     $ref: '#/components/schemas/vat'
+                grossAmount:
+                    $ref: '#/components/schemas/grossAmount'
 
         purchase-list-response:
             description: List of all previous purchases
@@ -1424,6 +1428,12 @@ components:
             example: 0.19
             minimum: 0
             maximum: 1
+
+        grossAmount:
+            type: number
+            format: float
+            description: The sum of all gross prices this item was sold for
+            example: 14.7
 
     parameters:
         username:

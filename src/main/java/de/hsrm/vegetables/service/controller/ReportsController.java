@@ -64,7 +64,11 @@ public class ReportsController implements ReportsApi {
         Float totalVat = soldItems.stream()
                 .map(QuantitySoldItem::getTotalVat)
                 .reduce(0f, Float::sum);
+        Float grossAmount = soldItems.stream()
+                .map(QuantitySoldItem::getGrossAmount)
+                .reduce(0f, Float::sum);
         response.setTotalVat(StockService.round(totalVat, 2));
+        response.setGrossAmount(StockService.round(grossAmount, 2));
         return ResponseEntity.ok(response);
     }
 
@@ -91,6 +95,7 @@ public class ReportsController implements ReportsApi {
                             .getId();
                     Float vat = purchasedItemDto.getVat();
                     Float vatPaid = PurchaseMapper.getVatPaid(purchasedItemDto);
+                    Float grossPrice = StockService.round(purchasedItemDto.getPricePerUnit() * purchasedItemDto.getAmount(), 2);
 
                     // Check if we've already seen an item with this id and this vat
                     Optional<QuantitySoldItem> associatedSoldItem = soldItems.stream()
@@ -109,6 +114,7 @@ public class ReportsController implements ReportsApi {
                         soldItem.setToDate(toDate);
                         soldItem.setVat(vat);
                         soldItem.setTotalVat(vatPaid);
+                        soldItem.setGrossAmount(grossPrice);
                         soldItems.add(soldItem);
                     } else {
                         QuantitySoldItem soldItem = associatedSoldItem.get();
@@ -116,6 +122,8 @@ public class ReportsController implements ReportsApi {
                         soldItem.setQuantitySold(soldItem.getQuantitySold() + purchasedItemDto.getAmount());
                         // update tax
                         soldItem.setTotalVat(soldItem.getTotalVat() + vatPaid);
+                        // update gross price
+                        soldItem.setGrossAmount(soldItem.getGrossAmount() + grossPrice);
                     }
                 }));
 
