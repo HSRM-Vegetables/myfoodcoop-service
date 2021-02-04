@@ -6,6 +6,7 @@ import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
+import de.hsrm.vegetables.service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.PurchaseService;
 import de.hsrm.vegetables.service.services.StockService;
@@ -23,8 +24,8 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -59,6 +60,11 @@ public class ReportsController implements ReportsApi {
         List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
         QuantitySoldList response = new QuantitySoldList();
         response.setItems(soldItems);
+        response.setVatDetails(PurchaseMapper.getVatDetails(soldItems));
+        Float totalVat = soldItems.stream()
+                .map(QuantitySoldItem::getTotalVat)
+                .reduce(0f, Float::sum);
+        response.setTotalVat(StockService.round(totalVat, 2));
         return ResponseEntity.ok(response);
     }
 
@@ -76,40 +82,50 @@ public class ReportsController implements ReportsApi {
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
         List<PurchaseDto> purchases = purchaseService.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
-        HashMap<String, QuantitySoldItem> purchaseQuantityByStockId = new HashMap<String, QuantitySoldItem>();
+        List<QuantitySoldItem> soldItems = new ArrayList<>();
 
-        // iterate over each purchaseItem and collect the amount each purchaseItem was purchased
-        purchases.forEach(purchase -> {
-            purchase.getPurchasedItems()
-                    .forEach(purchaseItem -> {
-                        String stockId = purchaseItem.getStockDto()
-                                .getId();
-                        QuantitySoldItem quantitySoldItem;
+        // Collect all sold items and aggregate them by id and vat
+        purchases.forEach(purchaseDto -> purchaseDto.getPurchasedItems()
+                .forEach(purchasedItemDto -> {
+                    String stockId = purchasedItemDto.getStockDto()
+                            .getId();
+                    Float vat = purchasedItemDto.getVat();
+                    Float vatPaid = PurchaseMapper.getVatPaid(purchasedItemDto);
 
-                        // create or update Item to collect amount that was purchased
-                        if (purchaseQuantityByStockId.containsKey(stockId)) {
-                            quantitySoldItem = purchaseQuantityByStockId.get(stockId);
-                            quantitySoldItem.setQuantitySold(quantitySoldItem.getQuantitySold() + purchaseItem.getAmount());
-                        } else {
-                            quantitySoldItem = new QuantitySoldItem();
-                            quantitySoldItem.setQuantitySold(purchaseItem.getAmount());
-                            quantitySoldItem.setId(stockId);
-                            quantitySoldItem.setUnitType(purchaseItem.getUnitType());
-                            quantitySoldItem.setFromDate(fromDate);
-                            quantitySoldItem.setToDate(toDate);
-                        }
+                    // Check if we've already seen an item with this id and this vat
+                    Optional<QuantitySoldItem> associatedSoldItem = soldItems.stream()
+                            .filter(quantitySoldItem -> quantitySoldItem.getId()
+                                    .equals(stockId) && quantitySoldItem.getVat()
+                                    .equals(vat))
+                            .findFirst();
 
-                        purchaseQuantityByStockId.put(stockId, quantitySoldItem);
-                    });
-        });
+                    if (associatedSoldItem.isEmpty()) {
+                        // No item for this vat/id combination found yet -> create one
+                        QuantitySoldItem soldItem = new QuantitySoldItem();
+                        soldItem.setQuantitySold(purchasedItemDto.getAmount());
+                        soldItem.setId(stockId);
+                        soldItem.setUnitType(purchasedItemDto.getUnitType());
+                        soldItem.setFromDate(fromDate);
+                        soldItem.setToDate(toDate);
+                        soldItem.setVat(vat);
+                        soldItem.setTotalVat(vatPaid);
+                        soldItems.add(soldItem);
+                    } else {
+                        QuantitySoldItem soldItem = associatedSoldItem.get();
+                        // update amount
+                        soldItem.setQuantitySold(soldItem.getQuantitySold() + purchasedItemDto.getAmount());
+                        // update tax
+                        soldItem.setTotalVat(soldItem.getTotalVat() + vatPaid);
+                    }
+                }));
 
         // additionally collect the name of each item from the stock
-        purchaseQuantityByStockId.forEach((stockId, quantitySoldItem) -> {
-            StockDto stockItem = stockService.getById(stockId);
-            quantitySoldItem.setName(stockItem.getName());
+        soldItems.forEach(soldItem -> {
+            StockDto stockItem = stockService.getById(soldItem.getId());
+            soldItem.setName(stockItem.getName());
         });
 
-        return new ArrayList<>(purchaseQuantityByStockId.values());
+        return soldItems;
     }
 
     @Override
@@ -118,20 +134,20 @@ public class ReportsController implements ReportsApi {
         BalanceOverviewList response = new BalanceOverviewList();
 
         response.setUsers(
-            userService.getAll(deleted)
-            .stream()
-            .map(user -> {
-                BalanceOverviewItem item = new BalanceOverviewItem();
-                item.setId(user.getId());
-                item.setUsername(user.getUsername());
-                item.setMemberId(user.getMemberId());
-                item.setIsDeleted(user.isDeleted());
-                item.setBalance(balanceService
-                    .getBalance(user.getUsername())
-                    .getAmount());
-                return item;
-            })
-            .collect(Collectors.toList()));
+                userService.getAll(deleted)
+                        .stream()
+                        .map(user -> {
+                            BalanceOverviewItem item = new BalanceOverviewItem();
+                            item.setId(user.getId());
+                            item.setUsername(user.getUsername());
+                            item.setMemberId(user.getMemberId());
+                            item.setIsDeleted(user.isDeleted());
+                            item.setBalance(balanceService
+                                    .getBalance(user.getUsername())
+                                    .getAmount());
+                            return item;
+                        })
+                        .collect(Collectors.toList()));
 
         return ResponseEntity.ok(response);
     }

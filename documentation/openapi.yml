@@ -1053,6 +1053,10 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/quantity-sold-item'
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
+                vatDetails:
+                    $ref: '#/components/schemas/vatDetails'
 
         quantity-sold-item:
             type: object
@@ -1082,6 +1086,10 @@ components:
                     example: 40.2
                 unitType:
                     $ref: '#/components/schemas/unitType'
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         purchase-list-response:
             description: List of all previous purchases
