@@ -18,6 +18,14 @@ public class BalanceHistoryItemDto {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
+    @ManyToOne
+    // Tie this balance history item to a balance and thus to a user
+    private BalanceDto balanceDto;
+
+    @OneToOne
+    // Tie this balance history item to the respective purchase if it resulted from such a one
+    private PurchaseDto purchase;
+
     @Column
     private OffsetDateTime createdOn;
 
@@ -26,10 +34,6 @@ public class BalanceHistoryItemDto {
 
     @Column(nullable = false)
     private Float amount;
-
-    @ManyToOne
-    // Tie this balance history item to a balance and thus to a user
-    private BalanceDto balanceDto;
 
     @PrePersist
     public void setCreationDateTime() {

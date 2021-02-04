@@ -76,15 +76,18 @@ public class PurchaseService {
         purchaseDto.setBalanceDto(balanceDto);
         purchaseDto.setTotalVat(totalVat);
 
+        PurchaseDto savedPurchaseDto = purchaseRepository.save(purchaseDto);
+
         BalanceHistoryItemDto balanceHistoryItemDto = new BalanceHistoryItemDto();
         balanceHistoryItemDto.setId(purchaseDto.getId());
         balanceHistoryItemDto.setBalanceDto(balanceDto);
+        balanceHistoryItemDto.setPurchase(savedPurchaseDto);
         balanceHistoryItemDto.setCreatedOn(purchaseDto.getCreatedOn());
         balanceHistoryItemDto.setBalanceChangeType(BalanceChangeType.PURCHASE);
         balanceHistoryItemDto.setAmount(purchaseDto.getTotalPrice());
         balanceHistoryItemRepository.save(balanceHistoryItemDto);
 
-        return purchaseRepository.save(purchaseDto);
+        return savedPurchaseDto;
     }
 
     /**

@@ -170,6 +170,7 @@ public class BalanceService {
         BalanceHistoryItemDto balanceHistoryItem = new BalanceHistoryItemDto();
 
         balanceHistoryItem.setBalanceDto(balanceDto);
+        balanceHistoryItem.setPurchase(null);
         balanceHistoryItem.setBalanceChangeType(balanceChangeType);
         balanceHistoryItem.setAmount(amount);
 
