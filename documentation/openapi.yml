@@ -187,7 +187,7 @@ paths:
                 -   $ref: '#/components/parameters/fromDate'
                 -   $ref: '#/components/parameters/toDate'
                 -   $ref: '#/components/parameters/pageNumber'
-                -   $ref: '#/components/parametesr/pageSize'
+                -   $ref: '#/components/parameters/pageSize'
             responses:
                 '200':
                     description: Successful call, returns the user's balance history
@@ -1510,7 +1510,7 @@ components:
                         The effective numbers of items to return
                         (i.e. as specified in the request or default if not specified)
                         Actual length of balance history items array might be shorter.
-                    minimum: 0
+                    minimum: 1
                 total:
                     type: integer
                     description: Number of items in the database

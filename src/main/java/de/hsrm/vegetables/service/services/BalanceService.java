@@ -12,6 +12,7 @@ import de.hsrm.vegetables.service.repositories.BalanceRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -148,8 +149,8 @@ public class BalanceService {
      * @param balanceDto The balance of the user who created the balance history items
      * @return A list of balance history items created by the given user
      */
-    public List<BalanceHistoryItemDto> getBalanceHistoryItems(BalanceDto balanceDto) {
-        return balanceHistoryItemRepository.findAllByBalanceDto(balanceDto);
+    public List<BalanceHistoryItemDto> getBalanceHistoryItems(BalanceDto balanceDto, int pageNumber, int pageSize) {
+        return balanceHistoryItemRepository.findAllByBalanceDto(balanceDto, PageRequest.of(pageNumber, pageSize));
     }
 
     /**

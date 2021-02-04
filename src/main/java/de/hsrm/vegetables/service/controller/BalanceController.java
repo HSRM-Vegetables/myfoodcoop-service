@@ -55,7 +55,7 @@ public class BalanceController implements BalanceApi {
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
     public ResponseEntity<BalanceHistoryResponse> userBalanceHistoryGet(
-            String userId, LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
+            String userId, LocalDate fromDate, LocalDate toDate, Integer pageNumber, Integer pageSize) {
 
         LocalDate today = LocalDate.now();
 
@@ -76,7 +76,7 @@ public class BalanceController implements BalanceApi {
         // balanceHistoryItems from balance changes
         //
 
-        List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceService.getBalanceHistoryItems(balanceDto);
+        List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceService.getBalanceHistoryItems(balanceDto, pageNumber, pageSize);
 
         for (var balanceHistoryItem : balanceHistoryItemDtos) {
             if (!balanceDto.getName().equals(balanceHistoryItem.getBalanceDto().getName())) {
@@ -112,8 +112,8 @@ public class BalanceController implements BalanceApi {
         //
 
         Pagination pagination = new Pagination();
-        pagination.setOffset(offset);
-        pagination.setLimit(limit);
+        pagination.setPageNumber(pageNumber);
+        pagination.setPageSize(pageSize);
         pagination.setTotal(balanceHistoryItemDtos.size());
 
         List<BalanceHistoryItem> balanceHistoryItems = Stream
@@ -149,6 +149,9 @@ public class BalanceController implements BalanceApi {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
         BalanceDto balanceDto = balanceService.topup(userPrincipal.getUsername(), request.getAmount());
+
+        userBalanceHistoryGet(userId, LocalDate.now().minusDays(3), LocalDate.now(), 0, 100);
+        userBalanceHistoryGet(userId, LocalDate.now().minusDays(3), LocalDate.now(), 1, 2);
 
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
