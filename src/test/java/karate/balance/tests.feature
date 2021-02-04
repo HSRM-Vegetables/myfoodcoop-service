@@ -30,7 +30,7 @@ Feature: Balance Tests
 
   Scenario: GET /balance/:userId/history works for user with almost empty balance history
     Given path 'auth', 'login'
-    And request { username: 'member',  password: #(password) }
+    And request { username: 'member2',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -50,7 +50,7 @@ Feature: Balance Tests
 
   Scenario: GET /balance/:userId/history works for user with comprehensive balance history
     Given path 'auth', 'login'
-    And request { username: 'member',  password: #(password) }
+    And request { username: 'member2',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -74,26 +74,17 @@ Feature: Balance Tests
     When method PATCH
     Then status 200
 
+    * def today = getToday()
     Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
+    And param fromDate = today
+    And param toDate = today
     When method GET
     Then status 200
-    Then match response ==
-    """
-    {
-      pagination: {
-        offset: 0,
-        limit: 10,
-        total: 4
-      },
-      balanceHistoryItems: [
-        { id: '#string', createdOn: '#string', balanceChangeType: 'SET', amount: 500.0 },
-        { id: '#string', createdOn: '#string', balanceChangeType: 'TOPUP', amount: 10.0 },
-        { id: '#string', createdOn: '#string', balanceChangeType: 'WITHDRAW', amount: 20.0 },
-        { id: '#string', createdOn: '#string', balanceChangeType: 'SET', amount: 30.0 }
-      ]
-    }
-    """
+    And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
+    And match response.pagination == { pageNumber: 0, pageSize: 10, total: 4 }
+    And assert response.balanceHistoryItems.length == 4
+    And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
 
   Scenario: PATCH allows to set the balance for user
     Given path 'auth', 'login'

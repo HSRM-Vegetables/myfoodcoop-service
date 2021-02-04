@@ -23,6 +23,7 @@ public abstract class BaseTest {
     void setup() {
         // Create test user for each role
         addUser("member", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER));
+        addUser("member2", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER));
         addUser("orderer", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER, Role.ORDERER));
         addUser("admin", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER, Role.ADMIN));
         addUser("treasurer", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER, Role.TREASURER));
