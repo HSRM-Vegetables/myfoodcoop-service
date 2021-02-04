@@ -509,6 +509,46 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+        patch:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - User
+            summary: Updates data of a User
+            description: |-
+                Updates data of a User
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own email |
+                |MEMBER    | for own password |
+                |ADMIN     | for any email |
+                |ADMIN    | for any password |
+                |ADMIN    | for any memberId |
+            operationId: userPatch
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+            requestBody:
+                description: Data of the user that will be updated
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user-patch-request'
+            responses:
+                '200':
+                    description: Successful call, returns the updated user data
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user-response'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
         delete:
             security:
                 -   bearerAuth: [ ]
@@ -1184,6 +1224,16 @@ components:
                     items:
                         $ref: '#/components/schemas/user-response'
 
+        user-patch-request:
+            description: All data of a user that can be updated
+            type: object
+            properties:
+                password:
+                    $ref: '#/components/schemas/password'
+                email:
+                    $ref: '#/components/schemas/email'
+                memberId:
+                    $ref: '#/components/schemas/memberId'
         token-response:
             type: object
             properties:
