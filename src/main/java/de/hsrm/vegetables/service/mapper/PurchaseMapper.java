@@ -1,12 +1,12 @@
 package de.hsrm.vegetables.service.mapper;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseHistoryItem;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseItem;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.VatDetailItem;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.PurchasedItemDto;
 import de.hsrm.vegetables.service.services.StockService;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,4 +81,22 @@ public class PurchaseMapper {
                 .collect(Collectors.toList());
     }
 
+    public static List<BalanceHistoryItem> purchaseDtoToBalanceHistoryItems(PurchaseDto purchaseDto) {
+        OffsetDateTime createdOn = purchaseDto.getCreatedOn();
+
+        return purchaseDto.getPurchasedItems()
+                .stream()
+                .map(purchasedItemDto -> {
+                    BalanceHistoryItem balanceHistoryItem = new BalanceHistoryItem();
+
+                    balanceHistoryItem.setId(purchasedItemDto.getStockDto()
+                            .getId());
+                    balanceHistoryItem.setCreatedOn(createdOn);
+                    balanceHistoryItem.setBalanceChangeType(BalanceChangeType.PURCHASE);
+                    balanceHistoryItem.setAmount(purchasedItemDto.getAmount());
+
+                    return balanceHistoryItem;
+                })
+                .collect(Collectors.toList());
+    }
 }
