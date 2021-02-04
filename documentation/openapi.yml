@@ -184,6 +184,8 @@ paths:
             operationId: userBalanceHistoryGet
             parameters:
                 -   $ref: '#/components/parameters/user-id'
+                -   $ref: '#/components/parameters/fromDate'
+                -   $ref: '#/components/parameters/toDate'
                 -   in: query
                     name: offset
                     description: The number of items to skip before starting to collect the result set
