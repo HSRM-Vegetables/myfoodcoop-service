@@ -48,7 +48,8 @@ public class BalanceController implements BalanceApi {
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
     public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
-        BalanceDto balanceDto = balanceService.getBalance("Test3");
+        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
+                .getUsername());
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
@@ -70,7 +71,8 @@ public class BalanceController implements BalanceApi {
         OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
-        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId).getUsername());
+        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
+                .getUsername());
 
         //
         // balanceHistoryItems from balance changes
@@ -79,7 +81,9 @@ public class BalanceController implements BalanceApi {
         List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceService.getBalanceHistoryItems(balanceDto, pageNumber, pageSize);
 
         for (var balanceHistoryItem : balanceHistoryItemDtos) {
-            if (!balanceDto.getName().equals(balanceHistoryItem.getBalanceDto().getName())) {
+            if (!balanceDto.getName()
+                    .equals(balanceHistoryItem.getBalanceDto()
+                            .getName())) {
                 throw new UnauthorizedError("The associated name for that balance history item does not match Header X-Username",
                         ErrorCode.USERNAME_DOES_NOT_MATCH_PURCHASE);
             }
@@ -97,11 +101,6 @@ public class BalanceController implements BalanceApi {
         pagination.setPageNumber(pageNumber);
         pagination.setPageSize(pageSize);
         pagination.setTotal(balanceHistoryItemDtos.size());
-
-        System.out.println("###");
-        System.out.println("###");
-        System.out.println("###");
-        System.out.println(balanceHistoryItems);
 
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
         balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
@@ -127,9 +126,6 @@ public class BalanceController implements BalanceApi {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
         BalanceDto balanceDto = balanceService.topup(userPrincipal.getUsername(), request.getAmount());
-
-        userBalanceHistoryGet(userId, LocalDate.now().minusDays(3), LocalDate.now(), 0, 100);
-        userBalanceHistoryGet(userId, LocalDate.now().minusDays(3), LocalDate.now(), 1, 2);
 
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
