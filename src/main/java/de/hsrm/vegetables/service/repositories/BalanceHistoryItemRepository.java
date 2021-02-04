@@ -12,7 +12,6 @@ import java.util.List;
 @Repository
 public interface BalanceHistoryItemRepository extends JpaRepository<BalanceHistoryItemDto, Long> {
 
-    List<BalanceHistoryItemDto> findAllByBalanceDto(BalanceDto balanceDto, Pageable pageable);
-
-    List<BalanceHistoryItemDto> findAllByCreatedOnBetween(OffsetDateTime fromDate, OffsetDateTime toDate);
+    List<BalanceHistoryItemDto> findAllByBalanceDtoAndCreatedOnBetween(
+            BalanceDto balanceDto, OffsetDateTime fromDate, OffsetDateTime toDate, Pageable pageable);
 }

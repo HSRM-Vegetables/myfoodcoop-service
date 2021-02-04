@@ -4,19 +4,17 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
 import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
-import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.BalanceMapper;
-import de.hsrm.vegetables.service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
-import de.hsrm.vegetables.service.services.PurchaseService;
 import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +27,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/v2")
@@ -41,9 +38,6 @@ public class BalanceController implements BalanceApi {
 
     @NonNull
     private final UserService userService;
-
-    @NonNull
-    private final PurchaseService purchaseService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
@@ -75,10 +69,11 @@ public class BalanceController implements BalanceApi {
                 .getUsername());
 
         //
-        // balanceHistoryItems from balance changes
+        // Query balance history items
         //
 
-        List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceService.getBalanceHistoryItems(balanceDto, pageNumber, pageSize);
+        List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceService.findAllByBalanceDtoAndCreatedOnBetween(
+                balanceDto, fromDateConverted, toDateConverted, PageRequest.of(pageNumber, pageSize));
 
         for (var balanceHistoryItem : balanceHistoryItemDtos) {
             if (!balanceDto.getName()

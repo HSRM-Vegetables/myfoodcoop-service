@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -144,24 +145,18 @@ public class BalanceService {
     }
 
     /**
-     * Find multiple balance history items by name
+     * Find balance history items for a user within the specified date range
      *
      * @param balanceDto The balance of the user who created the balance history items
+     * @param fromDate Start of time window of the balance history item list
+     * @param toDate End of time window of the balance history item list
      * @return A list of balance history items created by the given user
      */
-    public List<BalanceHistoryItemDto> getBalanceHistoryItems(BalanceDto balanceDto, int pageNumber, int pageSize) {
-        return balanceHistoryItemRepository.findAllByBalanceDto(balanceDto, PageRequest.of(pageNumber, pageSize));
-    }
+    public List<BalanceHistoryItemDto> findAllByBalanceDtoAndCreatedOnBetween(
+            BalanceDto balanceDto, OffsetDateTime fromDate, OffsetDateTime toDate, Pageable pageable) {
 
-    /**
-     * Find all balance history items between fromDate and toDate
-     *
-     * @param fromDateConverted start of time window of the balance history item list
-     * @param toDateConverted end of time window of the balance history item list
-     * @return A list of balance history items in the given time
-     */
-    public List<BalanceHistoryItemDto> findAllByCreatedOnBetween(OffsetDateTime fromDateConverted, OffsetDateTime toDateConverted){
-        return balanceHistoryItemRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
+        return balanceHistoryItemRepository.findAllByBalanceDtoAndCreatedOnBetween(
+                balanceDto, fromDate, toDate, pageable);
     }
 
     /**
