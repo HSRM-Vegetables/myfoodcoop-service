@@ -64,6 +64,20 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('MEMBER') and ((#userId == authentication.principal.id and #userPatchRequest.memberId == null) or hasRole('ADMIN'))")
+    public ResponseEntity<UserResponse> userPatch(String userId, UserPatchRequest userPatchRequest) {
+        UserDto updatedUser = userService.update(
+                userId,
+                userPatchRequest.getMemberId(),
+                userPatchRequest.getEmail(),
+                userPatchRequest.getPassword()
+        );
+
+        UserResponse response = UserMapper.userDtoToUserResponse(updatedUser);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> userAddRole(String userId, String role) {
         UserResponse response = UserMapper.userDtoToUserResponse(userService.addRole(userId, Role.valueOf(role)));

@@ -1,7 +1,9 @@
 package de.hsrm.vegetables.service.mapper;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
-import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseHistoryItem;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.PurchaseItem;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.QuantitySoldItem;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.VatDetailItem;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.PurchasedItemDto;
 import de.hsrm.vegetables.service.services.StockService;
@@ -45,6 +47,12 @@ public class PurchaseMapper {
         return purchaseItem;
     }
 
+    public static Float getVatPaid(PurchasedItemDto purchasedItemDto) {
+        float vatForItem = ((purchasedItemDto.getAmount() * purchasedItemDto.getPricePerUnit())
+                / (1f + purchasedItemDto.getVat()) * purchasedItemDto.getVat());
+        return StockService.round(vatForItem, 2);
+    }
+
     private static List<VatDetailItem> getVatDetails(PurchaseDto purchaseDto) {
         // Get all distinct vat rates
         ArrayList<Float> distinctVatRates = new ArrayList<>();
@@ -66,11 +74,39 @@ public class PurchaseMapper {
 
                     // Calculate vat amount for these items
                     Float amount = purchasedItemsWithVat.stream()
-                            .map(purchasedItemDto -> {
-                                float vatForItem = ((purchasedItemDto.getAmount() * purchasedItemDto.getPricePerUnit())
-                                        / (1f + purchasedItemDto.getVat()) * purchasedItemDto.getVat());
-                                return StockService.round(vatForItem, 2);
-                            })
+                            .map(PurchaseMapper::getVatPaid)
+                            .reduce(0f, Float::sum);
+
+                    VatDetailItem vatDetailItem = new VatDetailItem();
+                    vatDetailItem.setVat(vat);
+                    vatDetailItem.setAmount(StockService.round(amount, 2));
+                    return vatDetailItem;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public static List<VatDetailItem> getVatDetails(List<QuantitySoldItem> soldItems) {
+        // Get all distinct vat rates
+        ArrayList<Float> distinctVatRates = new ArrayList<>();
+
+        soldItems.forEach(soldItem -> {
+            if (!distinctVatRates.contains(soldItem.getVat())) {
+                distinctVatRates.add(soldItem.getVat());
+            }
+        });
+
+        return distinctVatRates.stream()
+                .map(vat -> {
+                    // Get all purchased items with specific vat
+                    List<QuantitySoldItem> purchasedItemsWithVat = soldItems
+                            .stream()
+                            .filter(soldItem -> soldItem.getVat()
+                                    .equals(vat))
+                            .collect(Collectors.toList());
+
+                    // Calculate vat amount for these items
+                    Float amount = purchasedItemsWithVat.stream()
+                            .map(QuantitySoldItem::getTotalVat)
                             .reduce(0f, Float::sum);
 
                     VatDetailItem vatDetailItem = new VatDetailItem();
