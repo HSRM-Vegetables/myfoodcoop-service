@@ -6,6 +6,7 @@ import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
+import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.BalanceMapper;
 import de.hsrm.vegetables.service.mapper.PurchaseMapper;
@@ -22,6 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,14 +48,28 @@ public class BalanceController implements BalanceApi {
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
     public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
-        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
-                .getUsername());
+        BalanceDto balanceDto = balanceService.getBalance("Test3");
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
 
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
-    public ResponseEntity<BalanceHistoryResponse> userBalanceHistoryGet(String userId, Integer offset, Integer limit) {
+    public ResponseEntity<BalanceHistoryResponse> userBalanceHistoryGet(
+            String userId, LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
+
+        LocalDate today = LocalDate.now();
+
+        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
+            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
+        }
+
+        if (fromDate.isAfter(toDate)) {
+            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
+        }
+
+        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
+        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
+
         BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId).getUsername());
 
         //
@@ -74,7 +93,7 @@ public class BalanceController implements BalanceApi {
         // balanceHistoryItems from purchases
         //
 
-        List<PurchaseDto> purchaseDtos = purchaseService.getPurchases(balanceDto);
+        List<PurchaseDto> purchaseDtos = purchaseService.findAllByBalanceDtoAndCreatedOnBetween(balanceDto, fromDateConverted, toDateConverted);
 
         for (var purchaseDto : purchaseDtos) {
             if (!balanceDto.getName().equals(purchaseDto.getBalanceDto().getName())) {
@@ -130,8 +149,6 @@ public class BalanceController implements BalanceApi {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
         BalanceDto balanceDto = balanceService.topup(userPrincipal.getUsername(), request.getAmount());
-
-        userBalanceHistoryGet(userId, 0, 0);
 
         return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
     }
