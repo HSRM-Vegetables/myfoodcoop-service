@@ -583,14 +583,19 @@ Feature: User controller
     And request { password: #(passwordChanged) }
     When method PATCH
     Then status 200
-    And def mToken = response.token
 
     # Check that login was successful
     Given path 'auth', 'login'
     And request { username:  #(username),  password: #(passwordChanged) }
     When method POST
     Then status 200
-    And def mToken = response.token
+
+    Given path 'user', userId
+    And header Authorization = "Bearer " + mToken
+    When method GET
+    Then status 200
+    And match response contains { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), roles: '#array' }
+
 
   Scenario:  User try update own memberId
     # Create User
@@ -634,6 +639,13 @@ Feature: User controller
     Then status 401
     And match response.errorCode == 401005
 
+    Given path 'user', userId
+    And header Authorization = "Bearer " + rToken
+    When method GET
+    Then status 200
+    And match response contains { id: '#uuid', username: #(username), email: #(email), memberId: #(memberId), roles: '#array' }
+
+
   Scenario: Admin update user's email and memberId
 
     # Create User
@@ -652,21 +664,6 @@ Feature: User controller
     When method POST
     Then status 200
     And def aToken = response.token
-
-    # add role MEMBER
-    Given path 'user', userId, 'roles', 'MEMBER'
-    And header Authorization = "Bearer " + aToken
-    And request ''
-    When method POST
-    Then status 200
-    And match response.roles contains 'MEMBER'
-
-    Given path 'auth', 'login'
-    And request { username:  #(username),  password: #(password) }
-    When method POST
-    Then status 200
-    And def rToken = response.token
-    * def userId = getUserIdFromToken(rToken)
 
     # ADMIN update User´s data (# Patch all)
     Given path 'user', userId
@@ -709,13 +706,6 @@ Feature: User controller
     When method POST
     Then status 200
     And match response.roles contains 'MEMBER'
-
-    Given path 'auth', 'login'
-    And request { username:  #(username),  password: #(password) }
-    When method POST
-    Then status 200
-    And def uToken = response.token
-    * def userId = getUserIdFromToken(uToken)
 
     # ADMIN update User´s data (# Patch all)
     Given path 'user', userId
