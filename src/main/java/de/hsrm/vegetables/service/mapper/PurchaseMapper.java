@@ -80,23 +80,4 @@ public class PurchaseMapper {
                 })
                 .collect(Collectors.toList());
     }
-
-    public static List<BalanceHistoryItem> purchaseDtoToBalanceHistoryItems(PurchaseDto purchaseDto) {
-        OffsetDateTime createdOn = purchaseDto.getCreatedOn();
-
-        return purchaseDto.getPurchasedItems()
-                .stream()
-                .map(purchasedItemDto -> {
-                    BalanceHistoryItem balanceHistoryItem = new BalanceHistoryItem();
-
-                    balanceHistoryItem.setId(purchasedItemDto.getStockDto()
-                            .getId());
-                    balanceHistoryItem.setCreatedOn(createdOn);
-                    balanceHistoryItem.setBalanceChangeType(BalanceChangeType.PURCHASE);
-                    balanceHistoryItem.setAmount(purchasedItemDto.getAmount());
-
-                    return balanceHistoryItem;
-                })
-                .collect(Collectors.toList());
-    }
 }
