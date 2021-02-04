@@ -16,6 +16,17 @@ Feature: Balance Tests
         return decodedAsObject.id;
     }
     """
+    * def getToday =
+    """
+    function() {
+      var dt = new Date();
+      var month = dt.getMonth() + 1;
+      var formattedMonth = ("0" + month).slice(-2);
+      var formattedDay = ("0" + dt.getDate()).slice(-2);
+
+      return dt.getFullYear() + "-" + formattedMonth + "-" + formattedDay;
+    }
+    """
 
   Scenario: GET /balance/history works for user with empty balance history
     Given path 'auth', 'login'
@@ -25,16 +36,19 @@ Feature: Balance Tests
     And def token = response.token
     And def userId = getUserIdFromToken(token)
 
+    * def today = getToday()
     Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
+    And param fromDate = today
+    And param toDate = today
     When method GET
     Then status 200
     Then match response ==
     """
     {
       pagination: {
-        offset: 0,
-        limit: 10,
+        pageNumber: 0,
+        pageSize: 10,
         total: 1
       },
       balanceHistoryItems: [
