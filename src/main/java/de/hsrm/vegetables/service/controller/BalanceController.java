@@ -93,7 +93,7 @@ public class BalanceController implements BalanceApi {
         // balanceHistoryItems from purchases
         //
 
-        List<PurchaseDto> purchaseDtos = purchaseService.findAllByBalanceDtoAndCreatedOnBetween(balanceDto, fromDateConverted, toDateConverted);
+        /*List<PurchaseDto> purchaseDtos = purchaseService.findAllByBalanceDtoAndCreatedOnBetween(balanceDto, fromDateConverted, toDateConverted);
 
         for (var purchaseDto : purchaseDtos) {
             if (!balanceDto.getName().equals(purchaseDto.getBalanceDto().getName())) {
@@ -105,7 +105,7 @@ public class BalanceController implements BalanceApi {
         List<BalanceHistoryItem> balanceHistoryItems2 = purchaseDtos.stream()
                 .map(PurchaseMapper::purchaseDtoToBalanceHistoryItems)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
 
         //
         // Create response
@@ -116,17 +116,17 @@ public class BalanceController implements BalanceApi {
         pagination.setPageSize(pageSize);
         pagination.setTotal(balanceHistoryItemDtos.size());
 
-        List<BalanceHistoryItem> balanceHistoryItems = Stream
+       /* List<BalanceHistoryItem> balanceHistoryItems = Stream
                 .concat(balanceHistoryItems1.stream(), balanceHistoryItems2.stream())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
 
         System.out.println("###");
         System.out.println("###");
         System.out.println("###");
-        System.out.println(balanceHistoryItems);
+        System.out.println(balanceHistoryItems1);
 
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
-        balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
+        balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems1);
         balanceHistoryResponse.setPagination(pagination);
 
         return ResponseEntity.ok(balanceHistoryResponse);

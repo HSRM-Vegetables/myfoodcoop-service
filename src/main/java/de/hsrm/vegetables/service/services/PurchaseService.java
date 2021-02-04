@@ -1,10 +1,12 @@
 package de.hsrm.vegetables.service.services;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceChangeType;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
 import de.hsrm.vegetables.service.domain.dto.*;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.InternalError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.repositories.BalanceHistoryItemRepository;
 import de.hsrm.vegetables.service.repositories.PurchaseRepository;
 import de.hsrm.vegetables.service.repositories.PurchasedItemRepository;
 import lombok.NonNull;
@@ -26,6 +28,9 @@ public class PurchaseService {
 
     @NonNull
     private final PurchasedItemRepository purchasedItemRepository;
+
+    @NonNull
+    private final BalanceHistoryItemRepository balanceHistoryItemRepository;
 
 
     /**
@@ -70,6 +75,14 @@ public class PurchaseService {
         purchaseDto.setPurchasedItems(purchasedItems);
         purchaseDto.setBalanceDto(balanceDto);
         purchaseDto.setTotalVat(totalVat);
+
+        BalanceHistoryItemDto balanceHistoryItemDto = new BalanceHistoryItemDto();
+        balanceHistoryItemDto.setId(purchaseDto.getId());
+        balanceHistoryItemDto.setBalanceDto(balanceDto);
+        balanceHistoryItemDto.setCreatedOn(purchaseDto.getCreatedOn());
+        balanceHistoryItemDto.setBalanceChangeType(BalanceChangeType.PURCHASE);
+        balanceHistoryItemDto.setAmount(purchaseDto.getTotalPrice());
+        balanceHistoryItemRepository.save(balanceHistoryItemDto);
 
         return purchaseRepository.save(purchaseDto);
     }
