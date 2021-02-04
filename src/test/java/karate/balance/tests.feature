@@ -44,7 +44,7 @@ Feature: Balance Tests
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
-    And match response.pagination == { pageNumber: 0, pageSize: 10, total: 1 }
+    And match response.pagination == { pageNumber: 0, pageSize: 10, totalPages: 1, totalElements: 1 }
     And assert response.balanceHistoryItems.length == 1
     And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
 
@@ -82,7 +82,7 @@ Feature: Balance Tests
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
-    And match response.pagination == { pageNumber: 0, pageSize: 10, total: 4 }
+    And match response.pagination == { pageNumber: 0, pageSize: 10, totalPages: 1, totalElements: 4 }
     And assert response.balanceHistoryItems.length == 4
     And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
 
