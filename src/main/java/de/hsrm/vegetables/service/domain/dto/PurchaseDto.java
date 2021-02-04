@@ -24,6 +24,9 @@ public class PurchaseDto {
     @Column(nullable = false)
     private Float totalPrice;
 
+    @Column(nullable = false)
+    private Float totalVat;
+
     @OneToMany
     private List<PurchasedItemDto> purchasedItems;
 

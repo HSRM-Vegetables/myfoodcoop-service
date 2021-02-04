@@ -400,6 +400,21 @@ Feature: User controller
     And match response == { users: '#array' }
     And match response.users[*].username contains 'admin'
 
+  Scenario: Get all Users as treasurer
+      # Login as treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And match response == { users: '#array' }
+    And match response.users[*].username contains 'treasurer'
+
   Scenario: Cannot get all Users without login
     Given path 'user'
     When method GET
@@ -424,20 +439,6 @@ Feature: User controller
     # Login as orderer
     Given path 'auth', 'login'
     And request { username: 'orderer',  password: #(password) }
-    When method POST
-    Then status 200
-    And def oToken = response.token
-
-    Given path 'user'
-    And header Authorization = "Bearer " + oToken
-    When method GET
-    Then status 401
-    And match response.errorCode == 401005
-
-  Scenario: Cannot get all Users as treasurer
-      # Login as treasurer
-    Given path 'auth', 'login'
-    And request { username: 'treasurer',  password: #(password) }
     When method POST
     Then status 200
     And def oToken = response.token
