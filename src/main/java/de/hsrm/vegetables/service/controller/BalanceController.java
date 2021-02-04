@@ -75,16 +75,16 @@ public class BalanceController implements BalanceApi {
         List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceService.findAllByBalanceDtoAndCreatedOnBetween(
                 balanceDto, fromDateConverted, toDateConverted, PageRequest.of(pageNumber, pageSize));
 
-        for (var balanceHistoryItem : balanceHistoryItemDtos) {
-            if (!balanceDto.getName()
-                    .equals(balanceHistoryItem.getBalanceDto()
-                            .getName())) {
-                throw new UnauthorizedError("The associated name for that balance history item does not match Header X-Username",
-                        ErrorCode.USERNAME_DOES_NOT_MATCH_PURCHASE);
-            }
-        }
-
         List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtos.stream()
+                .peek(balanceHistoryItemDto -> {
+                    if (!balanceHistoryItemDto.getBalanceDto()
+                            .getName()
+                            .equals(balanceDto.getName())) {
+                        throw new UnauthorizedError(
+                                "The associated name for that balance history item does not match Header X-Username",
+                                ErrorCode.USERNAME_DOES_NOT_MATCH_PURCHASE);
+                    }
+                })
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
                 .collect(Collectors.toList());
 
