@@ -28,7 +28,7 @@ Feature: Balance Tests
     }
     """
 
-  Scenario: GET /balance/history works for user with empty balance history
+  Scenario: GET /balance/:userId/history works for user with almost empty balance history
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }
     When method POST
@@ -43,21 +43,12 @@ Feature: Balance Tests
     And param toDate = today
     When method GET
     Then status 200
-    Then match response ==
-    """
-    {
-      pagination: {
-        pageNumber: 0,
-        pageSize: 10,
-        total: 1
-      },
-      balanceHistoryItems: [
-        { id: '#string', createdOn: '#string', balanceChangeType: 'SET', amount: 500.0 }
-       ]
-    }
-    """
+    And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
+    And match response.pagination == { pageNumber: 0, pageSize: 10, total: 1 }
+    And assert response.balanceHistoryItems.length == 1
+    And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
 
-  Scenario: GET /balance/history works for user with comprehensive balance history
+  Scenario: GET /balance/:userId/history works for user with comprehensive balance history
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }
     When method POST
