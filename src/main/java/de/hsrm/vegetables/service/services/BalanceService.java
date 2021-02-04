@@ -12,7 +12,7 @@ import de.hsrm.vegetables.service.repositories.BalanceRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -152,7 +152,7 @@ public class BalanceService {
      * @param toDate End of time window of the balance history item list
      * @return A list of balance history items created by the given user
      */
-    public List<BalanceHistoryItemDto> findAllByBalanceDtoAndCreatedOnBetween(
+    public Page<BalanceHistoryItemDto> findAllByBalanceDtoAndCreatedOnBetween(
             BalanceDto balanceDto, OffsetDateTime fromDate, OffsetDateTime toDate, Pageable pageable) {
 
         return balanceHistoryItemRepository.findAllByBalanceDtoAndCreatedOnBetween(

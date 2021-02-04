@@ -14,6 +14,7 @@ import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -72,10 +73,10 @@ public class BalanceController implements BalanceApi {
         // Query balance history items
         //
 
-        List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceService.findAllByBalanceDtoAndCreatedOnBetween(
+        Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceService.findAllByBalanceDtoAndCreatedOnBetween(
                 balanceDto, fromDateConverted, toDateConverted, PageRequest.of(pageNumber, pageSize));
 
-        List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtos.stream()
+        List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
                 .peek(balanceHistoryItemDto -> {
                     if (!balanceHistoryItemDto.getBalanceDto()
                             .getName()
@@ -95,7 +96,8 @@ public class BalanceController implements BalanceApi {
         Pagination pagination = new Pagination();
         pagination.setPageNumber(pageNumber);
         pagination.setPageSize(pageSize);
-        pagination.setTotal(balanceHistoryItemDtos.size());
+        pagination.setTotalPages(balanceHistoryItemDtoPage.getTotalPages());
+        pagination.setTotalElements(balanceHistoryItemDtoPage.getTotalElements());
 
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
         balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);

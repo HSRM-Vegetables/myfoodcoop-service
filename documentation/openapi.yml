@@ -1579,9 +1579,14 @@ components:
                         (i.e. as specified in the request or default if not specified)
                         Actual length of balance history items array might be shorter.
                     minimum: 1
-                total:
+                totalPages:
                     type: integer
-                    description: Number of items in the database
+                    description: Total number of pages of elements in the database
+                    minimum: 0
+                totalElements:
+                    type: integer
+                    format: int64
+                    description: Total number of elements in the database
                     minimum: 0
 
         balanceChangeType:
