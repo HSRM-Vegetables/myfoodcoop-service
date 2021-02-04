@@ -555,13 +555,13 @@ paths:
                 Updates data of a User
                 ### Access Restrictions
                 The following roles are required to access this endpoint. Any role not in this list is not allowed access
-                | Role     | Condition      |
-                |----------|----------------|
-                |MEMBER    | for own email |
+                | Role     | Condition        |
+                |----------|------------------|
+                |MEMBER    | for own email    |
                 |MEMBER    | for own password |
-                |ADMIN     | for any email |
-                |ADMIN    | for any password |
-                |ADMIN    | for any memberId |
+                |ADMIN     | for any email    |
+                |ADMIN     | for any password |
+                |ADMIN     | for any memberId |
             operationId: userPatch
             parameters:
                 -   $ref: '#/components/parameters/user-id'
@@ -1300,7 +1300,7 @@ components:
             type: object
             properties:
                 password:
-                    $ref: '#/components/schemas/password'
+                    $ref: '#/components/schemas/set-password'
                 email:
                     $ref: '#/components/schemas/email'
                 memberId:
@@ -1432,7 +1432,7 @@ components:
             format: password
             example: a_funny_horse**jumps_high778
             maxLength: 255
-            minLength: 10
+            minLength: 8
 
         role:
             description: The name of a role
