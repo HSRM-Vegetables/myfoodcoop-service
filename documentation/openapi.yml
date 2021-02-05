@@ -196,6 +196,8 @@ paths:
                         type: array
                         items:
                             $ref: '#/components/schemas/stockStatus'
+                -   $ref: '#/components/parameters/pageNumber'
+                -   $ref: '#/components/parameters/pageSize'
             responses:
                 '200':
                     description: Successful call, returns the current stock
@@ -1019,6 +1021,8 @@ components:
         all-stock-response:
             type: object
             properties:
+                pageination:
+                    $ref: '#/components/schemas/pagination'
                 items:
                     type: array
                     items:
