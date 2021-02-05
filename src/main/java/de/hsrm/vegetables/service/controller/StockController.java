@@ -18,6 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +41,12 @@ public class StockController implements StockApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted, List<StockStatus> filterByStatus) {
+    public ResponseEntity<AllStockResponse> stockGet(
+            @Valid DeleteFilter deleted,
+            @Valid List<StockStatus> filterByStatus,
+            @Min(0) @Valid Integer pageNumber,
+            @Min(1) @Valid Integer pageSize) {
+        
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
