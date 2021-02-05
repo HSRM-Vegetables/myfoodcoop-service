@@ -11,6 +11,7 @@ import de.hsrm.vegetables.service.services.StockService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -86,11 +87,22 @@ public class StockController implements StockApi {
         allFilters.addAll(filterByStatus);
 
         Pageable pageable = pageNumber == null ? null : PageRequest.of(pageNumber, pageSize);
-        List<StockDto> stockDtos = stockService.getStock(deleted, allFilters, pageable);
-        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockDtos);
+        Page<StockDto> stockDtoPage = stockService.getStock(deleted, allFilters, pageable);
+        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockDtoPage.getContent());
 
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);
+
+        if (pageable != null) {
+            Pagination pagination = new Pagination();
+            pagination.setPageNumber(pageNumber);
+            pagination.setPageSize(pageSize);
+            pagination.setTotalPages(stockDtoPage.getTotalPages());
+            pagination.setTotalElements(stockDtoPage.getTotalElements());
+
+            response.setPageination(pagination);
+        }
+
         return ResponseEntity.ok(response);
     }
 

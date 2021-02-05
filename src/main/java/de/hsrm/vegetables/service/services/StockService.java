@@ -10,6 +10,7 @@ import de.hsrm.vegetables.service.repositories.StockRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -39,13 +40,13 @@ public class StockService {
      * @param deleteFilter How to treat deleted items
      * @return A list of stock items
      */
-    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, Pageable pageable) {
+    public Page<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, Pageable pageable) {
         // No filtering by status
         if (stockFilter == null || stockFilter.isEmpty()) {
             return switch (deleteFilter) {
                 case OMIT -> stockRepository.findByIsDeleted(false, pageable);
                 case ONLY -> stockRepository.findByIsDeleted(true, pageable);
-                case INCLUDE -> stockRepository.findAll();
+                case INCLUDE -> stockRepository.findAll(pageable);
             };
         }
 
