@@ -10,6 +10,7 @@ import de.hsrm.vegetables.service.repositories.StockRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,23 +39,23 @@ public class StockService {
      * @param deleteFilter How to treat deleted items
      * @return A list of stock items
      */
-    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter) {
+    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, Pageable pageable) {
         // No filtering by status
         if (stockFilter == null || stockFilter.isEmpty()) {
             return switch (deleteFilter) {
-                case OMIT -> stockRepository.findByIsDeleted(false);
-                case ONLY -> stockRepository.findByIsDeleted(true);
+                case OMIT -> stockRepository.findByIsDeleted(false, pageable);
+                case ONLY -> stockRepository.findByIsDeleted(true, pageable);
                 case INCLUDE -> stockRepository.findAll();
             };
         }
 
         // No filtering by deleted but by status
         if (deleteFilter.equals(DeleteFilter.INCLUDE)) {
-            return stockRepository.findByStockStatusIn(stockFilter);
+            return stockRepository.findByStockStatusIn(stockFilter, pageable);
         }
 
         // filtering by stockStatus and deleted
-        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT));
+        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT), pageable);
     }
 
     /**

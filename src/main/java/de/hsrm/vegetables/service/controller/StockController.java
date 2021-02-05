@@ -11,6 +11,8 @@ import de.hsrm.vegetables.service.services.StockService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,7 +48,7 @@ public class StockController implements StockApi {
             @Valid List<StockStatus> filterByStatus,
             @Min(0) @Valid Integer pageNumber,
             @Min(1) @Valid Integer pageSize) {
-        
+
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -83,7 +85,9 @@ public class StockController implements StockApi {
 
         allFilters.addAll(filterByStatus);
 
-        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getStock(deleted, allFilters));
+        Pageable pageable = pageNumber == null ? null : PageRequest.of(pageNumber, pageSize);
+        List<StockDto> stockDtos = stockService.getStock(deleted, allFilters, pageable);
+        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockDtos);
 
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);

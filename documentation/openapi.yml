@@ -1603,7 +1603,6 @@ components:
             schema:
                 type: integer
                 minimum: 0
-                default: 0
 
         pageSize:
             in: query
