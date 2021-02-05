@@ -1493,11 +1493,13 @@ components:
             type: object
             description: |-
                 Effective values of the request's pagination query parameters
-                and additional information useful for pagination in the frontend
+                and additional information useful for pagination in the frontend.
+                Only returned if pagination is applied (i.e. pageNumber is specified).
             required:
-                - offset
-                - limit
-                - total
+                - pageNumber
+                - pageSize
+                - totalPages
+                - totalElements
             properties:
                 pageNumber:
                     type: integer
@@ -1599,7 +1601,9 @@ components:
         pageNumber:
             in: query
             name: pageNumber
-            description: Page number for pagination
+            description: |-
+                Page number for pagination.
+                If specified, pagination is applied, otherwise all elements are returned.
             schema:
                 type: integer
                 minimum: 0
@@ -1607,7 +1611,9 @@ components:
         pageSize:
             in: query
             name: pageSize
-            description: Page size for pagination
+            description: |-
+                Page size for pagination.
+                Only used if pagination is applied (i.e. pageNumber is specified), otherwise ignored.
             schema:
                 type: integer
                 minimum: 1
