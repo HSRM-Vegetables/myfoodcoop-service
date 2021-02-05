@@ -1485,6 +1485,39 @@ components:
             description: The sum of all gross prices this item was sold for
             example: 14.7
 
+        pagination:
+            type: object
+            description: |-
+                Effective values of the request's pagination query parameters
+                and additional information useful for pagination in the frontend
+            required:
+                - offset
+                - limit
+                - total
+            properties:
+                pageNumber:
+                    type: integer
+                    description: |-
+                        The effective number of items to skip before starting to collect the result set
+                        (i.e. as specified in the request or default if not specified)
+                    minimum: 0
+                pageSize:
+                    type: integer
+                    description: |-
+                        The effective numbers of items to return
+                        (i.e. as specified in the request or default if not specified)
+                        Actual length of balance history items array might be shorter.
+                    minimum: 1
+                totalPages:
+                    type: integer
+                    description: Total number of pages of elements in the database
+                    minimum: 0
+                totalElements:
+                    type: integer
+                    format: int64
+                    description: Total number of elements in the database
+                    minimum: 0
+
     parameters:
         username:
             in: path
@@ -1558,3 +1591,21 @@ components:
                     - ORDERER
             required: true
             description: The name of a role
+
+        pageNumber:
+            in: query
+            name: pageNumber
+            description: Page number for pagination
+            schema:
+                type: integer
+                minimum: 0
+                default: 0
+
+        pageSize:
+            in: query
+            name: pageSize
+            description: Page size for pagination
+            schema:
+                type: integer
+                minimum: 1
+                default: 10
