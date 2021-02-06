@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "78ea28a5-1f9f-495f-a47b-5b72c06e6c6a",
+    "_postman_id": "b0f73efa-075e-40d1-9f31-66366f967bd1",
     "name": "stadtgemüse-backend",
     "description": "## Environsments\r\n\r\n### LOCAL\r\nBenutzt für die lokale Entwicklung\r\n\r\nURL: localhost:8080\r\n\r\n### PROD\r\nBenutzt um gegen die deployte, produktive Umgebung zu schießen\r\n\r\nURL: https://veg-service.herokuapp.com/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -203,7 +203,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK",
+                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK&sortOrder=ASC&sortBy=ID",
                       "host": [
                         "{{URL}}"
                       ],
@@ -219,6 +219,14 @@
                         {
                           "key": "filterByStatus",
                           "value": "ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK"
+                        },
+                        {
+                          "key": "sortOrder",
+                          "value": "ASC"
+                        },
+                        {
+                          "key": "sortBy",
+                          "value": "ID"
                         }
                       ]
                     }
