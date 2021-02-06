@@ -10,6 +10,7 @@ import de.hsrm.vegetables.service.repositories.StockRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,23 +39,27 @@ public class StockService {
      * @param deleteFilter How to treat deleted items
      * @return A list of stock items
      */
-    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter) {
+    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, String sortBy, String sortOder) {
+
+        Sort.Direction sortDirection = sortOder.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sortParameters = Sort.by(sortDirection, sortByToFieldname(sortBy));
+
         // No filtering by status
         if (stockFilter == null || stockFilter.isEmpty()) {
             return switch (deleteFilter) {
-                case OMIT -> stockRepository.findByIsDeleted(false);
-                case ONLY -> stockRepository.findByIsDeleted(true);
-                case INCLUDE -> stockRepository.findAll();
+                case OMIT -> stockRepository.findByIsDeleted(false, sortParameters);
+                case ONLY -> stockRepository.findByIsDeleted(true, sortParameters);
+                case INCLUDE -> stockRepository.findAll(sortParameters);
             };
         }
 
         // No filtering by deleted but by status
         if (deleteFilter.equals(DeleteFilter.INCLUDE)) {
-            return stockRepository.findByStockStatusIn(stockFilter);
+            return stockRepository.findByStockStatusIn(stockFilter, sortParameters);
         }
 
         // filtering by stockStatus and deleted
-        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT));
+        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT), sortParameters);
     }
 
     /**
@@ -330,7 +335,7 @@ public class StockService {
                     StockDto associatedStockDto = associatedStockDtoOpt.get();
                     float vat = associatedStockDto.getVat();
                     return round((associatedStockDto
-                            .getPricePerUnit() * cartItem.getAmount() ) / (1f + vat) * vat, 2);
+                            .getPricePerUnit() * cartItem.getAmount()) / (1f + vat) * vat, 2);
                 })
                 .reduce(0f, Float::sum);
         return round(totalVat, 2);
@@ -399,6 +404,15 @@ public class StockService {
         BigDecimal bd = new BigDecimal(Float.toString(value));
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.floatValue();
+    }
+
+    private String sortByToFieldname(String sortBy) {
+        return switch (sortBy) {
+            case "NAME" -> "name";
+            case "ORDERDATE" -> "orderDate";
+            case "DELIVERYDATE" -> "deliveryDate";
+            default -> "id";
+        };
     }
 
 }
