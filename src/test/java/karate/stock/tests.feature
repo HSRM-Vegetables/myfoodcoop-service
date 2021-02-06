@@ -85,6 +85,20 @@ Feature: Simple Stock management
     }
     """
 
+    * def getUserIdFromToken =
+    """
+    function(token) {
+        var base64Url = token.split('.')[1];
+        var base64Str = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var Base64 = Java.type('java.util.Base64');
+        var decoded = Base64.getDecoder().decode(base64Str);
+        var String = Java.type('java.lang.String');
+        var decodedAsString = new String(decoded);
+        var decodedAsObject = JSON.parse(decodedAsString);
+        return decodedAsObject.id;
+    }
+    """
+
   Scenario: GET returns an empty list if no stock exists
     # Get token
     Given path 'auth', 'login'
@@ -1170,6 +1184,7 @@ Feature: Simple Stock management
     When method POST
     Then status 200
     And def token = response.token
+    And def userId = getUserIdFromToken(token)
 
     # Create stock item
     Given path '/stock'
@@ -1186,7 +1201,7 @@ Feature: Simple Stock management
     And request { amount: #(disposeAmount) }
     When method POST
     Then status 200
-    And match response contains { stockId: #(stockId), name: #(name), unitType: #(unitType), pricePerUnit: #(pricePerUnit), createdOn: '#string', amount: #(disposeAmount), vat: #(vat) }
+    And match response contains { stockId: #(stockId), userId: #(userId), name: #(name), unitType: #(unitType), pricePerUnit: #(pricePerUnit), createdOn: '#string', amount: #(disposeAmount), vat: #(vat) }
 
     # Check that stock was reduced
     Given path 'stock', stockId
@@ -1217,6 +1232,7 @@ Feature: Simple Stock management
     When method POST
     Then status 200
     And def mToken = response.token
+    And def mUserId = getUserIdFromToken(mToken)
 
     # Dispose of that item
     Given path 'stock', stockId, 'dispose'
@@ -1225,7 +1241,7 @@ Feature: Simple Stock management
     And request { amount: #(disposeAmount) }
     When method POST
     Then status 200
-    And match response contains { stockId: #(stockId), name: #(name), unitType: #(unitType), pricePerUnit: #(pricePerUnit), createdOn: '#string', amount: #(disposeAmount), vat: #(vat) }
+    And match response contains { stockId: #(stockId), userId: #(mUserId), name: #(name), unitType: #(unitType), pricePerUnit: #(pricePerUnit), createdOn: '#string', amount: #(disposeAmount), vat: #(vat) }
 
     # Check that stock was reduced
     Given path 'stock', stockId
@@ -1310,3 +1326,35 @@ Feature: Simple Stock management
     And request { amount: #(disposeAmount) }
     When method POST
     Then status 200
+
+  Scenario: Cannot dispose deleted item
+    # Get token
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    And def userId = getUserIdFromToken(token)
+
+    # Create stock item
+    Given path '/stock'
+    And header Authorization = "Bearer " + token
+    And request defaultStockBody
+    When method POST
+    Then status 201
+    And def stockId = response.id
+
+    # Delete stock
+    Given path '/stock/' + stockId
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 204
+
+    # Dispose of that item
+    Given path 'stock', stockId, 'dispose'
+    And header Authorization = "Bearer " + token
+    And def disposeAmount = 10
+    And request { amount: #(disposeAmount) }
+    When method POST
+    Then status 400
+    And match response.errorCode == 400024

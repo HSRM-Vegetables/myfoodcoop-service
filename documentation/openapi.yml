@@ -1281,7 +1281,13 @@ components:
             description: Information about one disposal
             properties:
                 stockId:
-                    $ref: '#/components/schemas/uuid'
+                    description: The stockId this disposed item relates to
+                    example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+                    type: string
+                userId:
+                    description: The userId of the user who disposed this item
+                    example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+                    type: string
                 name:
                     $ref: '#/components/schemas/item-name'
                 createdOn:
