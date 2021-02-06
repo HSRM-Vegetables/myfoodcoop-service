@@ -432,6 +432,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    '/reports/disposed-items':
+        get:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - Reports
+            summary: Get all disposed items within a time window and the quantity that was disposed
+            operationId: disposedItems
+            parameters:
+                -   $ref: '#/components/parameters/fromDate'
+                -   $ref: '#/components/parameters/toDate'
+            responses:
+                '200':
+                    description: Successful call
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/quantity-disposed-list'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
     '/reports/balance-overview':
         get:
             security:
@@ -1276,6 +1300,15 @@ components:
                 refreshToken:
                     $ref: '#/components/schemas/token'
 
+        quantity-disposed-list:
+            type: object
+            description: A list of items disposed in a time window
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/disposed-item'
+
         disposed-item:
             type: object
             description: Information about one disposal
@@ -1291,7 +1324,7 @@ components:
                 name:
                     $ref: '#/components/schemas/item-name'
                 createdOn:
-                    description: Date and time the item was dispoosd of
+                    description: Date and time the item was disposed of
                     example: '2017-07-21T17:32:28Z'
                     type: string
                     format: date-time
