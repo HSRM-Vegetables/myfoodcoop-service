@@ -1248,7 +1248,7 @@ Feature: Simple Stock management
     And assert stockInStock.length > 0
     And assert stockSpoilsSoon.length > 0
 
-Scenario: Orderer can dispose an item
+  Scenario: Orderer can dispose an item
     # Get token
     Given path 'auth', 'login'
     And request { username: 'orderer',  password: #(password) }
@@ -1430,7 +1430,7 @@ Scenario: Orderer can dispose an item
     Then status 400
     And match response.errorCode == 400024
 
-Scenario: Default sorting (ID, ASC) is correct
+  Scenario: Default sorting (ID, ASC) is correct
     # Get token for ORDERER
     Given path 'auth', 'login'
     And request { username: 'orderer',  password: #(password) }
