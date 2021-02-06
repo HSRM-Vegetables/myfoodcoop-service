@@ -196,6 +196,38 @@ paths:
                         type: array
                         items:
                             $ref: '#/components/schemas/stockStatus'
+                -   in: query
+                    description: |-
+                        Sort the response by one of the following criteria
+
+                        * ID: Sort by their id lexicographically
+                        * NAME: Sort by an items name lexicographically
+                        * ORDERDATE: Sort by order dates
+                        * DELIVERYDATE: Sort by delivery dates
+                    name: sortBy
+                    schema:
+                        type: string
+                        description: The stocks field to sort by
+                        default: ID
+                        enum:
+                            - ID
+                            - NAME
+                            - ORDERDATE
+                            - DELIVERYDATE
+                -   in: query
+                    description: |-
+                        Sort the response in ascending or descending order
+
+                        * ASC: ascending order
+                        * DESC: descending oder
+                    name: sortOrder
+                    schema:
+                        type: string
+                        description: The order to sort in
+                        default: ASC
+                        enum:
+                            - ASC
+                            - DESC
             responses:
                 '200':
                     description: Successful call, returns the current stock

@@ -203,7 +203,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK",
+                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK&sortOrder=ASC&sortBy=ID",
                       "host": [
                         "{{URL}}"
                       ],
@@ -219,6 +219,14 @@
                         {
                           "key": "filterByStatus",
                           "value": "ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK"
+                        },
+                        {
+                          "key": "sortOrder",
+                          "value": "ASC"
+                        },
+                        {
+                          "key": "sortBy",
+                          "value": "ID"
                         }
                       ]
                     }
