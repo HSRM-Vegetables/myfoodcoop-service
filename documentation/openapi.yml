@@ -1138,6 +1138,10 @@ components:
             properties:
                 name:
                     $ref: '#/components/schemas/username'
+                userId:
+                    description: The id of the user who made this purchase
+                    example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+                    type: string
                 id:
                     $ref: '#/components/schemas/uuid'
                 balance:
@@ -1220,6 +1224,10 @@ components:
             properties:
                 id:
                     $ref: '#/components/schemas/uuid'
+                userId:
+                    description: The id of the user who made this purchase
+                    example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+                    type: string
                 createdOn:
                     description: Date and time the purchase was created at
                     example: '2017-07-21T17:32:28Z'
