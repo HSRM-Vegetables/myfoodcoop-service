@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "78ea28a5-1f9f-495f-a47b-5b72c06e6c6a",
+    "_postman_id": "3150a455-7ce1-4c74-84b3-4f385c9fedb4",
     "name": "stadtgemüse-backend",
     "description": "## Environsments\r\n\r\n### LOCAL\r\nBenutzt für die lokale Entwicklung\r\n\r\nURL: localhost:8080\r\n\r\n### PROD\r\nBenutzt um gegen die deployte, produktive Umgebung zu schießen\r\n\r\nURL: https://veg-service.herokuapp.com/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -378,6 +378,72 @@
                       "variable": [
                         {
                           "key": "item-id",
+                          "value": "{{stockId}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "POST /stock/{item-id}/dispose",
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript"
+                      }
+                    },
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Get id and save it to a collection variable\r",
+                          "\r",
+                          "var id = pm.response.json().id;\r",
+                          "if (id) {\r",
+                          "    pm.collectionVariables.set(\"stockId\", id);\r",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "{{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"amount\": 5\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{URL}}/v2/stock/:stockId/dispose",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "stock",
+                        ":stockId",
+                        "dispose"
+                      ],
+                      "variable": [
+                        {
+                          "key": "stockId",
                           "value": "{{stockId}}"
                         }
                       ]

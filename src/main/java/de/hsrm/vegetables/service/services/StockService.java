@@ -1,11 +1,14 @@
 package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
+import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.exception.errors.http.InternalError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.repositories.DisposedRepository;
 import de.hsrm.vegetables.service.repositories.StockRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,9 @@ public class StockService {
 
     @NonNull
     private final StockRepository stockRepository;
+
+    @NonNull
+    private final DisposedRepository disposedRepository;
 
     /**
      * Returns all items currently in stock
@@ -291,6 +297,34 @@ public class StockService {
                 .collect(Collectors.toList());
     }
 
+    public DisposedDto dispose(String stockId, UserDto userDto, float amount) {
+        StockDto stockDto = getById(stockId);
+
+        if (stockDto.isDeleted()) {
+            throw new BadRequestError("Cannot dispose of deleted item " + stockDto.getId(), ErrorCode.CANNOT_DISPOSE_DELETED_ITEM);
+        }
+
+        if (stockDto.getUnitType()
+                .equals(UnitType.PIECE) && amount % 1 != 0) {
+            throw new BadRequestError("Cannot dispose of item with UnitType PIECE and a fractional quantity", ErrorCode.NO_FRACTIONAL_QUANTITY);
+        }
+
+        // reduce stock amount
+        stockDto.setQuantity(stockDto.getQuantity() - amount);
+        stockDto = stockRepository.save(stockDto);
+
+        // create disposed Item
+        DisposedDto disposedDto = new DisposedDto();
+        disposedDto.setStockDto(stockDto);
+        disposedDto.setAmount(amount);
+        disposedDto.setVat(stockDto.getVat());
+        disposedDto.setUnitType(stockDto.getUnitType());
+        disposedDto.setPricePerUnit(stockDto.getPricePerUnit());
+        disposedDto.setUserDto(userDto);
+
+        return disposedRepository.save(disposedDto);
+    }
+
     public static Float calculatePrice(List<StockDto> stockItems, List<CartItem> cartItems) {
         Float totalPrice = cartItems
                 .stream()
@@ -330,7 +364,7 @@ public class StockService {
                     StockDto associatedStockDto = associatedStockDtoOpt.get();
                     float vat = associatedStockDto.getVat();
                     return round((associatedStockDto
-                            .getPricePerUnit() * cartItem.getAmount() ) / (1f + vat) * vat, 2);
+                            .getPricePerUnit() * cartItem.getAmount()) / (1f + vat) * vat, 2);
                 })
                 .reduce(0f, Float::sum);
         return round(totalVat, 2);

@@ -2,7 +2,9 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.StockApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
+import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.mapper.StockMapper;
@@ -137,5 +139,23 @@ public class StockController implements StockApi {
         );
         StockResponse stockResponse = StockMapper.stockDtoToStockResponse(stockDto);
         return new ResponseEntity<>(stockResponse, HttpStatus.CREATED);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<DisposedItem> dispose(String itemId, DisposeRequest disposeRequest) {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        // No need to query database for the user, we only need a DTO with the id
+        // As we use the id from the UserPrincipal, which was checked for validity and if the user is deleted
+        UserDto userDto = new UserDto();
+        userDto.setId(userPrincipal.getId());
+
+        DisposedDto disposedDto = stockService.dispose(itemId, userDto, disposeRequest.getAmount());
+
+        return ResponseEntity.ok(StockMapper.disposedDtoToDisposedItem(disposedDto));
     }
 }

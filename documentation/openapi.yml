@@ -306,6 +306,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    '/stock/{item-id}/dispose':
+        post:
+            security:
+                -   bearerAuth: [ ]
+            tags:
+                - Stock
+            summary: Disposes stock items
+            operationId: dispose
+            parameters:
+                -   $ref: '#/components/parameters/item-id'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/dispose-request'
+            responses:
+                '200':
+                    description: Successful call, returns information about the disposed item
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/disposed-item'
+                default:
+                    description: Details about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
     '/purchase':
         get:
@@ -972,6 +1001,14 @@ components:
                 password:
                     $ref: '#/components/schemas/password'
 
+        dispose-request:
+            description: Information about how much items should be disposed of
+            type: object
+            required:
+                - amount
+            properties:
+                amount:
+                    $ref: '#/components/schemas/dispose-amount'
         #
         # Response Schemas
         #
@@ -1085,6 +1122,7 @@ components:
                     $ref: '#/components/schemas/totalVat'
                 vatDetails:
                     $ref: '#/components/schemas/vatDetails'
+
         quantity-sold-list:
             type: object
             description: A list of items sold in a time window
@@ -1185,12 +1223,7 @@ components:
                     type: number
                     format: float
                 pricePerUnit:
-                    description: |-
-                        Price per unit of the item.
-                        Changes to an items price after the purchase was made will not be reflected in this value.
-                    example: 12.0
-                    type: number
-                    format: float
+                    $ref: '#/components/schemas/historic-price-per-unit'
                 unitType:
                     $ref: '#/components/schemas/unitType'
                 vat:
@@ -1234,6 +1267,7 @@ components:
                     $ref: '#/components/schemas/email'
                 memberId:
                     $ref: '#/components/schemas/memberId'
+
         token-response:
             type: object
             properties:
@@ -1241,6 +1275,34 @@ components:
                     $ref: '#/components/schemas/token'
                 refreshToken:
                     $ref: '#/components/schemas/token'
+
+        disposed-item:
+            type: object
+            description: Information about one disposal
+            properties:
+                stockId:
+                    description: The stockId this disposed item relates to
+                    example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+                    type: string
+                userId:
+                    description: The userId of the user who disposed this item
+                    example: "0794e2e2-f5b2-42fb-a2b3-e12c75897f85"
+                    type: string
+                name:
+                    $ref: '#/components/schemas/item-name'
+                createdOn:
+                    description: Date and time the item was dispoosd of
+                    example: '2017-07-21T17:32:28Z'
+                    type: string
+                    format: date-time
+                amount:
+                    $ref: '#/components/schemas/dispose-amount'
+                pricePerUnit:
+                    $ref: '#/components/schemas/historic-price-per-unit'
+                unitType:
+                    $ref: '#/components/schemas/unitType'
+                vat:
+                    $ref: '#/components/schemas/vat'
 
         #
         # Reusable Items
@@ -1484,6 +1546,21 @@ components:
             format: float
             description: The sum of all gross prices this item was sold for
             example: 14.7
+
+        dispose-amount:
+            type: number
+            description: The amount for this disposal
+            format: float
+            minimum: 0
+            exclusiveMinimum: true
+
+        historic-price-per-unit:
+            description: |-
+                Price per unit of the item.
+                Changes to an items price after the purchase was made will not be reflected in this value.
+            example: 12.0
+            type: number
+            format: float
 
     parameters:
         username:

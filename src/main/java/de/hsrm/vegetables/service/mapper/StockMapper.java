@@ -1,6 +1,8 @@
 package de.hsrm.vegetables.service.mapper;
 
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.DisposedItem;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockResponse;
+import de.hsrm.vegetables.service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 
 import java.util.List;
@@ -38,5 +40,23 @@ public class StockMapper {
                 .stream()
                 .map(StockMapper::stockDtoToStockResponse)
                 .collect(Collectors.toList());
+    }
+
+    public static DisposedItem disposedDtoToDisposedItem(DisposedDto disposedDto) {
+        DisposedItem disposedItem = new DisposedItem();
+
+        disposedItem.setAmount(disposedDto.getAmount());
+        disposedItem.setName(disposedDto.getStockDto()
+                .getName());
+        disposedItem.setVat(disposedDto.getVat());
+        disposedItem.setUnitType(disposedDto.getUnitType());
+        disposedItem.setPricePerUnit(disposedDto.getPricePerUnit());
+        disposedItem.setCreatedOn(disposedDto.getCreatedOn());
+        disposedItem.setStockId(disposedDto.getStockDto()
+                .getId());
+        disposedItem.setUserId(disposedDto.getUserDto()
+                .getId());
+
+        return disposedItem;
     }
 }
