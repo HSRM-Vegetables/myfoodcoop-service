@@ -5,7 +5,6 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
-import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.StockService;
 import de.hsrm.vegetables.service.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +20,6 @@ public abstract class BaseTest {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private BalanceService balanceService;
 
     @Autowired
     private StockService stockService;
@@ -75,7 +71,6 @@ public abstract class BaseTest {
     private void addUser(String username, String password, Float balance, List<Role> roles) {
         UserDto user = userService.register(username, username + "@mail.com", username + "Id", password);
         roles.forEach(role -> userService.addRole(user.getId(), role));
-        balanceService.upsert(username, balance);
     }
 
 }

@@ -1,10 +1,10 @@
 package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
-import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.PurchasedItemDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
+import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.InternalError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
@@ -39,7 +39,7 @@ public class PurchaseService {
      * @param cartItems  The amounts of the items purchased
      * @return The completed purchase
      */
-    public PurchaseDto purchaseItems(BalanceDto balanceDto, List<StockDto> stockItems, List<CartItem> cartItems, Float totalPrice, Float totalVat) {
+    public PurchaseDto purchaseItems(UserDto userDto, List<StockDto> stockItems, List<CartItem> cartItems, Float totalPrice, Float totalVat) {
         List<PurchasedItemDto> purchasedItems = cartItems
                 .stream()
                 .map(item -> {
@@ -71,7 +71,7 @@ public class PurchaseService {
         PurchaseDto purchaseDto = new PurchaseDto();
         purchaseDto.setTotalPrice(totalPrice);
         purchaseDto.setPurchasedItems(purchasedItems);
-        purchaseDto.setBalanceDto(balanceDto);
+        purchaseDto.setUserDto(userDto);
         purchaseDto.setTotalVat(totalVat);
 
         return purchaseRepository.save(purchaseDto);
@@ -83,8 +83,8 @@ public class PurchaseService {
      * @param balanceDto The balance of the user who purchased the items
      * @return A list of purchases made by the given user
      */
-    public List<PurchaseDto> getPurchases(BalanceDto balanceDto) {
-        return purchaseRepository.findAllByBalanceDto(balanceDto);
+    public List<PurchaseDto> getPurchases(UserDto userDto) {
+        return purchaseRepository.findAllByUserDto(userDto);
     }
 
     /**

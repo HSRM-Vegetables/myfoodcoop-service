@@ -255,7 +255,7 @@ public class StockService {
      * @param items All items to reduce quanitity for
      * @return The price for all these items
      */
-    public List<StockDto> purchase(List<CartItem> items) {
+    public List<StockDto> reduceStockWithCartItems(List<CartItem> items) {
         // Check that all id's are unique
         items.forEach(item -> {
             if (countItemsWithId(items, item.getId()) > 1) {

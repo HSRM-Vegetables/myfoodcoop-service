@@ -20,6 +20,8 @@ public class PurchaseMapper {
     public static PurchaseHistoryItem purchaseDtoToPurchaseHistoryItem(PurchaseDto purchaseDto) {
         PurchaseHistoryItem purchaseHistoryItem = new PurchaseHistoryItem();
         purchaseHistoryItem.setId(purchaseDto.getId());
+        purchaseHistoryItem.setUserId(purchaseDto.getUserDto()
+                .getId());
         purchaseHistoryItem.setTotalPrice(purchaseDto.getTotalPrice());
         purchaseHistoryItem.setCreatedOn(purchaseDto.getCreatedOn());
         purchaseHistoryItem.setItems(purchaseDto.getPurchasedItems()
