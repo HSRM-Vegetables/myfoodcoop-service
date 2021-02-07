@@ -2,11 +2,10 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
-import de.hsrm.vegetables.service.domain.dto.BalanceDto;
 import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
+import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
-import de.hsrm.vegetables.service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.service.mapper.BalanceMapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
@@ -35,17 +34,16 @@ import java.util.stream.Collectors;
 public class BalanceController implements BalanceApi {
 
     @NonNull
-    private final BalanceService balanceService;
+    private final UserService userService;
 
     @NonNull
-    private final UserService userService;
+    private final BalanceService balanceService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
     public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
-        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
-                .getUsername());
-        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
+        UserDto userDto = userService.getUserById(userId);
+        return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
 
     @Override
@@ -66,26 +64,16 @@ public class BalanceController implements BalanceApi {
         OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
-        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
-                .getUsername());
+        UserDto userDto = userService.getUserById(userId);
 
         //
         // Query balance history items
         //
 
-        Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceService.findAllByBalanceDtoAndCreatedOnBetween(
-                balanceDto, fromDateConverted, toDateConverted, PageRequest.of(pageNumber, pageSize));
+        Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceService.findAllByUserDtoAndCreatedOnBetween(
+                userDto, fromDateConverted, toDateConverted, PageRequest.of(pageNumber, pageSize));
 
         List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
-                .peek(balanceHistoryItemDto -> {
-                    if (!balanceHistoryItemDto.getBalanceDto()
-                            .getName()
-                            .equals(balanceDto.getName())) {
-                        throw new UnauthorizedError(
-                                "The associated name for that balance history item does not match Header X-Username",
-                                ErrorCode.USERNAME_DOES_NOT_MATCH_PURCHASE);
-                    }
-                })
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
                 .collect(Collectors.toList());
 
@@ -106,15 +94,17 @@ public class BalanceController implements BalanceApi {
         return ResponseEntity.ok(balanceHistoryResponse);
     }
 
-
     @Override
     @PreAuthorize("hasRole('MEMBER') and #userId == authentication.principal.id")
     public ResponseEntity<BalanceResponse> balancePatch(String userId, BalancePatchRequest request) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
-        BalanceDto balanceDto = balanceService.upsert(userPrincipal.getUsername(), request.getBalance());
+        UserDto userDto = userService.getUserById(userPrincipal.getId());
+        userDto = userService.setBalance(userDto, request.getBalance());
 
-        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
+        balanceService.saveBalanceChange(userDto, BalanceChangeType.SET, request.getBalance());
+
+        return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
 
     @Override
@@ -122,9 +112,12 @@ public class BalanceController implements BalanceApi {
     public ResponseEntity<BalanceResponse> balanceTopup(String userId, BalanceAmountRequest request) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
-        BalanceDto balanceDto = balanceService.topup(userPrincipal.getUsername(), request.getAmount());
+        UserDto userDto = userService.getUserById(userPrincipal.getId());
+        userDto = userService.topup(userDto, request.getAmount());
 
-        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
+        balanceService.saveBalanceChange(userDto, BalanceChangeType.TOPUP, request.getAmount());
+
+        return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
 
     @Override
@@ -132,9 +125,12 @@ public class BalanceController implements BalanceApi {
     public ResponseEntity<BalanceResponse> balanceWithdraw(String userId, BalanceAmountRequest request) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
-        BalanceDto balanceDto = balanceService.withdraw(userPrincipal.getUsername(), request.getAmount());
+        UserDto userDto = userService.getUserById(userPrincipal.getId());
+        userDto = userService.withdraw(userDto, request.getAmount());
 
-        return ResponseEntity.ok(BalanceMapper.balanceDtoToBalanceResponse(balanceDto));
+        balanceService.saveBalanceChange(userDto, BalanceChangeType.WITHDRAW, request.getAmount());
+
+        return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
 
     private UserPrincipal getUserPrincipalFromSecurityContext() {
@@ -143,5 +139,4 @@ public class BalanceController implements BalanceApi {
                 .getAuthentication()
                 .getPrincipal();
     }
-
 }

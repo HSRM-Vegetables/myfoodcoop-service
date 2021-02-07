@@ -1,15 +1,19 @@
 package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
+import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.exception.errors.http.InternalError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.service.repositories.DisposedRepository;
 import de.hsrm.vegetables.service.repositories.StockRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +31,9 @@ public class StockService {
     @NonNull
     private final StockRepository stockRepository;
 
+    @NonNull
+    private final DisposedRepository disposedRepository;
+
     /**
      * Returns all items currently in stock
      * deleteFilter controls how deleted entries are treated:
@@ -38,23 +45,27 @@ public class StockService {
      * @param deleteFilter How to treat deleted items
      * @return A list of stock items
      */
-    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter) {
+    public List<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, String sortBy, String sortOder) {
+
+        Sort.Direction sortDirection = sortOder.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sortParameters = Sort.by(sortDirection, sortByToFieldname(sortBy));
+
         // No filtering by status
         if (stockFilter == null || stockFilter.isEmpty()) {
             return switch (deleteFilter) {
-                case OMIT -> stockRepository.findByIsDeleted(false);
-                case ONLY -> stockRepository.findByIsDeleted(true);
-                case INCLUDE -> stockRepository.findAll();
+                case OMIT -> stockRepository.findByIsDeleted(false, sortParameters);
+                case ONLY -> stockRepository.findByIsDeleted(true, sortParameters);
+                case INCLUDE -> stockRepository.findAll(sortParameters);
             };
         }
 
         // No filtering by deleted but by status
         if (deleteFilter.equals(DeleteFilter.INCLUDE)) {
-            return stockRepository.findByStockStatusIn(stockFilter);
+            return stockRepository.findByStockStatusIn(stockFilter, sortParameters);
         }
 
         // filtering by stockStatus and deleted
-        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT));
+        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT), sortParameters);
     }
 
     /**
@@ -244,7 +255,7 @@ public class StockService {
      * @param items All items to reduce quanitity for
      * @return The price for all these items
      */
-    public List<StockDto> purchase(List<CartItem> items) {
+    public List<StockDto> reduceStockWithCartItems(List<CartItem> items) {
         // Check that all id's are unique
         items.forEach(item -> {
             if (countItemsWithId(items, item.getId()) > 1) {
@@ -291,6 +302,34 @@ public class StockService {
                 .collect(Collectors.toList());
     }
 
+    public DisposedDto dispose(String stockId, UserDto userDto, float amount) {
+        StockDto stockDto = getById(stockId);
+
+        if (stockDto.isDeleted()) {
+            throw new BadRequestError("Cannot dispose of deleted item " + stockDto.getId(), ErrorCode.CANNOT_DISPOSE_DELETED_ITEM);
+        }
+
+        if (stockDto.getUnitType()
+                .equals(UnitType.PIECE) && amount % 1 != 0) {
+            throw new BadRequestError("Cannot dispose of item with UnitType PIECE and a fractional quantity", ErrorCode.NO_FRACTIONAL_QUANTITY);
+        }
+
+        // reduce stock amount
+        stockDto.setQuantity(stockDto.getQuantity() - amount);
+        stockDto = stockRepository.save(stockDto);
+
+        // create disposed Item
+        DisposedDto disposedDto = new DisposedDto();
+        disposedDto.setStockDto(stockDto);
+        disposedDto.setAmount(amount);
+        disposedDto.setVat(stockDto.getVat());
+        disposedDto.setUnitType(stockDto.getUnitType());
+        disposedDto.setPricePerUnit(stockDto.getPricePerUnit());
+        disposedDto.setUserDto(userDto);
+
+        return disposedRepository.save(disposedDto);
+    }
+
     public static Float calculatePrice(List<StockDto> stockItems, List<CartItem> cartItems) {
         Float totalPrice = cartItems
                 .stream()
@@ -330,7 +369,7 @@ public class StockService {
                     StockDto associatedStockDto = associatedStockDtoOpt.get();
                     float vat = associatedStockDto.getVat();
                     return round((associatedStockDto
-                            .getPricePerUnit() * cartItem.getAmount() ) / (1f + vat) * vat, 2);
+                            .getPricePerUnit() * cartItem.getAmount()) / (1f + vat) * vat, 2);
                 })
                 .reduce(0f, Float::sum);
         return round(totalVat, 2);
@@ -399,6 +438,15 @@ public class StockService {
         BigDecimal bd = new BigDecimal(Float.toString(value));
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.floatValue();
+    }
+
+    private String sortByToFieldname(String sortBy) {
+        return switch (sortBy) {
+            case "NAME" -> "name";
+            case "ORDERDATE" -> "orderDate";
+            case "DELIVERYDATE" -> "deliveryDate";
+            default -> "id";
+        };
     }
 
 }

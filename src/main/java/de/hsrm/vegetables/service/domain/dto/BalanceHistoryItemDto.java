@@ -19,8 +19,8 @@ public class BalanceHistoryItemDto {
     private String id;
 
     @ManyToOne
-    // Tie this balance history item to a balance and thus to a user
-    private BalanceDto balanceDto;
+    // Tie this purchase to a user
+    private UserDto userDto;
 
     @OneToOne
     // Tie this balance history item to the respective purchase if it resulted from such a one

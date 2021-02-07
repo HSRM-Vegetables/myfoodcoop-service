@@ -31,8 +31,8 @@ public class PurchaseDto {
     private List<PurchasedItemDto> purchasedItems;
 
     @ManyToOne
-    // Tie this purchase to a balance and thus to a user
-    private BalanceDto balanceDto;
+    // Tie this purchase to a user
+    private UserDto userDto;
 
     @PrePersist
     public void setCreationDateTime() {

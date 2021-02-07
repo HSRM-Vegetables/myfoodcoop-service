@@ -36,12 +36,12 @@ public class PurchaseService {
     /**
      * Purchase items
      *
-     * @param balanceDto The balance of the user who purchased the items
+     * @param userDto The user who purchased the items
      * @param stockItems The StockDto that were purchased
      * @param cartItems  The amounts of the items purchased
      * @return The completed purchase
      */
-    public PurchaseDto purchaseItems(BalanceDto balanceDto, List<StockDto> stockItems, List<CartItem> cartItems, Float totalPrice, Float totalVat) {
+    public PurchaseDto purchaseItems(UserDto userDto, List<StockDto> stockItems, List<CartItem> cartItems, Float totalPrice, Float totalVat) {
         List<PurchasedItemDto> purchasedItems = cartItems
                 .stream()
                 .map(item -> {
@@ -73,14 +73,14 @@ public class PurchaseService {
         PurchaseDto purchaseDto = new PurchaseDto();
         purchaseDto.setTotalPrice(totalPrice);
         purchaseDto.setPurchasedItems(purchasedItems);
-        purchaseDto.setBalanceDto(balanceDto);
+        purchaseDto.setUserDto(userDto);
         purchaseDto.setTotalVat(totalVat);
 
         PurchaseDto savedPurchaseDto = purchaseRepository.save(purchaseDto);
 
         BalanceHistoryItemDto balanceHistoryItemDto = new BalanceHistoryItemDto();
         balanceHistoryItemDto.setId(purchaseDto.getId());
-        balanceHistoryItemDto.setBalanceDto(balanceDto);
+        balanceHistoryItemDto.setUserDto(userDto);
         balanceHistoryItemDto.setPurchase(savedPurchaseDto);
         balanceHistoryItemDto.setCreatedOn(purchaseDto.getCreatedOn());
         balanceHistoryItemDto.setBalanceChangeType(BalanceChangeType.PURCHASE);
@@ -93,25 +93,11 @@ public class PurchaseService {
     /**
      * Find multiple purchases by name
      *
-     * @param balanceDto The balance of the user who purchased the items
+     * @param userDto The user who purchased the items
      * @return A list of purchases made by the given user
      */
-    public List<PurchaseDto> getPurchases(BalanceDto balanceDto) {
-        return purchaseRepository.findAllByBalanceDto(balanceDto);
-    }
-
-    /**
-     * Find all purchases with a user's balance that were created between fromDate and toDate.
-     *
-     * @param balanceDto The balance of the user who purchased the item
-     * @param fromDateConverted start of time window of the purchase list
-     * @param toDateConverted end of time window of the purchase list
-     * @return A list of purchases by the given balance and in the given time
-     */
-    public List<PurchaseDto> findAllByBalanceDtoAndCreatedOnBetween(
-            BalanceDto balanceDto, OffsetDateTime fromDateConverted, OffsetDateTime toDateConverted) {
-
-        return purchaseRepository.findAllByBalanceDtoAndCreatedOnBetween(balanceDto, fromDateConverted, toDateConverted);
+    public List<PurchaseDto> getPurchases(UserDto userDto) {
+        return purchaseRepository.findAllByUserDto(userDto);
     }
 
     /**
