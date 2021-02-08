@@ -94,6 +94,11 @@ public class UserService {
 
     public void softDeleteUser(String id) {
         UserDto user = getUserById(id);
+
+        if (user.isDeleted()) {
+            throw new BadRequestError("User is already deleted", ErrorCode.USER_IS_DELETED);
+        }
+
         user.setDeleted(true);
         userRepository.save(user);
     }
@@ -118,6 +123,10 @@ public class UserService {
         UserDto user = getUserById(id);
         if (user == null) {
             throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+        }
+
+        if (user.isDeleted()) {
+            throw new BadRequestError("Cannot add a role to a deleted user", ErrorCode.USER_IS_DELETED);
         }
 
         List<Role> roles = user.getRoles();
