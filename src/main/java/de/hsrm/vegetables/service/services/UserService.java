@@ -126,7 +126,7 @@ public class UserService {
         }
 
         if (user.isDeleted()) {
-            throw new BadRequestError("Cannot add a role to a deleted user", ErrorCode.USER_IS_ALREADY_DELETED);
+            throw new BadRequestError("Cannot add a role to a deleted user", ErrorCode.USER_IS_DELETED);
         }
 
         List<Role> roles = user.getRoles();
