@@ -101,7 +101,6 @@ public class PurchaseController implements PurchaseApi {
         }
         purchaseListResponse.setTotalCumulativePrice(totalCumulativePrice);
         purchaseListResponse.setTotalCumulativeVat(totalCumulativeVat);
-        purchaseListResponse.setNumberOfPurchases(purchases.size());
 
         return ResponseEntity.ok(purchaseListResponse);
     }

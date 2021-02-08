@@ -156,7 +156,6 @@ Feature: Simple Purchases
     And match purchase contains { id: #(purchaseId), userId: '#uuid'}
     And def purchasedItem1 = findItemWithId(purchase.items, stockId1)
     And match purchasedItem1 contains { id: #(stockId1) }
-    And assert response.numberOfPurchases == 1
     And assert response.totalCumulativePrice == 1.3
     And assert response.totalCumulativeVat == 0.21
 
@@ -835,7 +834,7 @@ Feature: Simple Purchases
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And def currentPurchases = response.numberOfPurchases
+    And def currentPurchases = response.purchases.length
     And def currentTotalCumulativePrice = response.totalCumulativePrice
     And def currentTotalCumulativeVat = response.totalCumulativeVat
 
@@ -862,6 +861,6 @@ Feature: Simple Purchases
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response.numberOfPurchases == currentPurchases + 2
+    And assert response.purchases.length == currentPurchases + 2
     And match response.totalCumulativePrice.toFixed(2) == (currentTotalCumulativePrice + 3.9).toFixed(2)
     And match response.totalCumulativeVat.toFixed(2) == (currentTotalCumulativeVat + 0.63).toFixed(2)
