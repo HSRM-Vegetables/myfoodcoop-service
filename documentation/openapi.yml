@@ -1213,6 +1213,16 @@ components:
             description: List of all previous purchases
             type: object
             properties:
+                totalCumulativePrice:
+                    description: Total price of all previous purchases, including VAT.
+                    example: 123.0
+                    type: number
+                    format: float
+                totalCumulativeVat:
+                    description: VAT paid on all previous purchases made
+                    example: 19.63
+                    type: number
+                    format: float
                 purchases:
                     type: array
                     items:
