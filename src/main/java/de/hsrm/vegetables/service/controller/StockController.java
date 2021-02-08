@@ -55,24 +55,18 @@ public class StockController implements StockApi {
         // A member cannot filter by ORDERED or OUTOFSTOCK
         if (!userPrincipal.getRoles()
                 .contains(Role.ORDERER)) {
-            if (filterByStatus.contains(StockStatus.ORDERED)) {
-                throw new BadRequestError("A user without role ORDERER cannot use filter ORDERED", ErrorCode.MEMBER_CANNOT_USE_THIS_FILTER);
-            }
 
             if (filterByStatus.contains(StockStatus.OUTOFSTOCK)) {
                 throw new BadRequestError("A user without role ORDERER cannot use filter OUTOFSTOCK", ErrorCode.MEMBER_CANNOT_USE_THIS_FILTER);
             }
         }
 
-        // Do not show stock in status ORDERED or OUTOFSTOCK to non Orderers
+        // Do not show stock in status OUTOFSTOCK to non Orderers
         ArrayList<StockStatus> allFilters = new ArrayList<>();
         if (!userPrincipal.getRoles()
                 .contains(Role.ORDERER)) {
             if (!filterByStatus.contains(StockStatus.INSTOCK)) {
                 allFilters.add(StockStatus.INSTOCK);
-            }
-            if (!filterByStatus.contains(StockStatus.ORDERED)) {
-                allFilters.add(StockStatus.SPOILSSOON);
             }
         }
 
