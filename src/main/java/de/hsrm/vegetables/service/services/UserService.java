@@ -96,7 +96,7 @@ public class UserService {
         UserDto user = getUserById(id);
 
         if (user.isDeleted()) {
-            throw new BadRequestError("User is already deleted", ErrorCode.USER_IS_ALREADY_DELETED);
+            throw new BadRequestError("User is already deleted", ErrorCode.USER_IS_DELETED);
         }
 
         user.setDeleted(true);
@@ -123,6 +123,10 @@ public class UserService {
         UserDto user = getUserById(id);
         if (user == null) {
             throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+        }
+
+        if (user.isDeleted()) {
+            throw new BadRequestError("Cannot add a role to a deleted user", ErrorCode.USER_IS_ALREADY_DELETED);
         }
 
         List<Role> roles = user.getRoles();

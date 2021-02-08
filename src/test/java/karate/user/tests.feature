@@ -154,7 +154,7 @@ Feature: User controller
     And header Authorization = "Bearer " + token
     When method DELETE
     Then status 400
-    And match response.errorCode == 400025
+    And match response.errorCode == 400023
 
   Scenario: Registering with an empty email works
     Given path 'user', 'register'
