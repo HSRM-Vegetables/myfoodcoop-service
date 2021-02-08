@@ -94,6 +94,11 @@ public class UserService {
 
     public void softDeleteUser(String id) {
         UserDto user = getUserById(id);
+
+        if (user.isDeleted()) {
+            throw new BadRequestError("User is already deleted", ErrorCode.USER_IS_ALREADY_DELETED);
+        }
+
         user.setDeleted(true);
         userRepository.save(user);
     }

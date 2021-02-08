@@ -128,6 +128,34 @@ Feature: User controller
     Then status 401
     And match response.errorCode == 401002
 
+  Scenario: Cannot delete a user that's already deleted
+    # register new user
+    Given path 'user', 'register'
+    And request { username: 'robby8.1', email: 'robby8.1@test.com', memberId: '422281', password: #(password) }
+    When method POST
+    Then status 201
+    And def userId = response.id
+
+    # login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # delete new user
+    Given path 'user', userId
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 204
+
+    # delete new user again
+    Given path 'user', userId
+    And header Authorization = "Bearer " + token
+    When method DELETE
+    Then status 400
+    And match response.errorCode == 400025
+
   Scenario: Registering with an empty email works
     Given path 'user', 'register'
     And request { username: "robby9", email: "", memberId: "55555", password: #(password) }
