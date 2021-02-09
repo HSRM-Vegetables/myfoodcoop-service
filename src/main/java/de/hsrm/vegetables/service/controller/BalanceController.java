@@ -7,6 +7,7 @@ import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.mapper.BalanceMapper;
+import de.hsrm.vegetables.service.repositories.OffsetLimit;
 import de.hsrm.vegetables.service.security.UserPrincipal;
 import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.UserService;
@@ -71,7 +72,7 @@ public class BalanceController implements BalanceApi {
         //
 
         Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceService.findAllByUserDtoAndCreatedOnBetween(
-                userDto, fromDateConverted, toDateConverted, PageRequest.of(pageNumber, pageSize));
+                userDto, fromDateConverted, toDateConverted, new OffsetLimit(pageNumber, pageSize));
 
         List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
