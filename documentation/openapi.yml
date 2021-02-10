@@ -1363,6 +1363,13 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/disposed-item'
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
+                vatDetails:
+                    $ref: '#/components/schemas/vatDetails'
+                grossAmount:
+                    $ref: '#/components/schemas/grossAmount'
+
 
         disposed-item:
             type: object
