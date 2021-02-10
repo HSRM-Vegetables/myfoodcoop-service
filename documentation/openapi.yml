@@ -486,7 +486,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/quantity-disposed-list'
+                                $ref: '#/components/schemas/disposed-item-list'
                 default:
                     description: Details about the error that occured
                     content:
@@ -1355,7 +1355,7 @@ components:
                 refreshToken:
                     $ref: '#/components/schemas/token'
 
-        quantity-disposed-list:
+        disposed-item-list:
             type: object
             description: A list of items disposed in a time window
             properties:
@@ -1366,7 +1366,7 @@ components:
 
         disposed-item:
             type: object
-            description: Information about one disposal
+            description: Contains information about a single item that was disposed
             properties:
                 stockId:
                     description: The stockId this disposed item relates to
@@ -1389,8 +1389,12 @@ components:
                     $ref: '#/components/schemas/historic-price-per-unit'
                 unitType:
                     $ref: '#/components/schemas/unitType'
+                totalVat:
+                    $ref: '#/components/schemas/totalVat'
                 vat:
                     $ref: '#/components/schemas/vat'
+                grossAmount:
+                    $ref: '#/components/schemas/grossAmount'
 
         #
         # Reusable Items
@@ -1410,7 +1414,7 @@ components:
 
         unitType:
             description: |-
-                By which measurement the item is sold
+                By which measurement the item is sold/disposed
                   * WEIGHT: Kilogram, or fractions of a kilogram
                   * PIECE: Positive amount of whole pieces
             example: PIECE
