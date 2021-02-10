@@ -9,6 +9,16 @@ This project runs on Java version 14 and uses maven as a building and tooling fr
 - Installing Maven https://maven.apache.org/install.html
 - Installing Java https://openjdk.java.net/install/
 
+### Quickstart
+
+* Install maven and java
+* Create `src/main/resources/application-secrets.yml` and fill it with the necessary secrets (See comments in the application.yml file)
+* Make sure the desired PostgreSQL database is up and running
+    * See section "Starting a local PostgreSQL Instance" for a quick tutorial on running a local PostgreSQL instance
+* Install maven dependencies and start the service (e.g. via `mvn spring-boot:run -Dspring-boot.run.profiles=local,secrets`)
+* Register a user via the REST API and manually add roles 0 and 3 in the database
+    * See section "Bootstrapping the first user" for more details
+
 ### Installing Dependencies
 
 Dependencies are managed via the pom.yml file. This file contains all direct dependencies of this project and some additional configuration. To install these dependencies, run
@@ -75,10 +85,20 @@ The `-Dspring-boot.run.fork=false` disables forking while running the project, w
 
 ### Starting a local PostgreSQL Instance
 
-This service uses a PostgreSQL database to persist data. For the convenience of the developer, a docker-compose.yaml was provided. In order to use this file, please refer to installing docker for your
-system, also make sure to install the docker-compose extension. To start the database (and adminier, a tool to manage this database) simply run `docker-compose up` in the `development` directory of this
-project. If not otherwise specified, the username is `postgres`
+This service uses a PostgreSQL database to persist data. For the convenience of the developer, a docker compose file (located at development/docker-compose.yaml) is provided. In order to use this
+file, please refer to installing docker for your system, also make sure to install the docker-compose extension. To start the database (and adminier, a tool to manage this database) simply
+run `docker-compose up` in the `development` directory of this project. If not otherwise specified, the username is `postgres`
 and the password can be found in the docker-compose.yaml
+
+### Bootstrapping the first user
+
+The service does not come with automatic bootstrapping for the first user. To manually create a user with admin rights, follow these steps:
+
+* Register a user via the REST API
+* In the database, add two new entries to the table `user_dto_roles`:
+    * **user_dto_id**: The userId of the registered user **roles**: 0 (To enable the user)
+    * **user_dto_id**: The userId of the registered user **roles**: 3 (To grant the user admin privileges)
+* The user now has the rights to login and grant roles to any new user (and thus themself).
 
 ## API Specification
 
