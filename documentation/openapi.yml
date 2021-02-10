@@ -174,8 +174,13 @@ paths:
                 - Stock
             description: |-
                 Retrieves all items currently in stock
-                If the requesting user does not have the role "ORDERER", the returned list of items will not contain
-                items with status "ORDERED" or "OUTOFSTOCK"
+
+                ### Access Restrictions
+                Different roles can access different filtering and different stock status
+                | Role     | Condition                                      |
+                |----------|------------------------------------------------|
+                |MEMBER    | Cannot retrieve or filter by status OUTOFSTOCK |
+                |ORDERED   | Can retrive and filter by any status           |
             operationId: stockGet
             parameters:
                 -   in: query
