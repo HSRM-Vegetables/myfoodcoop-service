@@ -99,6 +99,13 @@ Feature: Simple Purchases
     And def token = response.token
     And def userId = getUserIdFromToken(token)
 
+    # Set Users balance
+    Given path 'balance', userId
+    And header Authorization = "Bearer " + token
+    And request { balance: 500 }
+    When method PATCH
+    Then status 200
+
     # Purchase item
     Given path '/purchase'
     And header Authorization = "Bearer " + token
@@ -106,7 +113,7 @@ Feature: Simple Purchases
     And request { items: [#(item1)] }
     When method POST
     Then status 200
-    And match response contains { id: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
+    And match response contains { id: '#uuid', userId: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
     And assert response.name == "member"
     And assert response.price == 1.3
     And assert response.totalVat == 0.21
@@ -134,7 +141,7 @@ Feature: Simple Purchases
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And match response contains { id: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
+    And match response contains { id: '#uuid', userId: '#uuid', createdOn: '#string', totalPrice: '#number', items: '#array'}
     And match each response.items contains { id: '#uuid', name: '#string', amount: '#number', pricePerUnit: '#number', unitType: '#string' }
     And def calculatedPrice = calcPrice(response.items)
     And assert response.totalPrice == calculatedPrice
@@ -146,9 +153,11 @@ Feature: Simple Purchases
     Then status 200
     And assert response.purchases.length == 1
     And def purchase = findItemWithId(response.purchases, purchaseId)
-    And match purchase contains { id: #(purchaseId) }
+    And match purchase contains { id: #(purchaseId), userId: '#uuid'}
     And def purchasedItem1 = findItemWithId(purchase.items, stockId1)
     And match purchasedItem1 contains { id: #(stockId1) }
+    And assert response.totalCumulativePrice == 1.3
+    And assert response.totalCumulativeVat == 0.21
 
   Scenario: Purchase multiple items
     # Get token
@@ -795,3 +804,63 @@ Feature: Simple Purchases
     When method GET
     Then status 200
     And match response.quantity == 140.0
+
+  Scenario: Purchase list with multiple purchases
+    # Create Item with Orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create item
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request defaultStockPostBody
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Login with member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    And def userId = getUserIdFromToken(token)
+
+    # Get current purchase list details
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And def currentPurchases = response.purchases.length
+    And def currentTotalCumulativePrice = response.totalCumulativePrice
+    And def currentTotalCumulativeVat = response.totalCumulativeVat
+
+    # Purchase 1
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item1 = { id: #(stockId1), amount: 1 }
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 200
+    And match response contains { id: '#uuid', userId: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
+
+    # Purchase 2
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item1 = { id: #(stockId1), amount: 2}
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 200
+    And match response contains { id: '#uuid', userId: '#uuid', name: '#string', balance: '#number', price: '#number', totalVat: '#number', vatDetails: '#array' }
+
+    # Check purchase list
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    When method GET
+    Then status 200
+    And assert response.purchases.length == currentPurchases + 2
+    And match response.totalCumulativePrice.toFixed(2) == (currentTotalCumulativePrice + 3.9).toFixed(2)
+    And match response.totalCumulativeVat.toFixed(2) == (currentTotalCumulativeVat + 0.63).toFixed(2)

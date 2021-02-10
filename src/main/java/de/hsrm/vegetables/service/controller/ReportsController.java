@@ -7,7 +7,6 @@ import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.service.mapper.PurchaseMapper;
-import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.PurchaseService;
 import de.hsrm.vegetables.service.services.StockService;
 import de.hsrm.vegetables.service.services.UserService;
@@ -41,9 +40,6 @@ public class ReportsController implements ReportsApi {
 
     @NonNull
     private UserService userService;
-
-    @NonNull
-    private BalanceService balanceService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
@@ -150,9 +146,7 @@ public class ReportsController implements ReportsApi {
                             item.setUsername(user.getUsername());
                             item.setMemberId(user.getMemberId());
                             item.setIsDeleted(user.isDeleted());
-                            item.setBalance(balanceService
-                                    .getBalance(user.getUsername())
-                                    .getAmount());
+                            item.setBalance(user.getBalance());
                             return item;
                         })
                         .collect(Collectors.toList()));

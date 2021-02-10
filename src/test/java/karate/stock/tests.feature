@@ -85,6 +85,77 @@ Feature: Simple Stock management
     }
     """
 
+    * def isLexiOrderCorrect =
+    """
+    function(arr, sortOrder, key) {
+      // Check if a list of objects is sorted correctly, comparing a field (string) of the objects
+      // arr: (Array<Object>) The list to check
+      // asc: (String) "ASC" or "DESC" depending on the list supposedly being sorted ascendingly or descendingly
+      // key: (string) The name of the key to compare the objects of arr for
+      if (arr === undefined || arr === null || key === undefined || key === null || key === "") {
+          return false;
+      }
+      if (sortOrder === null || sortOrder == undefined && (sortOrder !== "ASC" || sortOrder !== "DESC")) {
+        return false;
+      }
+
+      for (var i = 0; i < arr.length - 1; i++) {
+        var elem1 = arr[i][key];
+        var elem2 = arr[i + 1][key];
+
+        if (sortOrder === "ASC") {
+          if (elem1 > elem2) {
+              return false;
+          }
+        } else {
+         if (elem1 < elem2) {
+              return false;
+          }
+        }
+      }
+
+      return true;
+    }
+    """
+
+    * def isDateOrderCorrect =
+    """
+    function(arr, sortOrder, key, skipNull) {
+      // Check if a list of objects is sorted correctly, comparing a field (date) of the objects
+      // arr: (Array<Object>) The list to check
+      // asc: (String) "ASC" or "DESC" depending on the list supposedly being sorted ascendingly or descendingly
+      // key: (string) The name of the key to compare the objects of arr for
+      // skipNull: (bool) whether to ignore null fields
+      if (arr === undefined || arr === null || key === undefined || key === null || key === "") {
+          return false;
+      }
+      if (sortOrder === null || sortOrder == undefined && (sortOrder !== "ASC" || sortOrder !== "DESC")) {
+        return false;
+      }
+
+      for (var i = 0; i < arr.length - 1; i++) {
+        var elem1 = arr[i][key];
+        var elem2 = arr[i + 1][key];
+
+        if (skipNull && (!elem1 || !elem2)) {
+          continue;
+        }
+
+        if (sortOrder === "ASC") {
+          if (new Date(elem1) > new Date(elem2)) {
+              return false;
+          }
+        } else {
+         if (new Date(elem1) < new Date(elem2)) {
+              return false;
+          }
+        }
+      }
+
+      return true;
+    }
+    """
+
     * def getUserIdFromToken =
     """
     function(token) {
@@ -99,7 +170,7 @@ Feature: Simple Stock management
     }
     """
 
-  Scenario: GET returns an empty list if no stock exists
+  Scenario: GET returns a list of items
     # Get token
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }
@@ -111,7 +182,7 @@ Feature: Simple Stock management
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    And assert response.items.length == 0
+    And match response contains { items: '#array' }
 
   Scenario: Create a stock item
     # Get token
@@ -1048,135 +1119,6 @@ Feature: Simple Stock management
     And assert response.items.length > 0
     And match each response.items contains { stockStatus: '#? _ === "OUTOFSTOCK" || _ === "INSTOCK"' }
 
-  Scenario: A user without role ORDERER does not get items of status "ORDERED" or "OUTOFSTOCK" but an ORDERER sees everything
-    # Get token for orderer
-    Given path 'auth', 'login'
-    And request { username: 'orderer',  password: #(password) }
-    When method POST
-    Then status 200
-    And def oToken = response.token
-
-    # Get token for member
-    Given path 'auth', 'login'
-    And request { username: 'member',  password: #(password) }
-    When method POST
-    Then status 200
-    And def mToken = response.token
-
-    # Create stock item with status ORDERED
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "ORDERED",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Create stock item with status OUTOFSTOCK
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "OUTOFSTOCK",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Create stock item with status INSTOCK
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "INSTOCK",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Create stock item with status SPOILSSOON
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "SPOILSSOON",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Get the stock as the member
-    Given path 'stock'
-    And header Authorization = "Bearer " + mToken
-    When method GET
-    Then status 200
-    And assert response.items.length > 0
-    And def stockOrdered = filterByStatus(response.items, "ORDERED")
-    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
-    And def stockInStock = filterByStatus(response.items, "INSTOCK")
-    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
-    And assert stockOrdered.length == 0
-    And assert stockOutOfStock.length == 0
-    And assert stockInStock.length > 0
-    And assert stockSpoilsSoon.length > 0
-
-    # Get the stock as the orderer
-    Given path 'stock'
-    And header Authorization = "Bearer " + oToken
-    When method GET
-    Then status 200
-    And assert response.items.length > 0
-    And def stockOrdered = filterByStatus(response.items, "ORDERED")
-    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
-    And def stockInStock = filterByStatus(response.items, "INSTOCK")
-    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
-    And assert stockOrdered.length > 0
-    And assert stockOutOfStock.length > 0
-    And assert stockInStock.length > 0
-    And assert stockSpoilsSoon.length > 0
-
   Scenario: Orderer can dispose an item
     # Get token
     Given path 'auth', 'login'
@@ -1358,3 +1300,138 @@ Feature: Simple Stock management
     When method POST
     Then status 400
     And match response.errorCode == 400024
+
+  Scenario: Default sorting (ID, ASC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Stock is sorted by ID ASC by default
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And assert isLexiOrderCorrect(response.items, "ASC", "id") == true
+
+  Scenario: Sorting (NAME, ASC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Check sorting
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    And param sortBy = "NAME"
+    And param sortOrder = "ASC"
+    When method GET
+    Then status 200
+    And assert isLexiOrderCorrect(response.items, "ASC", "name") == true
+
+
+  Scenario: Sorting (ORDERDATE, ASC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Check sorting
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    And param sortBy = "ORDERDATE"
+    And param sortOrder = "ASC"
+    When method GET
+    Then status 200
+    And assert isDateOrderCorrect(response.items, "ASC", "orderDate", true) == true
+
+  Scenario: Sorting (DELIVERYDATE, ASC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Check sorting
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    And param sortBy = "DELIVERYDATE"
+    And param sortOrder = "ASC"
+    When method GET
+    Then status 200
+    And assert isDateOrderCorrect(response.items, "ASC", "deliveryDate", true) == true
+
+  Scenario: Sorting (ID, DESC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Stock is sorted by ID ASC by default
+    Given path 'stock'
+    And param sortOrder = "DESC"
+    And header Authorization = "Bearer " + oToken
+    When method GET
+    Then status 200
+    And assert isLexiOrderCorrect(response.items, "DESC", "id") == true
+
+  Scenario: Sorting (NAME, DESC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Check sorting
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    And param sortBy = "NAME"
+    And param sortOrder = "DESC"
+    When method GET
+    Then status 200
+    And assert isLexiOrderCorrect(response.items, "DESC", "name") == true
+
+  Scenario: Sorting (ORDERDATE, DESC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Check sorting
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    And param sortBy = "ORDERDATE"
+    And param sortOrder = "DESC"
+    When method GET
+    Then status 200
+    And assert isDateOrderCorrect(response.items, "DESC", "orderDate", true) == true
+
+  Scenario: Sorting (DELIVERYDATE, DESC) is correct
+    # Get token for ORDERER
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Check sorting
+    Given path 'stock'
+    And header Authorization = "Bearer " + oToken
+    And param sortBy = "DELIVERYDATE"
+    And param sortOrder = "DESC"
+    When method GET
+    Then status 200
+    And print response
+    And assert isDateOrderCorrect(response.items, "DESC", "deliveryDate", true) == true

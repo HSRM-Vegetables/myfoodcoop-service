@@ -33,6 +33,9 @@ public class UserDto {
     @Column(nullable = false)
     private boolean isDeleted = false;
 
+    @Column(nullable = false)
+    private Float balance = 0f;
+
     @Column
     @Enumerated
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)

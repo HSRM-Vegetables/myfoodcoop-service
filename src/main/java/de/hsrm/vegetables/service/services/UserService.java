@@ -1,6 +1,7 @@
 package de.hsrm.vegetables.service.services;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.DeleteFilter;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.BadRequestError;
@@ -52,6 +53,7 @@ public class UserService {
         user.setEmail(email == null || email.length() <= 0 ? null : email);
         user.setMemberId(memberId);
         user.setPassword(passwordEncoder.encode(password));
+        user.setBalance(0f);
 
         return userRepository.save(user);
     }
@@ -92,6 +94,11 @@ public class UserService {
 
     public void softDeleteUser(String id) {
         UserDto user = getUserById(id);
+
+        if (user.isDeleted()) {
+            throw new BadRequestError("User is already deleted", ErrorCode.USER_IS_DELETED);
+        }
+
         user.setDeleted(true);
         userRepository.save(user);
     }
@@ -116,6 +123,10 @@ public class UserService {
         UserDto user = getUserById(id);
         if (user == null) {
             throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+        }
+
+        if (user.isDeleted()) {
+            throw new BadRequestError("Cannot add a role to a deleted user", ErrorCode.USER_IS_DELETED);
         }
 
         List<Role> roles = user.getRoles();
@@ -177,10 +188,10 @@ public class UserService {
     /**
      * Updates data of a User.
      *
-     * @param userId  Id of the User to update
-     * @param memberId  memberId of the User to update
-     * @param email     email-Address of the user to update
-     * @param password  password of the user to update
+     * @param userId   Id of the User to update
+     * @param memberId memberId of the User to update
+     * @param email    email-Address of the user to update
+     * @param password password of the user to update
      * @return The updated user
      */
     public UserDto update(String userId, String memberId, String email, String password) {
@@ -215,6 +226,50 @@ public class UserService {
             userDto = userRepository.save(userDto);
         }
         return userDto;
+    }
+
+    /**
+     * Reduces the amount of money a given user has.
+     * <p>
+     * Throws a NotFoundError if the user wasn't found
+     *
+     * @param userDto The user to withdraw the money from
+     * @param amount  The amount to withdraw
+     * @return
+     */
+    public UserDto withdraw(UserDto userDto, Float amount) {
+        userDto.setBalance(userDto.getBalance() - amount);
+
+        return userRepository.save(userDto);
+    }
+
+    /**
+     * Increases the amount of money a given user has.
+     * <p>
+     * Throws a NotFoundError if the user wasn't found
+     *
+     * @param userDto The user to topuup the money from
+     * @param amount  The amount to topup
+     * @return
+     */
+    public UserDto topup(UserDto userDto, Float amount) {
+        userDto.setBalance(userDto.getBalance() + amount);
+
+        return userRepository.save(userDto);
+    }
+
+    /**
+     * Updates a users balance.
+     * If no balance for the given name was found, a new entry in the database will be created, no error will be thrown
+     *
+     * @param userDto
+     * @param amount
+     * @return
+     */
+    public UserDto setBalance(UserDto userDto, Float amount) {
+        userDto.setBalance(amount);
+
+        return userRepository.save(userDto);
     }
 
 }

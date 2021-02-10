@@ -4,10 +4,9 @@ import de.hsrm.vegetables.Stadtgemuese_Backend.api.BalanceApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceAmountRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalancePatchRequest;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceResponse;
-import de.hsrm.vegetables.service.domain.dto.BalanceDto;
+import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.mapper.Mapper;
 import de.hsrm.vegetables.service.security.UserPrincipal;
-import de.hsrm.vegetables.service.services.BalanceService;
 import de.hsrm.vegetables.service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,28 +23,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class BalanceController implements BalanceApi {
 
     @NonNull
-    private final BalanceService balanceService;
-
-    @NonNull
     private final UserService userService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
     public ResponseEntity<BalanceResponse> userBalanceGet(String userId) {
-        BalanceDto balanceDto = balanceService.getBalance(userService.getUserById(userId)
-                .getUsername());
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        UserDto userDto = userService.getUserById(userId);
+        return ResponseEntity.ok(Mapper.userDtoToBalanceResponse(userDto));
     }
-
 
     @Override
     @PreAuthorize("hasRole('MEMBER') and #userId == authentication.principal.id")
     public ResponseEntity<BalanceResponse> balancePatch(String userId, BalancePatchRequest request) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
-        BalanceDto balanceDto = balanceService.upsert(userPrincipal.getUsername(), request.getBalance());
+        UserDto userDto = userService.getUserById(userPrincipal.getId());
+        userDto = userService.setBalance(userDto, request.getBalance());
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        return ResponseEntity.ok(Mapper.userDtoToBalanceResponse(userDto));
     }
 
     @Override
@@ -53,9 +48,10 @@ public class BalanceController implements BalanceApi {
     public ResponseEntity<BalanceResponse> balanceTopup(String userId, BalanceAmountRequest request) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
-        BalanceDto balanceDto = balanceService.topup(userPrincipal.getUsername(), request.getAmount());
+        UserDto userDto = userService.getUserById(userPrincipal.getId());
+        userDto = userService.topup(userDto, request.getAmount());
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        return ResponseEntity.ok(Mapper.userDtoToBalanceResponse(userDto));
     }
 
     @Override
@@ -63,9 +59,10 @@ public class BalanceController implements BalanceApi {
     public ResponseEntity<BalanceResponse> balanceWithdraw(String userId, BalanceAmountRequest request) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
-        BalanceDto balanceDto = balanceService.withdraw(userPrincipal.getUsername(), request.getAmount());
+        UserDto userDto = userService.getUserById(userPrincipal.getId());
+        userDto = userService.withdraw(userDto, request.getAmount());
 
-        return ResponseEntity.ok(Mapper.balanceDtoToBalanceResponse(balanceDto));
+        return ResponseEntity.ok(Mapper.userDtoToBalanceResponse(userDto));
     }
 
     private UserPrincipal getUserPrincipalFromSecurityContext() {
