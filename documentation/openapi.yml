@@ -1117,6 +1117,8 @@ components:
             properties:
                 id:
                     $ref: '#/components/schemas/uuid'
+                purchase:
+                    $ref: '#/components/schemas/purchase-history-item'
                 createdOn:
                     description: Date and time the balance history item was created at
                     example: '2017-07-21T17:32:28Z'
