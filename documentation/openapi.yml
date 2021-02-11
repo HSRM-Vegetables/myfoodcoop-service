@@ -186,8 +186,8 @@ paths:
                 -   $ref: '#/components/parameters/user-id'
                 -   $ref: '#/components/parameters/fromDate'
                 -   $ref: '#/components/parameters/toDate'
-                -   $ref: '#/components/parameters/pageNumber'
-                -   $ref: '#/components/parameters/pageSize'
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call, returns the user's balance history
@@ -1700,24 +1700,20 @@ components:
                 - limit
                 - total
             properties:
-                pageNumber:
+                offset:
                     type: integer
                     description: |-
                         The effective number of items to skip before starting to collect the result set
-                        (i.e. as specified in the request or default if not specified)
+                        (i.e. the value specified in the request or the default value if not specified)
                     minimum: 0
-                pageSize:
+                limit:
                     type: integer
                     description: |-
                         The effective numbers of items to return
-                        (i.e. as specified in the request or default if not specified)
-                        Actual length of balance history items array might be shorter.
+                        (i.e. the value specified in the request or the default value if not specified)
+                        Actual length of balance history items array might be shorter
                     minimum: 1
-                totalPages:
-                    type: integer
-                    description: Total number of pages of elements in the database
-                    minimum: 0
-                totalElements:
+                total:
                     type: integer
                     format: int64
                     description: Total number of elements in the database
@@ -1812,19 +1808,24 @@ components:
             required: true
             description: The name of a role
 
-        pageNumber:
+        offset:
             in: query
-            name: pageNumber
-            description: Page number for pagination
+            name: offset
+            description: |-
+                The effective number of items to skip before starting to collect the result set
+                (i.e. the value specified in the request or the default value if not specified)
             schema:
                 type: integer
                 minimum: 0
                 default: 0
 
-        pageSize:
+        limit:
             in: query
-            name: pageSize
-            description: Page size for pagination
+            name: limit
+            description: |-
+                The effective numbers of items to return
+                (i.e. the value specified in the request or the default value if not specified)
+                Actual length of balance history items array might be shorter
             schema:
                 type: integer
                 minimum: 1

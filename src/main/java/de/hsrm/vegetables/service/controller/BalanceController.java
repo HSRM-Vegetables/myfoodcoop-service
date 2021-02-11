@@ -15,7 +15,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,7 +49,7 @@ public class BalanceController implements BalanceApi {
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
     public ResponseEntity<BalanceHistoryResponse> userBalanceHistoryGet(
-            String userId, LocalDate fromDate, LocalDate toDate, Integer pageNumber, Integer pageSize) {
+            String userId, LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
 
         LocalDate today = LocalDate.now();
 
@@ -70,7 +69,7 @@ public class BalanceController implements BalanceApi {
         // Query balance history items
 
         Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceService.findAllByUserDtoAndCreatedOnBetween(
-                userDto, fromDateConverted, toDateConverted, new OffsetLimit(pageNumber, pageSize));
+                userDto, fromDateConverted, toDateConverted, new OffsetLimit(offset, limit));
 
         List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
@@ -79,10 +78,9 @@ public class BalanceController implements BalanceApi {
         // Create response
 
         Pagination pagination = new Pagination();
-        pagination.setPageNumber(pageNumber);
-        pagination.setPageSize(pageSize);
-        pagination.setTotalPages(balanceHistoryItemDtoPage.getTotalPages());
-        pagination.setTotalElements(balanceHistoryItemDtoPage.getTotalElements());
+        pagination.setOffset(offset);
+        pagination.setLimit(limit);
+        pagination.setTotal(balanceHistoryItemDtoPage.getTotalElements());
 
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
         balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
