@@ -6,7 +6,6 @@ import de.hsrm.vegetables.service.domain.dto.*;
 import de.hsrm.vegetables.service.exception.ErrorCode;
 import de.hsrm.vegetables.service.exception.errors.http.InternalError;
 import de.hsrm.vegetables.service.exception.errors.http.NotFoundError;
-import de.hsrm.vegetables.service.repositories.BalanceHistoryItemRepository;
 import de.hsrm.vegetables.service.repositories.PurchaseRepository;
 import de.hsrm.vegetables.service.repositories.PurchasedItemRepository;
 import lombok.NonNull;
@@ -30,7 +29,7 @@ public class PurchaseService {
     private final PurchasedItemRepository purchasedItemRepository;
 
     @NonNull
-    private final BalanceHistoryItemRepository balanceHistoryItemRepository;
+    private final BalanceService balanceService;
 
 
     /**
@@ -78,14 +77,8 @@ public class PurchaseService {
 
         PurchaseDto savedPurchaseDto = purchaseRepository.save(purchaseDto);
 
-        BalanceHistoryItemDto balanceHistoryItemDto = new BalanceHistoryItemDto();
-        balanceHistoryItemDto.setId(purchaseDto.getId());
-        balanceHistoryItemDto.setUserDto(userDto);
-        balanceHistoryItemDto.setPurchase(savedPurchaseDto);
-        balanceHistoryItemDto.setCreatedOn(purchaseDto.getCreatedOn());
-        balanceHistoryItemDto.setBalanceChangeType(BalanceChangeType.PURCHASE);
-        balanceHistoryItemDto.setAmount(purchaseDto.getTotalPrice());
-        balanceHistoryItemRepository.save(balanceHistoryItemDto);
+        balanceService.saveBalanceChange(userDto, purchaseDto.getCreatedOn(),
+                savedPurchaseDto, BalanceChangeType.PURCHASE, purchaseDto.getTotalPrice());
 
         return savedPurchaseDto;
     }

@@ -67,9 +67,7 @@ public class BalanceController implements BalanceApi {
 
         UserDto userDto = userService.getUserById(userId);
 
-        //
         // Query balance history items
-        //
 
         Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceService.findAllByUserDtoAndCreatedOnBetween(
                 userDto, fromDateConverted, toDateConverted, new OffsetLimit(pageNumber, pageSize));
@@ -78,9 +76,7 @@ public class BalanceController implements BalanceApi {
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
                 .collect(Collectors.toList());
 
-        //
         // Create response
-        //
 
         Pagination pagination = new Pagination();
         pagination.setPageNumber(pageNumber);
@@ -103,7 +99,8 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.setBalance(userDto, request.getBalance());
 
-        balanceService.saveBalanceChange(userDto, BalanceChangeType.SET, request.getBalance());
+        balanceService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+                BalanceChangeType.SET, request.getBalance());
 
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
@@ -116,7 +113,8 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.topup(userDto, request.getAmount());
 
-        balanceService.saveBalanceChange(userDto, BalanceChangeType.TOPUP, request.getAmount());
+        balanceService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+                BalanceChangeType.TOPUP, request.getAmount());
 
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
@@ -129,7 +127,8 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.withdraw(userDto, request.getAmount());
 
-        balanceService.saveBalanceChange(userDto, BalanceChangeType.WITHDRAW, request.getAmount());
+        balanceService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+                BalanceChangeType.WITHDRAW, request.getAmount());
 
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }

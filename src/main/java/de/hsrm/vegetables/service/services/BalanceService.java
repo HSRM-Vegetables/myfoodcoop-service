@@ -2,6 +2,7 @@ package de.hsrm.vegetables.service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.BalanceChangeType;
 import de.hsrm.vegetables.service.domain.dto.BalanceHistoryItemDto;
+import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.UserDto;
 import de.hsrm.vegetables.service.repositories.BalanceHistoryItemRepository;
 import lombok.NonNull;
@@ -39,14 +40,19 @@ public class BalanceService {
      * Create and save a balance history item
      *
      * @param userDto The changed balance the balance history item refers to
+     * @param createdOn Time of the balance change
+     * @param purchaseDto Associated purchase, if balance change resulted from such a one
      * @param balanceChangeType The type of balance change (TOPUP, WITHDRAW, etc.)
      * @param amount The amount the balance was changed by or changed to
      */
-    public void saveBalanceChange(UserDto userDto, BalanceChangeType balanceChangeType, float amount) {
+    public void saveBalanceChange(UserDto userDto, OffsetDateTime createdOn, PurchaseDto purchaseDto,
+                                  BalanceChangeType balanceChangeType, float amount) {
+
         BalanceHistoryItemDto balanceHistoryItem = new BalanceHistoryItemDto();
 
         balanceHistoryItem.setUserDto(userDto);
-        balanceHistoryItem.setPurchase(null);
+        balanceHistoryItem.setCreatedOn(createdOn);
+        balanceHistoryItem.setPurchase(purchaseDto);
         balanceHistoryItem.setBalanceChangeType(balanceChangeType);
         balanceHistoryItem.setAmount(amount);
 
