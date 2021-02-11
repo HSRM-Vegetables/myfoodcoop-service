@@ -44,9 +44,8 @@ Feature: Balance Tests
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
-    And match response.pagination == { offset: 0, limit: 10, total: 1 }
-    And assert response.balanceHistoryItems.length == 1
-    And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
+    And match response.pagination == { offset: 0, limit: 10, total: 0 }
+    And assert response.balanceHistoryItems.length == 0
 
   Scenario: GET /balance/:userId/history works for user with comprehensive balance history
     Given path 'auth', 'login'
@@ -82,8 +81,8 @@ Feature: Balance Tests
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
-    And match response.pagination == { offset: 0, limit: 10, total: 4 }
-    And assert response.balanceHistoryItems.length == 4
+    And match response.pagination == { offset: 0, limit: 10, total: 3 }
+    And assert response.balanceHistoryItems.length == 3
     And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
 
   Scenario: PATCH allows to set the balance for user

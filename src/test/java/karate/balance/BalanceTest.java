@@ -1,12 +1,16 @@
 package karate.balance;
 
 import com.intuit.karate.junit5.Karate;
+import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
 import de.hsrm.vegetables.service.Application;
 import karate.BaseTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+
+import java.util.List;
 
 @SpringBootTest(
         webEnvironment = WebEnvironment.DEFINED_PORT,
@@ -22,6 +26,14 @@ import org.springframework.test.context.TestPropertySource;
 )
 @DirtiesContext
 class BalanceTest extends BaseTest {
+
+    @BeforeEach
+    protected void setup() {
+        super.setup();
+
+        // Create test user for balance history tests
+        addUser("member2", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER));
+    }
 
     @Karate.Test
     Karate testAll() {
