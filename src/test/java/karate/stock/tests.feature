@@ -995,7 +995,21 @@ Feature: Simple Stock management
     # Create stock item with status ORDERED
     Given path '/stock'
     And header Authorization = "Bearer " + oToken
-    And request defaultStockBody
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "ORDERED",
+      vat: 0.19
+    }
+    """
     When method POST
     Then status 201
 
@@ -1118,135 +1132,6 @@ Feature: Simple Stock management
     Then status 200
     And assert response.items.length > 0
     And match each response.items contains { stockStatus: '#? _ === "OUTOFSTOCK" || _ === "INSTOCK"' }
-
-  Scenario: A user without role ORDERER does not get items of status "ORDERED" or "OUTOFSTOCK" but an ORDERER sees everything
-    # Get token for orderer
-    Given path 'auth', 'login'
-    And request { username: 'orderer',  password: #(password) }
-    When method POST
-    Then status 200
-    And def oToken = response.token
-
-    # Get token for member
-    Given path 'auth', 'login'
-    And request { username: 'member',  password: #(password) }
-    When method POST
-    Then status 200
-    And def mToken = response.token
-
-    # Create stock item with status ORDERED
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "ORDERED",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Create stock item with status OUTOFSTOCK
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "OUTOFSTOCK",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Create stock item with status INSTOCK
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "INSTOCK",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Create stock item with status SPOILSSOON
-    Given path '/stock'
-    And header Authorization = "Bearer " + oToken
-    And request
-    """
-    {
-      name: "test",
-      unitType: "PIECE",
-      quantity: 10.0,
-      pricePerUnit: 5.0,
-      sustainablyProduced: true,
-      originCategory: "UNKNOWN",
-      producer: "producer",
-      supplier: "supplier",
-      stockStatus: "SPOILSSOON",
-      vat: 0.19
-    }
-    """
-    When method POST
-    Then status 201
-
-    # Get the stock as the member
-    Given path 'stock'
-    And header Authorization = "Bearer " + mToken
-    When method GET
-    Then status 200
-    And assert response.items.length > 0
-    And def stockOrdered = filterByStatus(response.items, "ORDERED")
-    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
-    And def stockInStock = filterByStatus(response.items, "INSTOCK")
-    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
-    And assert stockOrdered.length == 0
-    And assert stockOutOfStock.length == 0
-    And assert stockInStock.length > 0
-    And assert stockSpoilsSoon.length > 0
-
-    # Get the stock as the orderer
-    Given path 'stock'
-    And header Authorization = "Bearer " + oToken
-    When method GET
-    Then status 200
-    And assert response.items.length > 0
-    And def stockOrdered = filterByStatus(response.items, "ORDERED")
-    And def stockOutOfStock = filterByStatus(response.items, "OUTOFSTOCK")
-    And def stockInStock = filterByStatus(response.items, "INSTOCK")
-    And def stockSpoilsSoon = filterByStatus(response.items, "SPOILSSOON")
-    And assert stockOrdered.length > 0
-    And assert stockOutOfStock.length > 0
-    And assert stockInStock.length > 0
-    And assert stockSpoilsSoon.length > 0
 
   Scenario: Orderer can dispose an item
     # Get token
@@ -1462,7 +1347,6 @@ Feature: Simple Stock management
     Then status 200
     And assert isLexiOrderCorrect(response.items, "ASC", "name") == true
 
-
   Scenario: Sorting (ORDERDATE, ASC) is correct
     # Get token for ORDERER
     Given path 'auth', 'login'
@@ -1564,3 +1448,120 @@ Feature: Simple Stock management
     Then status 200
     And print response
     And assert isDateOrderCorrect(response.items, "DESC", "deliveryDate", true) == true
+
+  Scenario: A MEMBER can retrieve items of Status ORDERED, INSTOCK and SPOILSSOON
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create stock item with status ORDERED
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "ORDERED",
+      vat: 0.19
+    }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status OUTOFSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "OUTOFSTOCK",
+      vat: 0.19
+    }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status INSTOCK
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+      vat: 0.19
+    }
+    """
+    When method POST
+    Then status 201
+
+    # Create stock item with status SPOILSSOON
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 10.0,
+      pricePerUnit: 5.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "SPOILSSOON",
+      vat: 0.19
+    }
+    """
+    When method POST
+    Then status 201
+
+    # Get token for member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # Retrieve all items with MEMBER
+    Given path 'stock'
+    And header Authorization = "Bearer " + mToken
+    When method GET
+    Then status 200
+    And assert response.items.length > 0
+    And def ordered = filterByStatus(response.items, "ORDERED")
+    And def inStock = filterByStatus(response.items, "INSTOCK")
+    And def spoilsSoon = filterByStatus(response.items, "SPOILSSOON")
+    And def outOfStock = filterByStatus(response.items, "OUTOFSTOCK")
+    And assert ordered.length > 0
+    And assert inStock.length > 0
+    And assert spoilsSoon.length > 0
+    And assert outOfStock.length == 0

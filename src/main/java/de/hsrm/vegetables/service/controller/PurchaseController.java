@@ -93,6 +93,15 @@ public class PurchaseController implements PurchaseApi {
                 .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
                 .collect(Collectors.toList()));
 
+        float totalCumulativePrice = 0f;
+        float totalCumulativeVat = 0f;
+        for (PurchaseDto purchase : purchases) {
+            totalCumulativePrice = StockService.round(totalCumulativePrice + purchase.getTotalPrice(), 2);
+            totalCumulativeVat = StockService.round(totalCumulativeVat + purchase.getTotalVat(), 2);
+        }
+        purchaseListResponse.setTotalCumulativePrice(totalCumulativePrice);
+        purchaseListResponse.setTotalCumulativeVat(totalCumulativeVat);
+
         return ResponseEntity.ok(purchaseListResponse);
     }
 

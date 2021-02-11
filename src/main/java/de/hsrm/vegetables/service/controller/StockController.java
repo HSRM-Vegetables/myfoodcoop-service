@@ -52,27 +52,27 @@ public class StockController implements StockApi {
             filterByStatus = Collections.emptyList();
         }
 
-        // A member cannot filter by ORDERED or OUTOFSTOCK
+        // A member cannot filter by OUTOFSTOCK
         if (!userPrincipal.getRoles()
-                .contains(Role.ORDERER)) {
-            if (filterByStatus.contains(StockStatus.ORDERED)) {
-                throw new BadRequestError("A user without role ORDERER cannot use filter ORDERED", ErrorCode.MEMBER_CANNOT_USE_THIS_FILTER);
-            }
-
-            if (filterByStatus.contains(StockStatus.OUTOFSTOCK)) {
-                throw new BadRequestError("A user without role ORDERER cannot use filter OUTOFSTOCK", ErrorCode.MEMBER_CANNOT_USE_THIS_FILTER);
-            }
+                .contains(Role.ORDERER) && filterByStatus.contains(StockStatus.OUTOFSTOCK)) {
+            throw new BadRequestError("A user without role ORDERER cannot use filter OUTOFSTOCK", ErrorCode.MEMBER_CANNOT_USE_THIS_FILTER);
         }
 
-        // Do not show stock in status ORDERED or OUTOFSTOCK to non Orderers
+        // Do not show stock in status OUTOFSTOCK to non Orderers
         ArrayList<StockStatus> allFilters = new ArrayList<>();
         if (!userPrincipal.getRoles()
                 .contains(Role.ORDERER)) {
+            // Add filter INSTOCK if necessary
             if (!filterByStatus.contains(StockStatus.INSTOCK)) {
                 allFilters.add(StockStatus.INSTOCK);
             }
-            if (!filterByStatus.contains(StockStatus.ORDERED)) {
+            // Add filter SPOILSSOON if necessary
+            if (!filterByStatus.contains(StockStatus.SPOILSSOON)) {
                 allFilters.add(StockStatus.SPOILSSOON);
+            }
+            // Add filter ORDERED if necessary
+            if (!filterByStatus.contains(StockStatus.ORDERED)) {
+                allFilters.add(StockStatus.ORDERED);
             }
         }
 

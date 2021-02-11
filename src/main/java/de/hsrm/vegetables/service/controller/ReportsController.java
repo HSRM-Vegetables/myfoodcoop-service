@@ -117,7 +117,7 @@ public class ReportsController implements ReportsApi {
                         // update amount
                         soldItem.setQuantitySold(soldItem.getQuantitySold() + purchasedItemDto.getAmount());
                         // update tax
-                        soldItem.setTotalVat(soldItem.getTotalVat() + vatPaid);
+                        soldItem.setTotalVat(StockService.round(soldItem.getTotalVat() + vatPaid, 2));
                         // update gross price
                         soldItem.setGrossAmount(StockService.round(soldItem.getGrossAmount() + grossPrice, 2));
                     }
