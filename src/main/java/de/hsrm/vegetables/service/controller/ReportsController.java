@@ -2,6 +2,7 @@ package de.hsrm.vegetables.service.controller;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.api.ReportsApi;
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.*;
+import de.hsrm.vegetables.service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.service.domain.dto.StockDto;
 import de.hsrm.vegetables.service.exception.ErrorCode;
