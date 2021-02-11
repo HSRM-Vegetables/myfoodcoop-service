@@ -1812,8 +1812,7 @@ components:
             in: query
             name: offset
             description: |-
-                The effective number of items to skip before starting to collect the result set
-                (i.e. the value specified in the request or the default value if not specified)
+                The number of items to skip before starting to collect the result set
             schema:
                 type: integer
                 minimum: 0
@@ -1823,8 +1822,7 @@ components:
             in: query
             name: limit
             description: |-
-                The effective numbers of items to return
-                (i.e. the value specified in the request or the default value if not specified)
+                The numbers of items to return.
                 Actual length of balance history items array might be shorter
             schema:
                 type: integer

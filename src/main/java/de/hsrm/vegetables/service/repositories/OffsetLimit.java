@@ -1,19 +1,10 @@
 package de.hsrm.vegetables.service.repositories;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.io.Serial;
-import java.io.Serializable;
 
-
-public class OffsetLimit implements Pageable, Serializable {
-
-    @Serial
-    private static final long serialVersionUID = -25822477129613575L;
+public class OffsetLimit implements Pageable {
 
     private final long offset;
     private final int limit;
@@ -79,39 +70,5 @@ public class OffsetLimit implements Pageable, Serializable {
     @Override
     public boolean hasPrevious() {
         return offset > limit;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
-        }
-
-        if (!(other instanceof OffsetLimit)) {
-            return false;
-        }
-
-        OffsetLimit that = (OffsetLimit) other;
-
-        return new EqualsBuilder()
-                .append(limit, that.limit)
-                .append(offset, that.offset)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(limit)
-                .append(offset)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("limit", limit)
-                .append("offset", offset)
-                .toString();
     }
 }
