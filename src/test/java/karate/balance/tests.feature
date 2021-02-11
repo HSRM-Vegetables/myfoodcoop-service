@@ -3,6 +3,7 @@ Feature: Balance Tests
   Background:
     * url baseUrl + "/v2"
     * def password = "a_funny_horse**jumps_high778"
+
     * def getUserIdFromToken =
     """
     function(token) {
@@ -16,6 +17,7 @@ Feature: Balance Tests
         return decodedAsObject.id;
     }
     """
+
     * def getToday =
     """
     function() {
@@ -28,7 +30,24 @@ Feature: Balance Tests
     }
     """
 
+    * def defaultStockPostBody =
+    """
+    {
+      name: "Test Product",
+      unitType: "PIECE",
+      quantity: 100.0,
+      pricePerUnit: 2,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+      vat: 0.19
+    }
+    """
+
   Scenario: GET /balance/:userId/history works for user with almost empty balance history
+    # Login as member
     Given path 'auth', 'login'
     And request { username: 'member2',  password: #(password) }
     When method POST
@@ -36,6 +55,7 @@ Feature: Balance Tests
     And def token = response.token
     And def userId = getUserIdFromToken(token)
 
+    # Query balance history
     * def today = getToday()
     Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
@@ -47,7 +67,8 @@ Feature: Balance Tests
     And match response.pagination == { offset: 0, limit: 10, total: 0 }
     And assert response.balanceHistoryItems.length == 0
 
-  Scenario: GET /balance/:userId/history works for user with comprehensive balance history
+  Scenario: GET /balance/:userId/history works for user with balance changes
+    # Login as member
     Given path 'auth', 'login'
     And request { username: 'member2',  password: #(password) }
     When method POST
@@ -55,24 +76,28 @@ Feature: Balance Tests
     And def token = response.token
     And def userId = getUserIdFromToken(token)
 
+    # Add money to balance
     Given path 'balance', userId, 'topup'
     And header Authorization = "Bearer " + token
     And request { amount: 10.0 }
     When method POST
     Then status 200
 
+    # Withdraw money from balance
     Given path 'balance', userId, 'withdraw'
     And header Authorization = "Bearer " + token
     And request { amount: 20.0 }
     When method POST
     Then status 200
 
+    # Set balance to new value
     Given path 'balance', userId
     And header Authorization = "Bearer " + token
     And request { balance: 30.0 }
     When method PATCH
     Then status 200
 
+    # Query balance history
     * def today = getToday()
     Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
@@ -84,6 +109,55 @@ Feature: Balance Tests
     And match response.pagination == { offset: 0, limit: 10, total: 3 }
     And assert response.balanceHistoryItems.length == 3
     And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
+
+  Scenario: GET /balance/:userId/history works for user with purchases
+    # Login as orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def ordererToken = response.token
+
+    # Create 100 items in stock
+    Given path '/stock'
+    And header Authorization = "Bearer " + ordererToken
+    And request defaultStockPostBody
+    When method POST
+    Then status 201
+    And def stockId = response.id
+
+    # Login as member
+    Given path 'auth', 'login'
+    And request { username: 'member2',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    And def userId = getUserIdFromToken(token)
+
+    # Purchase 5 items
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item = { id: #(stockId), amount: 5 }
+    And request { items: [#(item)] }
+    When method POST
+    Then status 200
+    And def purchaseId = response.id
+
+    # Query balance history using pagination
+    * def today = getToday()
+    Given path 'balance', userId, 'history'
+    And header Authorization = "Bearer " + token
+    And param fromDate = today
+    And param toDate = today
+    And param offset = 2
+    When method GET
+    Then status 200
+    And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
+    And match response.pagination == { offset: 2, limit: 10, total: 4 }
+    And assert response.balanceHistoryItems.length == 2
+    And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
+    And match response.balanceHistoryItems[0] !contains { purchase: '#object' }
+    And match response.balanceHistoryItems[1] contains { purchase: '#object', amount: 10.0 }
 
   Scenario: PATCH allows to set the balance for user
     Given path 'auth', 'login'
