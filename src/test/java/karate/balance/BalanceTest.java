@@ -2,6 +2,7 @@ package karate.balance;
 
 import com.intuit.karate.junit5.Karate;
 import de.hsrm.vegetables.my_food_coop_service.Application;
+import de.hsrm.vegetables.my_food_coop_service.model.Role;
 import karate.BaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
