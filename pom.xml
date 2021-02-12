@@ -25,7 +25,7 @@
         <openapi-generator.version>4.3.1</openapi-generator.version>
         <openapitools-jackson.version>0.2.1</openapitools-jackson.version>
         <springfox.version>3.0.0</springfox.version>
-        <auth0.jwt.version>3.12.0</auth0.jwt.version>
+        <auth0.jwt.version>3.13.0</auth0.jwt.version>
         <h2database.version>1.4.200</h2database.version>
         <spring-data-jpa.version>2.4.2</spring-data-jpa.version>
         <postgres.version>42.2.18</postgres.version>
