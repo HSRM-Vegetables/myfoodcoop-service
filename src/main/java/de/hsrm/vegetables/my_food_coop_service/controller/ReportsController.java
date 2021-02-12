@@ -9,6 +9,7 @@ import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestE
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.repositories.DisposedRepository;
+import de.hsrm.vegetables.my_food_coop_service.services.DisposeService;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
 import de.hsrm.vegetables.my_food_coop_service.services.UserService;
@@ -45,6 +46,11 @@ public class ReportsController implements ReportsApi {
 
     @NonNull
     private DisposedRepository disposedRepository;
+
+    @NonNull
+    private DisposeService disposeService;
+
+
 
 
     @Override
@@ -177,8 +183,6 @@ public class ReportsController implements ReportsApi {
         response.setItems(disposedItems);
 
         VatDetailItem vatDetails = new VatDetailItem();
-        //response.setGrossAmount();
-        //response.setGrossAmount(StockService.round(.getVat(), 2));
         Float totalVat = disposedItems.stream()
                 .map(DisposedItem::getTotalVat)
                 .reduce(0f, Float::sum);
@@ -188,42 +192,9 @@ public class ReportsController implements ReportsApi {
 
         response.setGrossAmount(StockService.round(grossAmount, 2));
         response.setTotalVat(StockService.round(totalVat, 2));
-        response.setVatDetails(getVatDetails(disposedItems));
-        //response.setTotalVat(StockService.round(stockItem.getVat()*  2));
+        response.setVatDetails(disposeService.getVatDetails(disposedItems));
 
         return ResponseEntity.ok(response);
-    }
-
-    public static List<VatDetailItem> getVatDetails(List<DisposedItem> disposedItems) {
-        // Get all distinct vat rates
-        ArrayList<Float> distinctVatRates = new ArrayList<>();
-
-        disposedItems.forEach(soldItem -> {
-            if (!distinctVatRates.contains(soldItem.getVat())) {
-                distinctVatRates.add(soldItem.getVat());
-            }
-        });
-
-        return distinctVatRates.stream()
-                .map(vat -> {
-                    // Get all purchased items with specific vat
-                    List<DisposedItem> purchasedItemsWithVat = disposedItems
-                            .stream()
-                            .filter(soldItem -> soldItem.getVat()
-                                    .equals(vat))
-                            .collect(Collectors.toList());
-
-                    // Calculate vat amount for these items
-                    Float amount = purchasedItemsWithVat.stream()
-                            .map(DisposedItem::getTotalVat)
-                            .reduce(0f, Float::sum);
-
-                    VatDetailItem vatDetailItem = new VatDetailItem();
-                    vatDetailItem.setVat(vat);
-                    vatDetailItem.setAmount(StockService.round(amount, 2));
-                    return vatDetailItem;
-                })
-                .collect(Collectors.toList());
     }
 
     /**
