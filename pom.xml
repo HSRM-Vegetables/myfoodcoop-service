@@ -19,7 +19,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>14</java.version>
+        <java.version>15</java.version>
         <swagger-annotations-version>1.6.2</swagger-annotations-version>
         <karate.version>0.9.9.RC4</karate.version>
         <openapi-generator.version>5.0.1</openapi-generator.version>
