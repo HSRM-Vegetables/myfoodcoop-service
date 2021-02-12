@@ -1,4 +1,4 @@
-# Stadtgemüse Backend
+# MyFoodCoop Service
 
 ## Installation
 
