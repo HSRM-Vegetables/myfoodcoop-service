@@ -1,6 +1,7 @@
 package de.hsrm.vegetables.my_food_coop_service.repositories;
 
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

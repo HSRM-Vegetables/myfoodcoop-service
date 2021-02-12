@@ -1,12 +1,14 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
 import de.hsrm.vegetables.my_food_coop_service.api.ReportsApi;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
+import de.hsrm.vegetables.my_food_coop_service.repositories.DisposedRepository;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
 import de.hsrm.vegetables.my_food_coop_service.services.UserService;

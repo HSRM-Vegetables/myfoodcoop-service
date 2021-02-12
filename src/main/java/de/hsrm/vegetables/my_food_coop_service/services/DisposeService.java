@@ -1,12 +1,13 @@
-package de.hsrm.vegetables.service.services;
+package de.hsrm.vegetables.my_food_coop_service.services;
 
 import de.hsrm.vegetables.Stadtgemuese_Backend.model.CartItem;
-import de.hsrm.vegetables.service.domain.dto.DisposedDto;
-import de.hsrm.vegetables.service.domain.dto.StockDto;
-import de.hsrm.vegetables.service.domain.dto.UserDto;
-import de.hsrm.vegetables.service.exception.ErrorCode;
-import de.hsrm.vegetables.service.exception.errors.http.InternalError;
-import de.hsrm.vegetables.service.repositories.DisposedRepository;
+import de.hsrm.vegetables.my_food_coop_service.repositories.DisposedRepository;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
+import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
+import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.InternalError;
+import de.hsrm.vegetables.my_food_coop_service.repositories.DisposedRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
