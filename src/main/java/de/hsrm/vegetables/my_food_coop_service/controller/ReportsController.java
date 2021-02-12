@@ -176,12 +176,54 @@ public class ReportsController implements ReportsApi {
         DisposedItemList response = new DisposedItemList();
         response.setItems(disposedItems);
 
+        VatDetailItem vatDetails = new VatDetailItem();
         //response.setGrossAmount();
         //response.setGrossAmount(StockService.round(.getVat(), 2));
-        //response.setVatDetails();
+        Float totalVat = disposedItems.stream()
+                .map(DisposedItem::getTotalVat)
+                .reduce(0f, Float::sum);
+        Float grossAmount = disposedItems.stream()
+                .map(DisposedItem::getGrossAmount)
+                .reduce(0f, Float::sum);
+
+        response.setGrossAmount(StockService.round(grossAmount, 2));
+        response.setTotalVat(StockService.round(totalVat, 2));
+        response.setVatDetails(getVatDetails(disposedItems));
         //response.setTotalVat(StockService.round(stockItem.getVat()*  2));
 
         return ResponseEntity.ok(response);
+    }
+
+    public static List<VatDetailItem> getVatDetails(List<DisposedItem> disposedItems) {
+        // Get all distinct vat rates
+        ArrayList<Float> distinctVatRates = new ArrayList<>();
+
+        disposedItems.forEach(soldItem -> {
+            if (!distinctVatRates.contains(soldItem.getVat())) {
+                distinctVatRates.add(soldItem.getVat());
+            }
+        });
+
+        return distinctVatRates.stream()
+                .map(vat -> {
+                    // Get all purchased items with specific vat
+                    List<DisposedItem> purchasedItemsWithVat = disposedItems
+                            .stream()
+                            .filter(soldItem -> soldItem.getVat()
+                                    .equals(vat))
+                            .collect(Collectors.toList());
+
+                    // Calculate vat amount for these items
+                    Float amount = purchasedItemsWithVat.stream()
+                            .map(DisposedItem::getTotalVat)
+                            .reduce(0f, Float::sum);
+
+                    VatDetailItem vatDetailItem = new VatDetailItem();
+                    vatDetailItem.setVat(vat);
+                    vatDetailItem.setAmount(StockService.round(amount, 2));
+                    return vatDetailItem;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -197,37 +239,26 @@ public class ReportsController implements ReportsApi {
         OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
-
         List<DisposedDto> itemsBetweenDates = disposedRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
-
         List<DisposedItem> disposedItems = new ArrayList<>();
 
-        itemsBetweenDates.stream().forEach(disposedDto -> {
+        itemsBetweenDates.forEach(disposedDto -> {
             DisposedItem disposedItem = new DisposedItem();
             disposedItem.setCreatedOn(disposedDto.getCreatedOn());
             disposedItem.setAmount(disposedDto.getAmount());
             disposedItem.setName(disposedDto.getStockDto().getName());
-
-            // disposed dtp
             disposedItem.setUserId(disposedDto.getUserDto().getId());
             disposedItem.setStockId(disposedDto.getStockDto().getId());
+            disposedItem.setPricePerUnit(disposedDto.getPricePerUnit());
+            disposedItem.setUnitType(disposedDto.getUnitType());
+            disposedItem.setVat(StockService.round(disposedDto.getVat(), 2));
 
-            // getStock()
-            //Float grossPrice = StockService.round(disposedDto.getStockDto().getPricePerUnit() * disposedDto.getAmount(), 2);
+            float totalVat = StockService.round(disposedDto.getPricePerUnit() * disposedDto.getVat() * disposedDto.getAmount(), 2);
+            disposedItem.setTotalVat(totalVat);
 
-            // update gross price
-            //disposedItem.setGrossAmount(StockService.round(disposedItem.getGrossAmount() + grossPrice, 2));
-
-            disposedItem.setPricePerUnit(disposedDto.getStockDto().getPricePerUnit());
-            disposedItem.setUnitType(disposedDto.getStockDto().getUnitType());
-
-            disposedItem.setVat(disposedDto.getStockDto().getVat());
-            disposedItem.setTotalVat(disposedDto.getStockDto().getQuantity()* disposedDto.getStockDto().getVat());
-
-
+            disposedItem.setGrossAmount(StockService.round(totalVat + disposedDto.getPricePerUnit() * disposedDto.getAmount(), 2));
             disposedItems.add(disposedItem);
         });
-
 
         return disposedItems;
     }
