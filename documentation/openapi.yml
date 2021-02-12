@@ -1,12 +1,10 @@
 openapi: 3.0.3
 info:
-    description: This is the specification for the Stadtgemüse Service.
+    description: This is the specification for the MyFoodCoop Service.
     version: 2.0.0
-    title: Stadtgemüse Service
+    title: MyFoodCoop Service
     contact: { }
-servers:
-    -   url: 'https://veg-service.herokuapp.com/v2/'
-        description: Production v2
+
 tags:
     -   name: Balance
         description: Handles balance requests
@@ -1529,11 +1527,11 @@ components:
             description: An e-mail address
             type: string
             format: email
-            example: robby@stadtgemuese-wiesbaden.de
+            example: robby@myfoodcoop.de
             maxLength: 255
 
         memberId:
-            description: The stadtgemuese member id
+            description: A users member ID
             type: string
             example: 1234
             maxLength: 255
