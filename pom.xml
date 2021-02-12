@@ -8,11 +8,14 @@
         <version>2.4.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>de.hsrm.vegetables</groupId>
-    <artifactId>service</artifactId>
+    <artifactId>myFoodCoop-service</artifactId>
     <version>2.0.0</version>
-    <name>Stadtgemuese Backend</name>
-    <description>Backend for the Stadgemuese e.V. Project at the University of Applied Sciences RheinMain</description>
+    <name>my-food-coop-service</name>
+    <description>Backend for the My FoodCoop Web App. Originally implemented by students at the University of Applied
+        Sciences RheinMain
+    </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

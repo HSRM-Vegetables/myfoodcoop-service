@@ -1,12 +1,12 @@
 package karate;
 
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.OriginCategory;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.Role;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.StockStatus;
-import de.hsrm.vegetables.Stadtgemuese_Backend.model.UnitType;
-import de.hsrm.vegetables.service.domain.dto.UserDto;
-import de.hsrm.vegetables.service.services.StockService;
-import de.hsrm.vegetables.service.services.UserService;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
+import de.hsrm.vegetables.my_food_coop_service.model.OriginCategory;
+import de.hsrm.vegetables.my_food_coop_service.model.Role;
+import de.hsrm.vegetables.my_food_coop_service.model.StockStatus;
+import de.hsrm.vegetables.my_food_coop_service.model.UnitType;
+import de.hsrm.vegetables.my_food_coop_service.services.StockService;
+import de.hsrm.vegetables.my_food_coop_service.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
