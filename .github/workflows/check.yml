@@ -15,11 +15,11 @@ jobs:
                 uses: actions/setup-java@v1
                 with:
                     java-version: 15
-            #    - uses: actions/cache@v1
-            #      with:
-            #        path: ~/.m2/repository
-            #        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-            #        restore-keys: |
-            #          ${{ runner.os }}-maven-
+            -   uses: actions/cache@v1
+                with:
+                    path: ~/.m2/repository
+                    key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+                    restore-keys: |
+                        ${{ runner.os }}-maven-
             -   name: test
                 run: mvn -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true verify
