@@ -21,7 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>14</java.version>
         <swagger-annotations-version>1.6.2</swagger-annotations-version>
-        <karate.version>0.9.6</karate.version>
+        <karate.version>0.9.9.RC4</karate.version>
         <openapi-generator.version>5.0.1</openapi-generator.version>
         <openapitools-jackson.version>0.2.1</openapitools-jackson.version>
         <springfox.version>3.0.0</springfox.version>
@@ -109,19 +109,6 @@
         <!-- Test Dependencies https://github.com/intuit/karate -->
 
         <!-- Karate Testing Framework https://github.com/intuit/karate -->
-        <dependency>
-            <groupId>com.intuit.karate</groupId>
-            <artifactId>karate-apache</artifactId>
-            <version>${karate.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <dependency>
             <groupId>com.intuit.karate</groupId>
             <artifactId>karate-junit5</artifactId>
