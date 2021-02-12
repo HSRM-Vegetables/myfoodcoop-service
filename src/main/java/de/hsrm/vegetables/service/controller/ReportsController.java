@@ -213,6 +213,7 @@ public class ReportsController implements ReportsApi {
             disposedItem.setStockId(disposedDto.getStockDto().getId());
 
 
+
             // getStock()
             //Float grossPrice = StockService.round(disposedDto.getStockDto().getPricePerUnit() * disposedDto.getAmount(), 2);
 
