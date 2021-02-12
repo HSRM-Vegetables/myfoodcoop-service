@@ -176,12 +176,10 @@ public class ReportsController implements ReportsApi {
         DisposedItemList response = new DisposedItemList();
         response.setItems(disposedItems);
 
-        StockDto stockItem = new StockDto();
         //response.setGrossAmount();
-        response.setGrossAmount(StockService.round(stockItem.getVat(), 2));
+        //response.setGrossAmount(StockService.round(.getVat(), 2));
         //response.setVatDetails();
-        response.setTotalVat(StockService.round(stockItem.getVat()* stockItem.getQuantity(), 2));
-
+        //response.setTotalVat(StockService.round(stockItem.getVat()*  2));
 
         return ResponseEntity.ok(response);
     }
@@ -200,9 +198,6 @@ public class ReportsController implements ReportsApi {
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
 
-
-
-
         List<DisposedDto> itemsBetweenDates = disposedRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
 
         List<DisposedItem> disposedItems = new ArrayList<>();
@@ -218,19 +213,16 @@ public class ReportsController implements ReportsApi {
             disposedItem.setStockId(disposedDto.getStockDto().getId());
 
             // getStock()
-            StockDto stockDto = new StockDto();
-            Float grossPrice = StockService.round(stockDto.getPricePerUnit() * disposedDto.getAmount(), 2);
+            //Float grossPrice = StockService.round(disposedDto.getStockDto().getPricePerUnit() * disposedDto.getAmount(), 2);
 
             // update gross price
-            disposedItem.setGrossAmount(StockService.round(disposedItem.getGrossAmount() + grossPrice, 2));
+            //disposedItem.setGrossAmount(StockService.round(disposedItem.getGrossAmount() + grossPrice, 2));
 
-            disposedItem.setPricePerUnit(stockDto.getPricePerUnit());
-            disposedItem.setUnitType(stockDto.getUnitType());
+            disposedItem.setPricePerUnit(disposedDto.getStockDto().getPricePerUnit());
+            disposedItem.setUnitType(disposedDto.getStockDto().getUnitType());
 
-            // TODO: bug here
-            disposedItem.setVat(stockDto.getVat());
-            disposedItem.setVat(stockDto.getVat());
-            disposedItem.setTotalVat(stockDto.getQuantity()* stockDto.getVat());
+            disposedItem.setVat(disposedDto.getStockDto().getVat());
+            disposedItem.setTotalVat(disposedDto.getStockDto().getQuantity()* disposedDto.getStockDto().getVat());
 
 
             disposedItems.add(disposedItem);
