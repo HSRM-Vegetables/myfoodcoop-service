@@ -1,7 +1,7 @@
 package karate.balance;
 
 import com.intuit.karate.junit5.Karate;
-import de.hsrm.vegetables.service.Application;
+import de.hsrm.vegetables.my_food_coop_service.Application;
 import karate.BaseTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
