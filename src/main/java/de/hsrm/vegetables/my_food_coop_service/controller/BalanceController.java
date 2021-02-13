@@ -6,7 +6,7 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.mapper.BalanceMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.security.UserPrincipal;
-import de.hsrm.vegetables.my_food_coop_service.services.BalanceService;
+import de.hsrm.vegetables.my_food_coop_service.services.BalanceHistoryService;
 import de.hsrm.vegetables.my_food_coop_service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class BalanceController implements BalanceApi {
     private final UserService userService;
 
     @NonNull
-    private final BalanceService balanceService;
+    private final BalanceHistoryService balanceHistoryService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER') and (#userId == authentication.principal.id or hasRole('TREASURER'))")
@@ -50,7 +50,7 @@ public class BalanceController implements BalanceApi {
 
         // Query balance history items
 
-        Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceService.findAllByUserDtoAndCreatedOnBetween(
+        Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
                 userDto, fromDate, toDate, offset, limit);
 
         List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
@@ -79,7 +79,7 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.setBalance(userDto, request.getBalance());
 
-        balanceService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
                 BalanceChangeType.SET, request.getBalance());
 
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
@@ -93,7 +93,7 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.topup(userDto, request.getAmount());
 
-        balanceService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
                 BalanceChangeType.TOPUP, request.getAmount());
 
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
@@ -107,7 +107,7 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.withdraw(userDto, request.getAmount());
 
-        balanceService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
                 BalanceChangeType.WITHDRAW, request.getAmount());
 
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));

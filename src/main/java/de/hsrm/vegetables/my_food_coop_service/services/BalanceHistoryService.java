@@ -21,7 +21,7 @@ import java.time.ZoneOffset;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired})) // Does magic to autowire all @NonNull fields
-public class BalanceService {
+public class BalanceHistoryService {
 
     @NonNull
     private final BalanceHistoryItemRepository balanceHistoryItemRepository;

@@ -32,7 +32,7 @@ public class PurchaseService {
     private final PurchasedItemRepository purchasedItemRepository;
 
     @NonNull
-    private final BalanceService balanceService;
+    private final BalanceHistoryService balanceHistoryService;
 
 
     /**
@@ -80,7 +80,7 @@ public class PurchaseService {
 
         PurchaseDto savedPurchaseDto = purchaseRepository.save(purchaseDto);
 
-        balanceService.saveBalanceChange(userDto, purchaseDto.getCreatedOn(),
+        balanceHistoryService.saveBalanceChange(userDto, purchaseDto.getCreatedOn(),
                 savedPurchaseDto, BalanceChangeType.PURCHASE, purchaseDto.getTotalPrice());
 
         return savedPurchaseDto;
