@@ -3,16 +3,21 @@ package de.hsrm.vegetables.my_food_coop_service.services;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
+import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
+import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.model.BalanceChangeType;
 import de.hsrm.vegetables.my_food_coop_service.repositories.BalanceHistoryItemRepository;
+import de.hsrm.vegetables.my_food_coop_service.repositories.OffsetLimit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired})) // Does magic to autowire all @NonNull fields
@@ -30,10 +35,23 @@ public class BalanceService {
      * @return A list of balance history items created by the given user
      */
     public Page<BalanceHistoryItemDto> findAllByUserDtoAndCreatedOnBetween(
-            UserDto userDto, OffsetDateTime fromDate, OffsetDateTime toDate, Pageable pageable) {
+            UserDto userDto, LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
+
+        LocalDate today = LocalDate.now();
+
+        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
+            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
+        }
+
+        if (fromDate.isAfter(toDate)) {
+            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
+        }
+
+        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
+        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
         return balanceHistoryItemRepository.findAllByUserDtoAndCreatedOnBetween(
-                userDto, fromDate, toDate, pageable);
+                userDto, fromDateConverted, toDateConverted, new OffsetLimit(offset, limit));
     }
 
     /**
