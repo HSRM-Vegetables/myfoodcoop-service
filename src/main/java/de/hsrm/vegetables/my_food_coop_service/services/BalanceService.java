@@ -7,11 +7,11 @@ import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.model.BalanceChangeType;
 import de.hsrm.vegetables.my_food_coop_service.repositories.BalanceHistoryItemRepository;
-import de.hsrm.vegetables.my_food_coop_service.repositories.OffsetLimit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -51,7 +51,7 @@ public class BalanceService {
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
 
         return balanceHistoryItemRepository.findAllByUserDtoAndCreatedOnBetween(
-                userDto, fromDateConverted, toDateConverted, new OffsetLimit(offset, limit));
+                userDto, fromDateConverted, toDateConverted, PageRequest.of(offset / limit, limit));
     }
 
     /**

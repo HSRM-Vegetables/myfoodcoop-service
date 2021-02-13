@@ -5,7 +5,6 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.mapper.BalanceMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
-import de.hsrm.vegetables.my_food_coop_service.repositories.OffsetLimit;
 import de.hsrm.vegetables.my_food_coop_service.security.UserPrincipal;
 import de.hsrm.vegetables.my_food_coop_service.services.BalanceService;
 import de.hsrm.vegetables.my_food_coop_service.services.UserService;
