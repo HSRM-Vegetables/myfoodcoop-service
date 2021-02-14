@@ -163,6 +163,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/error-response'
+    '/balance/{user-id}/history':
+        get:
+            security:
+                - bearerAuth: [ ]
+            tags:
+                - Balance
+            summary: Retrieve the user's balance history
+            description: |-
+                Gets the current balance history for the specified user.
+
+                ### Access Restrictions
+                The following roles are required to access this endpoint. Any role not in this list is not allowed access
+                | Role     | Condition      |
+                |----------|----------------|
+                |MEMBER    | for own userId |
+                |TREASURER | for any userId |
+            operationId: userBalanceHistoryGet
+            parameters:
+                -   $ref: '#/components/parameters/user-id'
+                -   $ref: '#/components/parameters/fromDate'
+                -   $ref: '#/components/parameters/toDate'
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
+            responses:
+                '200':
+                    description: Successful call, returns the user's balance history
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/balance-history-response'
+                default:
+                    description: Information about the error that occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error-response'
 
     '/stock':
         get:
@@ -1062,6 +1098,43 @@ components:
                     example: Robby
                     type: string
 
+        balance-history-response:
+            description: A user's balance history
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/pagination'
+                balanceHistoryItems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/balance-history-item'
+
+        balance-history-item:
+            description: Contains information about a whole balance history item
+            type: object
+            properties:
+                id:
+                    $ref: '#/components/schemas/uuid'
+                purchase:
+                    $ref: '#/components/schemas/purchase-history-item'
+                createdOn:
+                    description: Date and time the balance history item was created at
+                    example: '2017-07-21T17:32:28Z'
+                    type: string
+                    format: date-time
+                balanceChangeType:
+                    $ref: '#/components/schemas/balanceChangeType'
+                amount:
+                    description: |-
+                        New balance amount or balance change, depending on the type
+                        - TOPUP: Added amount
+                        - WITHDRAW: Subtracted amount
+                        - SET: Set amount
+                        - PURCHASE: Subtracted amount
+                    example: 20.0
+                    type: number
+                    format: float
+
         balance-overview-list:
             description: A list of all users and their balances
             type: object
@@ -1615,6 +1688,49 @@ components:
             type: number
             format: float
 
+        pagination:
+            type: object
+            description: |-
+                Effective values of the request's pagination query parameters
+                and additional information useful for pagination in the frontend
+            required:
+                - offset
+                - limit
+                - total
+            properties:
+                offset:
+                    type: integer
+                    description: |-
+                        The effective number of items to skip before starting to collect the result set
+                        (i.e. the value specified in the request or the default value if not specified)
+                    minimum: 0
+                limit:
+                    type: integer
+                    description: |-
+                        The effective numbers of items to return
+                        (i.e. the value specified in the request or the default value if not specified)
+                        Actual length of balance history items array might be shorter
+                    minimum: 1
+                total:
+                    type: integer
+                    format: int64
+                    description: Total number of elements in the database
+                    minimum: 0
+
+        balanceChangeType:
+            description: |-
+                Type of balance amount change:
+                - TOPUP: User has deposited a certain amount to his balance
+                - WITHDRAW: User has withdrawn a certain amount from his balance
+                - SET: User has set his balance to a certain amount
+                - PURCHASE: User has purchased items of a certain amount
+            type: string
+            enum:
+                - TOPUP
+                - WITHDRAW
+                - SET
+                - PURCHASE
+
     parameters:
         username:
             in: path
@@ -1676,6 +1792,7 @@ components:
                 maxLength: 36
             required: true
             description: The unique id of an user
+
         role:
             in: path
             name: role
@@ -1688,3 +1805,24 @@ components:
                     - ORDERER
             required: true
             description: The name of a role
+
+        offset:
+            in: query
+            name: offset
+            description: |-
+                The number of items to skip before starting to collect the result set
+            schema:
+                type: integer
+                minimum: 0
+                default: 0
+
+        limit:
+            in: query
+            name: limit
+            description: |-
+                The numbers of items to return.
+                Actual length of balance history items array might be shorter
+            schema:
+                type: integer
+                minimum: 1
+                default: 10

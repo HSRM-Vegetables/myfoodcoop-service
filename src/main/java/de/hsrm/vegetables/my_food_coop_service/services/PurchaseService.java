@@ -7,6 +7,7 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.InternalError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.NotFoundError;
+import de.hsrm.vegetables.my_food_coop_service.model.BalanceChangeType;
 import de.hsrm.vegetables.my_food_coop_service.model.CartItem;
 import de.hsrm.vegetables.my_food_coop_service.repositories.PurchaseRepository;
 import de.hsrm.vegetables.my_food_coop_service.repositories.PurchasedItemRepository;
@@ -30,11 +31,14 @@ public class PurchaseService {
     @NonNull
     private final PurchasedItemRepository purchasedItemRepository;
 
+    @NonNull
+    private final BalanceHistoryService balanceHistoryService;
+
 
     /**
      * Purchase items
      *
-     * @param balanceDto The balance of the user who purchased the items
+     * @param userDto The user who purchased the items
      * @param stockItems The StockDto that were purchased
      * @param cartItems  The amounts of the items purchased
      * @return The completed purchase
@@ -74,13 +78,18 @@ public class PurchaseService {
         purchaseDto.setUserDto(userDto);
         purchaseDto.setTotalVat(totalVat);
 
-        return purchaseRepository.save(purchaseDto);
+        PurchaseDto savedPurchaseDto = purchaseRepository.save(purchaseDto);
+
+        balanceHistoryService.saveBalanceChange(userDto, purchaseDto.getCreatedOn(),
+                savedPurchaseDto, BalanceChangeType.PURCHASE, purchaseDto.getTotalPrice());
+
+        return savedPurchaseDto;
     }
 
     /**
      * Find multiple purchases by name
      *
-     * @param balanceDto The balance of the user who purchased the items
+     * @param userDto The user who purchased the items
      * @return A list of purchases made by the given user
      */
     public List<PurchaseDto> getPurchases(UserDto userDto) {
