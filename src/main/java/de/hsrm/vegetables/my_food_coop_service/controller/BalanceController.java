@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,9 +78,6 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.setBalance(userDto, request.getBalance());
 
-        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
-                BalanceChangeType.SET, request.getBalance());
-
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
 
@@ -93,9 +89,6 @@ public class BalanceController implements BalanceApi {
         UserDto userDto = userService.getUserById(userPrincipal.getId());
         userDto = userService.topup(userDto, request.getAmount());
 
-        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
-                BalanceChangeType.TOPUP, request.getAmount());
-
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
 
@@ -105,10 +98,7 @@ public class BalanceController implements BalanceApi {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
         UserDto userDto = userService.getUserById(userPrincipal.getId());
-        userDto = userService.withdraw(userDto, request.getAmount());
-
-        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
-                BalanceChangeType.WITHDRAW, request.getAmount());
+        userDto = userService.withdraw(userDto, request.getAmount(), true);
 
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }

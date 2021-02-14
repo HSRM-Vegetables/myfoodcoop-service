@@ -46,7 +46,7 @@ Feature: Balance Tests
     }
     """
 
-  Scenario: GET /balance/:userId/history works for user with almost empty balance history
+  Scenario: GET /balance/:userId/history works for user with empty balance history
     # Login as member
     Given path 'auth', 'login'
     And request { username: 'member2',  password: #(password) }
@@ -149,15 +149,14 @@ Feature: Balance Tests
     And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
-    And param offset = 2
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
-    And match response.pagination == { offset: 2, limit: 10, total: 4 }
-    And assert response.balanceHistoryItems.length == 2
+    And match response.pagination == { offset: 0, limit: 10, total: 4 }
+    And assert response.balanceHistoryItems.length == 4
     And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
-    And match response.balanceHistoryItems[0] !contains { purchase: '#object' }
-    And match response.balanceHistoryItems[1] contains { purchase: '#object', amount: 10.0 }
+    And match response.balanceHistoryItems[2] !contains { purchase: '#object' }
+    And match response.balanceHistoryItems[3] contains { purchase: '#object', amount: 10.0 }
 
   Scenario: PATCH allows to set the balance for user
     Given path 'auth', 'login'
