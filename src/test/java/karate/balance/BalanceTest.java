@@ -32,7 +32,7 @@ class BalanceTest extends BaseTest {
         super.setup();
 
         // Create test user for balance history tests
-        addUser("member2", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER));
+        addUser("balance_history_member", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER));
     }
 
     @Karate.Test

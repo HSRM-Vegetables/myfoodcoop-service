@@ -49,7 +49,7 @@ Feature: Balance Tests
   Scenario: GET /balance/:userId/history works for user with empty balance history
     # Login as member
     Given path 'auth', 'login'
-    And request { username: 'member2',  password: #(password) }
+    And request { username: 'balance_history_member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -70,7 +70,7 @@ Feature: Balance Tests
   Scenario: GET /balance/:userId/history works for user with balance changes
     # Login as member
     Given path 'auth', 'login'
-    And request { username: 'member2',  password: #(password) }
+    And request { username: 'balance_history_member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
@@ -128,7 +128,7 @@ Feature: Balance Tests
 
     # Login as member
     Given path 'auth', 'login'
-    And request { username: 'member2',  password: #(password) }
+    And request { username: 'balance_history_member',  password: #(password) }
     When method POST
     Then status 200
     And def token = response.token
