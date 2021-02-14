@@ -13,6 +13,9 @@ import de.hsrm.vegetables.my_food_coop_service.repositories.StockRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +69,44 @@ public class StockService {
 
         // filtering by stockStatus and deleted
         return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT), sortParameters);
+    }
+
+    /**
+     * Returns all items currently in stock
+     * deleteFilter controls how deleted entries are treated:
+     * <p>
+     * OMIT: Only elements which haven't been deleted will be included
+     * INCLUDE: Deleted and not deleted items will be returned
+     * ONLY: Only return deleted items
+     *
+     * @param deleteFilter How to treat deleted items
+     * @param offset Pagination offset (first element in returned page)
+     * @param limit Pagination limit (number of elements in returned page)
+     * @return A list of stock items
+     */
+    public Page<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, String sortBy, String sortOder, Integer offset, Integer limit) {
+
+        Sort.Direction sortDirection = sortOder.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sortParameters = Sort.by(sortDirection, sortByToFieldname(sortBy));
+
+        Pageable pageable = PageRequest.of(offset / limit, limit, sortParameters);
+
+        // No filtering by status
+        if (stockFilter == null || stockFilter.isEmpty()) {
+            return switch (deleteFilter) {
+                case OMIT -> stockRepository.findByIsDeleted(false, pageable);
+                case ONLY -> stockRepository.findByIsDeleted(true, pageable);
+                case INCLUDE -> stockRepository.findAll(pageable);
+            };
+        }
+
+        // No filtering by deleted but by status
+        if (deleteFilter.equals(DeleteFilter.INCLUDE)) {
+            return stockRepository.findByStockStatusIn(stockFilter, pageable);
+        }
+
+        // filtering by stockStatus and deleted
+        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT), pageable);
     }
 
     /**

@@ -13,6 +13,7 @@ import de.hsrm.vegetables.my_food_coop_service.services.StockService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +44,14 @@ public class StockController implements StockApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted, List<StockStatus> filterByStatus, String sortBy, String sortOrder) {
+    public ResponseEntity<AllStockResponse> stockGet(
+            @Valid DeleteFilter deleted,
+            @Valid List<StockStatus> filterByStatus,
+            @Valid String sortBy,
+            @Valid String sortOrder,
+            @Min(0) @Valid Integer offset,
+            @Min(1) @Valid Integer limit) {
+
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -78,10 +88,31 @@ public class StockController implements StockApi {
 
         allFilters.addAll(filterByStatus);
 
-        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getStock(deleted, allFilters, sortBy, sortOrder));
-
         AllStockResponse response = new AllStockResponse();
-        response.setItems(items);
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+
+            List<StockDto> stockDtos = stockService.getStock(deleted, allFilters, sortBy, sortOrder);
+            List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockDtos);
+
+            response.setItems(items);
+
+        } else {
+            // Paginate
+
+            Page<StockDto> stockDtoPage = stockService.getStock(deleted, allFilters, sortBy, sortOrder, offset, limit);
+            List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockDtoPage.getContent());
+
+            Pagination pagination = new Pagination();
+            pagination.setOffset(offset);
+            pagination.setLimit(limit);
+            pagination.setTotal(stockDtoPage.getTotalElements());
+
+            response.setItems(items);
+            response.setPagination(pagination);
+        }
+
         return ResponseEntity.ok(response);
     }
 

@@ -267,6 +267,8 @@ paths:
                         enum:
                             - ASC
                             - DESC
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call, returns the current stock
@@ -1164,6 +1166,8 @@ components:
         all-stock-response:
             type: object
             properties:
+                pagination:
+                    $ref: '#/components/schemas/pagination'
                 items:
                     type: array
                     items:
@@ -1814,7 +1818,6 @@ components:
             schema:
                 type: integer
                 minimum: 0
-                default: 0
 
         limit:
             in: query
