@@ -18,6 +18,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,25 +51,38 @@ public class BalanceController implements BalanceApi {
 
         UserDto userDto = userService.getUserById(userId);
 
-        // Query balance history items
-
-        Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
-                userDto, fromDate, toDate, offset, limit);
-
-        List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
-                .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
-                .collect(Collectors.toList());
-
-        // Create response
-
-        Pagination pagination = new Pagination();
-        pagination.setOffset(offset);
-        pagination.setLimit(limit);
-        pagination.setTotal(balanceHistoryItemDtoPage.getTotalElements());
-
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
-        balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
-        balanceHistoryResponse.setPagination(pagination);
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+
+            List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
+                    userDto, fromDate, toDate);
+
+            List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtos.stream()
+                    .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
+                    .collect(Collectors.toList());
+
+            balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
+
+        } else {
+            // Paginate
+
+            Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
+                    userDto, fromDate, toDate, offset, limit);
+
+            List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
+                    .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
+                    .collect(Collectors.toList());
+
+            Pagination pagination = new Pagination();
+            pagination.setOffset(offset);
+            pagination.setLimit(limit);
+            pagination.setTotal(balanceHistoryItemDtoPage.getTotalElements());
+
+            balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
+            balanceHistoryResponse.setPagination(pagination);
+        }
 
         return ResponseEntity.ok(balanceHistoryResponse);
     }

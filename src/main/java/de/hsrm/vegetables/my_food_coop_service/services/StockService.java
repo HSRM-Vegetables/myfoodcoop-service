@@ -72,7 +72,7 @@ public class StockService {
     }
 
     /**
-     * Returns all items currently in stock
+     * Returns a page of items currently in stock
      * deleteFilter controls how deleted entries are treated:
      * <p>
      * OMIT: Only elements which haven't been deleted will be included
@@ -82,7 +82,7 @@ public class StockService {
      * @param deleteFilter How to treat deleted items
      * @param offset Pagination offset (first element in returned page)
      * @param limit Pagination limit (number of elements in returned page)
-     * @return A list of stock items
+     * @return A page of stock items
      */
     public Page<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, String sortBy, String sortOder, Integer offset, Integer limit) {
 

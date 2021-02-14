@@ -55,12 +55,13 @@ Feature: Balance Tests
     And def token = response.token
     And def userId = getUserIdFromToken(token)
 
-    # Query balance history
+    # Query balance history using pagination
     * def today = getToday()
     Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
+    And param offset = 0
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
@@ -107,12 +108,13 @@ Feature: Balance Tests
     When method PATCH
     Then status 200
 
-    # Query balance history
+    # Query balance history using pagination
     * def today = getToday()
     Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
+    And param offset = 0
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
@@ -163,12 +165,13 @@ Feature: Balance Tests
     Then status 200
     And def purchaseId = response.id
 
-    # Query balance history
+    # Query balance history using pagination
     * def today = getToday()
     Given path 'balance', userId, 'history'
     And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
+    And param offset = 0
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
@@ -204,12 +207,13 @@ Feature: Balance Tests
     Then status 200
     And def treasurerToken = response.token
 
-    # Query other member's balance history
+    # Query other member's balance history using pagination
     * def today = getToday()
     Given path 'balance', memberId, 'history'
     And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
+    And param offset = 0
     When method GET
     Then status 200
     And match response contains { pagination: '#object', balanceHistoryItems: '#array' }

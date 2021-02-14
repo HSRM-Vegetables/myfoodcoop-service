@@ -45,12 +45,7 @@ public class StockController implements StockApi {
     @Override
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<AllStockResponse> stockGet(
-            @Valid DeleteFilter deleted,
-            @Valid List<StockStatus> filterByStatus,
-            @Valid String sortBy,
-            @Valid String sortOrder,
-            @Min(0) @Valid Integer offset,
-            @Min(1) @Valid Integer limit) {
+            DeleteFilter deleted, List<StockStatus> filterByStatus, String sortBy, String sortOrder, Integer offset, Integer limit) {
 
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
                 .getContext()

@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired})) // Does magic to autowire all @NonNull fields
@@ -27,12 +28,42 @@ public class BalanceHistoryService {
     private final BalanceHistoryItemRepository balanceHistoryItemRepository;
 
     /**
-     * Find balance history items for a user within the specified date range
+     * Find all balance history items for a user within the specified date range
      *
      * @param userDto The user who created the balance history items
      * @param fromDate Start of time window of the balance history item list
      * @param toDate End of time window of the balance history item list
-     * @return A list of balance history items created by the given user
+     * @return A list of all balance history items created by the given user
+     */
+    public List<BalanceHistoryItemDto> findAllByUserDtoAndCreatedOnBetween(
+            UserDto userDto, LocalDate fromDate, LocalDate toDate) {
+
+        LocalDate today = LocalDate.now();
+
+        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
+            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
+        }
+
+        if (fromDate.isAfter(toDate)) {
+            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
+        }
+
+        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
+        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
+
+        return balanceHistoryItemRepository.findAllByUserDtoAndCreatedOnBetween(
+                userDto, fromDateConverted, toDateConverted);
+    }
+
+    /**
+     * Find a page of balance history items for a user within the specified date range
+     *
+     * @param userDto The user who created the balance history items
+     * @param fromDate Start of time window of the balance history item list
+     * @param toDate End of time window of the balance history item list
+     * @param offset Pagination offset (first element in returned page)
+     * @param limit Pagination limit (number of elements in returned page)
+     * @return A page of balance history items created by the given user
      */
     public Page<BalanceHistoryItemDto> findAllByUserDtoAndCreatedOnBetween(
             UserDto userDto, LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
