@@ -143,9 +143,40 @@ Feature: Balance Tests
     Then status 200
     And def purchaseId = response.id
 
-    # Query balance history using pagination
+    # Query balance history
     * def today = getToday()
     Given path 'balance', userId, 'history'
+    And header Authorization = "Bearer " + token
+    And param fromDate = today
+    And param toDate = today
+    When method GET
+    Then status 200
+    And match response contains { pagination: '#object', balanceHistoryItems: '#array' }
+    And match response.pagination == { offset: 0, limit: 10, total: 4 }
+    And assert response.balanceHistoryItems.length == 4
+    And match each response.balanceHistoryItems contains { id: '#string', createdOn: '#string', balanceChangeType: '#string', amount: '#number' }
+    And match response.balanceHistoryItems[2] !contains { purchase: '#object' }
+    And match response.balanceHistoryItems[3] contains { purchase: '#object', amount: 10.0 }
+
+  Scenario: GET /balance/:userId/history allows a treasurer to query another member's balance history
+    # Login as member
+    Given path 'auth', 'login'
+    And request { username: 'balance_history_member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+    And def memberId = getUserIdFromToken(token)
+
+    # Login as treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def treasurerToken = response.token
+
+    # Query other member's balance history
+    * def today = getToday()
+    Given path 'balance', memberId, 'history'
     And header Authorization = "Bearer " + token
     And param fromDate = today
     And param toDate = today
