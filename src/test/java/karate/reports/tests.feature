@@ -106,7 +106,7 @@ Feature: Simple Stock management
     """
 
 
-  Scenario: Generate a sold item report for items sold today
+  Scenario: Generate a sold item report for items sold today using pagination
     # Get token of orderer
     Given path 'auth', 'login'
     And request { username: 'orderer',  password: #(password) }
@@ -130,6 +130,22 @@ Feature: Simple Stock management
     Then status 201
     And def stockId2 = response.id
 
+    # Create item 3
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request defaultStockBody
+    When method POST
+    Then status 201
+    And def stockId3 = response.id
+
+    # Create item 4
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request defaultStockBody
+    When method POST
+    Then status 201
+    And def stockId4 = response.id
+
     # Get token of member
     Given path 'auth', 'login'
     And request { username: 'member',  password: #(password) }
@@ -142,7 +158,9 @@ Feature: Simple Stock management
     And header Authorization = "Bearer " + mToken
     And def item1 = { id: #(stockId1), amount: 1 }
     And def item2 = { id: #(stockId2), amount: 1 }
-    And request { items: [#(item1), #(item2)] }
+    And def item3 = { id: #(stockId3), amount: 1 }
+    And def item4 = { id: #(stockId4), amount: 1 }
+    And request { items: [#(item1), #(item2), #(item3), #(item4)] }
     When method POST
     Then status 200
     And assert response.name == "member"
@@ -160,14 +178,17 @@ Feature: Simple Stock management
     And header Authorization = "Bearer " + tToken
     And param fromDate = today
     And param toDate = today
+    And param offset = 2
+    And param limit = 2
     When method GET
     Then status 200
-    And assert response.items.length >= 2
-    And match response contains { items: '#array', totalVat: '#number', vatDetails: '#array', grossAmount: '#number' }
-    And def firstItem = findItemWithId(response.items, stockId1)
-    And def secondItem = findItemWithId(response.items, stockId2)
-    And match firstItem contains { id: #(stockId1), totalVat: '#number', vat: '#number', grossAmount: '#number' }
-    And match secondItem contains { id: #(stockId2), totalVat: '#number', vat: '#number', grossAmount: '#number' }
+    And assert response.items.length == 2
+    And match response contains { pagination: '#object', items: '#array', totalVat: '#number', vatDetails: '#array', grossAmount: '#number' }
+    And match response.pagination == { offset: 2, limit: 2, total: '#number' }
+    And def firstItem = findItemWithId(response.items, stockId3)
+    And def secondItem = findItemWithId(response.items, stockId4)
+    And match firstItem contains { id: #(stockId3), totalVat: '#number', vat: '#number', grossAmount: '#number' }
+    And match secondItem contains { id: #(stockId4), totalVat: '#number', vat: '#number', grossAmount: '#number' }
 
   Scenario: Items sold in separate purchases will appear as single item in report
     # Get token of orderer
@@ -464,10 +485,15 @@ Feature: Simple Stock management
     # Generate report
     Given path 'reports', 'balance-overview'
     And header Authorization = "Bearer " + token
+    And param offset = 2
+    And param limit = 2
     When method GET
     Then status 200
-    And match response contains { users: '#array'}
+    And match response contains { pagination: '#object', users: '#array'}
+    And match response.pagination == { offset: 2, limit: 2, total: '#number' }
     And match each response.users contains { isDeleted: false }
+    And match response.users[0].username == 'admin'
+    And match response.users[1].username == 'treasurer'
 
   Scenario: Newly registered user is included in balance overview report
     # Create User
