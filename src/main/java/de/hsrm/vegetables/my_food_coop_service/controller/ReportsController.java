@@ -43,7 +43,7 @@ public class ReportsController implements ReportsApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate) {
+    public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
         LocalDate today = LocalDate.now();
         if (fromDate.isAfter(today) || toDate.isAfter(today)) {
             throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
@@ -134,7 +134,7 @@ public class ReportsController implements ReportsApi {
 
     @Override
     @PreAuthorize("hasRole('TREASURER')")
-    public ResponseEntity<BalanceOverviewList> balanceOverview(DeleteFilter deleted) {
+    public ResponseEntity<BalanceOverviewList> balanceOverview(DeleteFilter deleted, Integer offset, Integer limit) {
         BalanceOverviewList response = new BalanceOverviewList();
 
         response.setUsers(

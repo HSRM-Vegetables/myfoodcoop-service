@@ -36,7 +36,7 @@ public class UserController implements UserApi {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN','TREASURER')")
-    public ResponseEntity<UserListResponse> getUserList(DeleteFilter deleted) {
+    public ResponseEntity<UserListResponse> getUserList(DeleteFilter deleted, Integer offset, Integer limit) {
         List<UserResponse> users = UserMapper.listUserDtoToListUserResponse(userService.getAll(deleted));
         UserListResponse response = new UserListResponse();
         response.setUsers(users);

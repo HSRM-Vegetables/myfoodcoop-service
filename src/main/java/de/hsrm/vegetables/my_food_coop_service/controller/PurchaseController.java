@@ -24,6 +24,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +80,7 @@ public class PurchaseController implements PurchaseApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<PurchaseListResponse> purchaseGet() {
+    public ResponseEntity<PurchaseListResponse> purchaseGet(Integer offset, Integer limit) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
         // No need to query database for this userDto as we only need the primary key
