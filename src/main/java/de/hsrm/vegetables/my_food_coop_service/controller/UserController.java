@@ -8,6 +8,7 @@ import de.hsrm.vegetables.my_food_coop_service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,9 +38,33 @@ public class UserController implements UserApi {
     @Override
     @PreAuthorize("hasAnyRole('ADMIN','TREASURER')")
     public ResponseEntity<UserListResponse> getUserList(DeleteFilter deleted, Integer offset, Integer limit) {
-        List<UserResponse> users = UserMapper.listUserDtoToListUserResponse(userService.getAll(deleted));
         UserListResponse response = new UserListResponse();
-        response.setUsers(users);
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+
+            List<UserDto> userDtos = userService.getAll(deleted);
+
+            List<UserResponse> userResponses = UserMapper.listUserDtoToListUserResponse(userDtos);
+
+            response.setUsers(userResponses);
+
+        } else {
+            // Paginate
+
+            Page<UserDto> userDtoPage = userService.getAll(deleted, offset, limit);
+
+            List<UserResponse> userResponses = UserMapper.listUserDtoToListUserResponse(userDtoPage.getContent());
+
+            Pagination pagination = new Pagination();
+            pagination.setOffset(offset);
+            pagination.setLimit(limit);
+            pagination.setTotal(userDtoPage.getTotalElements());
+
+            response.setUsers(userResponses);
+            response.setPagination(pagination);
+        }
+
         return ResponseEntity.ok(response);
     }
 
