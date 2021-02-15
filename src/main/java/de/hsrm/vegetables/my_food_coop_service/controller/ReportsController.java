@@ -3,9 +3,11 @@ package de.hsrm.vegetables.my_food_coop_service.controller;
 import de.hsrm.vegetables.my_food_coop_service.api.ReportsApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
+import de.hsrm.vegetables.my_food_coop_service.mapper.ReportsMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
@@ -13,6 +15,7 @@ import de.hsrm.vegetables.my_food_coop_service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,13 +36,13 @@ import java.util.stream.Collectors;
 public class ReportsController implements ReportsApi {
 
     @NonNull
-    private PurchaseService purchaseService;
+    private final PurchaseService purchaseService;
 
     @NonNull
     private final StockService stockService;
 
     @NonNull
-    private UserService userService;
+    private final UserService userService;
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
@@ -53,9 +56,25 @@ public class ReportsController implements ReportsApi {
             throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
         }
 
-        List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
         QuantitySoldList response = new QuantitySoldList();
-        response.setItems(soldItems);
+        List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+            response.setItems(soldItems);
+
+        } else {
+            // Paginate
+
+            Pagination pagination = new Pagination();
+            pagination.setOffset(offset);
+            pagination.setLimit(limit);
+            pagination.setTotal((long)soldItems.size());
+
+            response.setItems(soldItems.subList(offset, offset + limit));
+            response.setPagination(pagination);
+        }
+
         response.setVatDetails(PurchaseMapper.getVatDetails(soldItems));
         Float totalVat = soldItems.stream()
                 .map(QuantitySoldItem::getTotalVat)
@@ -137,19 +156,34 @@ public class ReportsController implements ReportsApi {
     public ResponseEntity<BalanceOverviewList> balanceOverview(DeleteFilter deleted, Integer offset, Integer limit) {
         BalanceOverviewList response = new BalanceOverviewList();
 
-        response.setUsers(
-                userService.getAll(deleted)
-                        .stream()
-                        .map(user -> {
-                            BalanceOverviewItem item = new BalanceOverviewItem();
-                            item.setId(user.getId());
-                            item.setUsername(user.getUsername());
-                            item.setMemberId(user.getMemberId());
-                            item.setIsDeleted(user.isDeleted());
-                            item.setBalance(user.getBalance());
-                            return item;
-                        })
-                        .collect(Collectors.toList()));
+        if (offset == null) {
+            // No pagination -> Return all elements
+
+            List<UserDto> userDtos = userService.getAll(deleted);
+
+            List<BalanceOverviewItem> balanceOverviewItems = userDtos.stream()
+                    .map(ReportsMapper::userDtoToBalanceOverviewItem)
+                    .collect(Collectors.toList());
+
+            response.setUsers(balanceOverviewItems);
+
+        } else {
+            // Paginate
+
+            Page<UserDto> userDtoPage = userService.getAll(deleted, offset, limit);
+
+            List<BalanceOverviewItem> balanceOverviewItems = userDtoPage.getContent().stream()
+                    .map(ReportsMapper::userDtoToBalanceOverviewItem)
+                    .collect(Collectors.toList());
+
+            Pagination pagination = new Pagination();
+            pagination.setOffset(offset);
+            pagination.setLimit(limit);
+            pagination.setTotal(userDtoPage.getTotalElements());
+
+            response.setUsers(balanceOverviewItems);
+            response.setPagination(pagination);
+        }
 
         return ResponseEntity.ok(response);
     }
