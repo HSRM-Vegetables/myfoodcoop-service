@@ -2,6 +2,8 @@ package de.hsrm.vegetables.my_food_coop_service.repositories;
 
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,8 @@ import java.util.List;
 public interface PurchaseRepository extends JpaRepository<PurchaseDto, Long> {
 
     List<PurchaseDto> findAllByUserDto(UserDto userDto);
+
+    Page<PurchaseDto> findAllByUserDto(UserDto userDto, Pageable pageable);
 
     PurchaseDto findById(String id);
 

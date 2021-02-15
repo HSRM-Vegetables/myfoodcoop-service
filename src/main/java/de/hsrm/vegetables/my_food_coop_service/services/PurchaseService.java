@@ -14,6 +14,8 @@ import de.hsrm.vegetables.my_food_coop_service.repositories.PurchasedItemReposit
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -87,13 +89,25 @@ public class PurchaseService {
     }
 
     /**
-     * Find multiple purchases by name
+     * Find all purchases by name
      *
      * @param userDto The user who purchased the items
      * @return A list of purchases made by the given user
      */
     public List<PurchaseDto> getPurchases(UserDto userDto) {
         return purchaseRepository.findAllByUserDto(userDto);
+    }
+
+    /**
+     * Find a page of purchases by name
+     *
+     * @param userDto The user who purchased the items
+     * @param offset Pagination offset (first element in returned page)
+     * @param limit Pagination limit (number of elements in returned page)
+     * @return A list of purchases made by the given user
+     */
+    public Page<PurchaseDto> getPurchases(UserDto userDto, Integer offset, Integer limit) {
+        return purchaseRepository.findAllByUserDto(userDto, PageRequest.of(offset / limit, limit));
     }
 
     /**

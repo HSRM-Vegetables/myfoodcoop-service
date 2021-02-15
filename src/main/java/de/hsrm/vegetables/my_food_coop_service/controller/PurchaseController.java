@@ -7,10 +7,7 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseHistoryItem;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseListResponse;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseRequest;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseResponse;
+import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.security.UserPrincipal;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
@@ -18,14 +15,13 @@ import de.hsrm.vegetables.my_food_coop_service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,13 +83,38 @@ public class PurchaseController implements PurchaseApi {
         UserDto userDto = new UserDto();
         userDto.setId(userPrincipal.getId());
 
-        // Get all purchases from the user
-        List<PurchaseDto> purchases = purchaseService.getPurchases(userDto);
-
         PurchaseListResponse purchaseListResponse = new PurchaseListResponse();
-        purchaseListResponse.setPurchases(purchases.stream()
-                .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
-                .collect(Collectors.toList()));
+        List<PurchaseDto> purchases;
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+
+            purchases = purchaseService.getPurchases(userDto);
+
+            List<PurchaseHistoryItem> purchaseHistoryItems = purchases.stream()
+                    .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
+                    .collect(Collectors.toList());
+
+            purchaseListResponse.setPurchases(purchaseHistoryItems);
+
+        } else {
+            // Paginate
+
+            Page<PurchaseDto> purchasePage = purchaseService.getPurchases(userDto, offset, limit);
+            purchases = purchasePage.getContent();
+
+            List<PurchaseHistoryItem> purchaseHistoryItems = purchases.stream()
+                    .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
+                    .collect(Collectors.toList());
+
+            Pagination pagination = new Pagination();
+            pagination.setOffset(offset);
+            pagination.setLimit(limit);
+            pagination.setTotal(purchasePage.getTotalElements());
+
+            purchaseListResponse.setPurchases(purchaseHistoryItems);
+            purchaseListResponse.setPagination(pagination);
+        }
 
         float totalCumulativePrice = 0f;
         float totalCumulativeVat = 0f;
