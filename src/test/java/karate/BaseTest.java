@@ -16,7 +16,7 @@ import java.util.List;
 
 public abstract class BaseTest {
 
-    private static final String TEST_USER_PASSWORD = "a_funny_horse**jumps_high778";
+    protected static final String TEST_USER_PASSWORD = "a_funny_horse**jumps_high778";
 
     @Autowired
     private UserService userService;
@@ -25,7 +25,7 @@ public abstract class BaseTest {
     private StockService stockService;
 
     @BeforeEach
-    void setup() {
+    protected void setup() {
         // Create test user for each role
         addUser("member", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER));
         addUser("orderer", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER, Role.ORDERER));
@@ -68,7 +68,7 @@ public abstract class BaseTest {
                         .minusDays(10), StockStatus.INSTOCK, 0.19f);
     }
 
-    private void addUser(String username, String password, Float balance, List<Role> roles) {
+    protected void addUser(String username, String password, Float balance, List<Role> roles) {
         UserDto user = userService.register(username, username + "@mail.com", username + "Id", password);
         roles.forEach(role -> userService.addRole(user.getId(), role));
     }

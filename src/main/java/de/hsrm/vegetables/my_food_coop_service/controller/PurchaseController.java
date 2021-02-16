@@ -59,7 +59,7 @@ public class PurchaseController implements PurchaseApi {
         Float totalVat = StockService.calculateVatAmount(stockItems, purchaseRequest.getItems());
 
         // Withdraw the money from the users balance
-        userDto = userService.withdraw(userDto, totalPrice);
+        userDto = userService.withdraw(userDto, totalPrice, false);
 
         // Create the purchase
         PurchaseDto purchaseDto = purchaseService.purchaseItems(userDto, stockItems, purchaseRequest.getItems(), totalPrice, totalVat);

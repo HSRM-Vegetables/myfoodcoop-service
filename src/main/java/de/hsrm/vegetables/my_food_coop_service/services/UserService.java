@@ -5,6 +5,7 @@ import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.UnauthorizedError;
+import de.hsrm.vegetables.my_food_coop_service.model.BalanceChangeType;
 import de.hsrm.vegetables.my_food_coop_service.model.DeleteFilter;
 import de.hsrm.vegetables.my_food_coop_service.model.Role;
 import de.hsrm.vegetables.my_food_coop_service.repositories.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -33,6 +35,9 @@ public class UserService {
 
     @Value("${vegetables.jwt.secret}")
     private String jwtSecret;
+
+    @NonNull
+    private final BalanceHistoryService balanceHistoryService;
 
     public UserDto register(String username, String email, String memberId, String password) {
 
@@ -235,10 +240,16 @@ public class UserService {
      *
      * @param userDto The user to withdraw the money from
      * @param amount  The amount to withdraw
+     * @param saveBalanceChange Whether to log the withdraw with a balance history item
      * @return
      */
-    public UserDto withdraw(UserDto userDto, Float amount) {
+    public UserDto withdraw(UserDto userDto, Float amount, boolean saveBalanceChange) {
         userDto.setBalance(userDto.getBalance() - amount);
+
+        if (saveBalanceChange) {
+            balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+                    BalanceChangeType.WITHDRAW, amount);
+        }
 
         return userRepository.save(userDto);
     }
@@ -255,6 +266,9 @@ public class UserService {
     public UserDto topup(UserDto userDto, Float amount) {
         userDto.setBalance(userDto.getBalance() + amount);
 
+        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+                BalanceChangeType.TOPUP, amount);
+
         return userRepository.save(userDto);
     }
 
@@ -268,6 +282,9 @@ public class UserService {
      */
     public UserDto setBalance(UserDto userDto, Float amount) {
         userDto.setBalance(amount);
+
+        balanceHistoryService.saveBalanceChange(userDto, OffsetDateTime.now(), null,
+                BalanceChangeType.SET, amount);
 
         return userRepository.save(userDto);
     }
