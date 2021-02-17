@@ -43,6 +43,21 @@ Feature: Simple Stock management
     }
     """
 
+    * def findItemWithStockId =
+    """
+    function(arr, id) {
+      if (arr === undefined || arr === null || id === undefined || id === null) {
+        return null;
+      }
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].stockId === id) {
+          return arr[i];
+        }
+      }
+      return null;
+    }
+    """
+
     * def getUserIdFromToken =
     """
     function(token) {
@@ -639,10 +654,10 @@ Feature: Simple Stock management
     Then status 200
     And assert response.items.length >= 2
     And match response contains { items: '#array', totalVat: '#number', vatDetails: '#array', grossAmount: '#number' }
-    And def firstItem = findItemWithId(response.items, stockId1)
-    And def secondItem = findItemWithId(response.items, stockId2)
-    And match firstItem contains { id: #(stockId1), totalVat: '#number', vat: '#number', grossAmount: '#number' }
-    And match secondItem contains { id: #(stockId2), totalVat: '#number', vat: '#number', grossAmount: '#number' }
+    And def firstItem = findItemWithStockId(response.items, stockId1)
+    And def secondItem = findItemWithStockId(response.items, stockId2)
+    And match firstItem contains { stockId: #(stockId1), totalVat: '#number', vat: '#number', grossAmount: '#number'}
+    And match secondItem contains { stockId: #(stockId2), totalVat: '#number', vat: '#number', grossAmount: '#number' }
 
   Scenario: fromDate cannot be after toDate DisposedItems Report
     # Get token of treasurer
@@ -727,3 +742,21 @@ Feature: Simple Stock management
     When method GET
     Then status 401
     And match response.errorCode == 401005
+
+  Scenario: Report list is empty if no item was disposed on that date
+    # Get token for treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def tToken = response.token
+
+    # Generate report
+    * def today = getToday()
+    Given path '/reports/disposed-items'
+    And header Authorization = "Bearer " + tToken
+    And param fromDate = '2020-01-01'
+    And param toDate = '2020-01-01'
+    When method GET
+    Then status 200
+    And assert response.items.length == 0
