@@ -13,12 +13,16 @@ import de.hsrm.vegetables.my_food_coop_service.repositories.StockRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -328,6 +332,62 @@ public class StockService {
         disposedDto.setUserDto(userDto);
 
         return disposedRepository.save(disposedDto);
+    }
+
+    /**
+     * Find multiple disposes between Dates
+     *
+     * @param fromDate time window from offsetDateTime where item was disposed
+     * @param toDate   time window to offsetDateTime where item was disposed
+     * @return All disposes between fromDate and toDate
+     */
+    public List<DisposedDto> getDisposedDtos(LocalDate fromDate, LocalDate toDate) {
+        LocalDate today = LocalDate.now();
+        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
+            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
+        }
+
+        if (fromDate.isAfter(toDate)) {
+            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
+        }
+        // Local Dates only contain date information and are missing time information.
+        // Convert the LocalDate to a timestamp with the options specified below.
+        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
+        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
+
+        return disposedRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
+    }
+
+    public static List<VatDetailItem> getVatDetailsDispose(List<DisposedItem> disposedItems) {
+        // Get all distinct vat rates
+        ArrayList<Float> distinctVatRates = new ArrayList<>();
+
+        disposedItems.forEach(disposedItem -> {
+            if (!distinctVatRates.contains(disposedItem.getVat())) {
+                distinctVatRates.add(disposedItem.getVat());
+            }
+        });
+
+        return distinctVatRates.stream()
+                .map(vat -> {
+                    // Get all purchased items with specific vat
+                    List<DisposedItem> purchasedItemsWithVat = disposedItems
+                            .stream()
+                            .filter(soldItem -> soldItem.getVat()
+                                    .equals(vat))
+                            .collect(Collectors.toList());
+
+                    // Calculate vat amount for these items
+                    Float amount = purchasedItemsWithVat.stream()
+                            .map(DisposedItem::getTotalVat)
+                            .reduce(0f, Float::sum);
+
+                    VatDetailItem vatDetailItem = new VatDetailItem();
+                    vatDetailItem.setVat(vat);
+                    vatDetailItem.setAmount(StockService.round(amount, 2));
+                    return vatDetailItem;
+                })
+                .collect(Collectors.toList());
     }
 
     public static Float calculatePrice(List<StockDto> stockItems, List<CartItem> cartItems) {

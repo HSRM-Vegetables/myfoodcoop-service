@@ -7,12 +7,12 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
+import de.hsrm.vegetables.my_food_coop_service.mapper.StockMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
-import de.hsrm.vegetables.my_food_coop_service.repositories.DisposedRepository;
-import de.hsrm.vegetables.my_food_coop_service.services.DisposeService;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
 import de.hsrm.vegetables.my_food_coop_service.services.UserService;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +43,6 @@ public class ReportsController implements ReportsApi {
 
     @NonNull
     private UserService userService;
-
-    @NonNull
-    private DisposedRepository disposedRepository;
-
-    @NonNull
-    private DisposeService disposeService;
-
-
 
 
     @Override
@@ -169,20 +161,12 @@ public class ReportsController implements ReportsApi {
     @Override
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<DisposedItemList> disposedItems(LocalDate fromDate, LocalDate toDate) {
-        LocalDate today = LocalDate.now();
-        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
-            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
-        }
 
-        if (fromDate.isAfter(toDate)) {
-            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
-        }
+        List<DisposedItem> disposedItems = StockMapper.listDisposedDtoToListDisposedItem(stockService.getDisposedDtos(fromDate, toDate));
 
-        List<DisposedItem> disposedItems = getDisposedItems(fromDate, toDate);
         DisposedItemList response = new DisposedItemList();
         response.setItems(disposedItems);
 
-        VatDetailItem vatDetails = new VatDetailItem();
         Float totalVat = disposedItems.stream()
                 .map(DisposedItem::getTotalVat)
                 .reduce(0f, Float::sum);
@@ -192,45 +176,8 @@ public class ReportsController implements ReportsApi {
 
         response.setGrossAmount(StockService.round(grossAmount, 2));
         response.setTotalVat(StockService.round(totalVat, 2));
-        response.setVatDetails(DisposeService.getVatDetails(disposedItems));
+        response.setVatDetails(StockService.getVatDetailsDispose(disposedItems));
 
         return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Find multiple disposes between Dates
-     *
-     * @param fromDate time window from offsetDateTime where item was disposed
-     * @param toDate   time window to offsetDateTime where item was disposed
-     * @return All disposes between fromDate and toDate
-     */
-    private List<DisposedItem> getDisposedItems(LocalDate fromDate, LocalDate toDate) {
-        // Local Dates only contain date information and are missing time information.
-        // Convert the LocalDate to a timestamp with the options specified below.
-        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
-        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
-
-        List<DisposedDto> itemsBetweenDates = disposedRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
-        List<DisposedItem> disposedItems = new ArrayList<>();
-
-        itemsBetweenDates.forEach(disposedDto -> {
-            DisposedItem disposedItem = new DisposedItem();
-            disposedItem.setCreatedOn(disposedDto.getCreatedOn());
-            disposedItem.setAmount(disposedDto.getAmount());
-            disposedItem.setName(disposedDto.getStockDto().getName());
-            disposedItem.setUserId(disposedDto.getUserDto().getId());
-            disposedItem.setStockId(disposedDto.getStockDto().getId());
-            disposedItem.setPricePerUnit(disposedDto.getPricePerUnit());
-            disposedItem.setUnitType(disposedDto.getUnitType());
-            disposedItem.setVat(StockService.round(disposedDto.getVat(), 2));
-
-            float totalVat = StockService.round(disposedDto.getPricePerUnit() * disposedDto.getVat() * disposedDto.getAmount(), 2);
-            disposedItem.setTotalVat(totalVat);
-
-            disposedItem.setGrossAmount(StockService.round(totalVat + disposedDto.getPricePerUnit() * disposedDto.getAmount(), 2));
-            disposedItems.add(disposedItem);
-        });
-
-        return disposedItems;
     }
 }
