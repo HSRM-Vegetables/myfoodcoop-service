@@ -49,34 +49,24 @@ public class BalanceController implements BalanceApi {
 
         BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
 
-        if (offset == null) {
-            // No pagination -> Return all elements
+        // Query balance history items from DB and create response
 
-            List<BalanceHistoryItemDto> balanceHistoryItemDtos = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
-                    userDto, fromDate, toDate);
+        Page<BalanceHistoryItemDto> page = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
+                userDto, fromDate, toDate, offset, limit);
 
-            List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtos.stream()
-                    .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
-                    .collect(Collectors.toList());
+        List<BalanceHistoryItem> items = page.stream()
+                .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
+                .collect(Collectors.toList());
 
-            balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
+        balanceHistoryResponse.setBalanceHistoryItems(items);
 
-        } else {
-            // Paginate
+        // Add pagination information to response
 
-            Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
-                    userDto, fromDate, toDate, offset, limit);
-
-            List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
-                    .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
-                    .collect(Collectors.toList());
-
+        if (page.getPageable().isPaged()) {
             Pagination pagination = new Pagination();
             pagination.setOffset(offset);
             pagination.setLimit(limit);
-            pagination.setTotal(balanceHistoryItemDtoPage.getTotalElements());
-
-            balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
+            pagination.setTotal(page.getTotalElements());
             balanceHistoryResponse.setPagination(pagination);
         }
 
