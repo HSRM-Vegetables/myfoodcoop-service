@@ -83,28 +83,20 @@ public class StockController implements StockApi {
 
         allFilters.addAll(filterByStatus);
 
+        // Query stock items from DB and create response
+
+        Page<StockDto> page = stockService.getStock(deleted, allFilters, sortBy, sortOrder, offset, limit);
+
+        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(page.getContent());
+
         AllStockResponse response = new AllStockResponse();
+        response.setItems(items);
 
-        if (offset == null) {
-            // No pagination -> Return all elements
-
-            List<StockDto> stockDtos = stockService.getStock(deleted, allFilters, sortBy, sortOrder);
-            List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockDtos);
-
-            response.setItems(items);
-
-        } else {
-            // Paginate
-
-            Page<StockDto> stockDtoPage = stockService.getStock(deleted, allFilters, sortBy, sortOrder, offset, limit);
-            List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockDtoPage.getContent());
-
+        if (offset != null) {
             Pagination pagination = new Pagination();
             pagination.setOffset(offset);
             pagination.setLimit(limit);
-            pagination.setTotal(stockDtoPage.getTotalElements());
-
-            response.setItems(items);
+            pagination.setTotal(page.getTotalElements());
             response.setPagination(pagination);
         }
 

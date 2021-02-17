@@ -83,49 +83,37 @@ public class PurchaseController implements PurchaseApi {
         UserDto userDto = new UserDto();
         userDto.setId(userPrincipal.getId());
 
-        PurchaseListResponse purchaseListResponse = new PurchaseListResponse();
-        List<PurchaseDto> purchases;
+        // Query purchases from DB and create response
 
-        if (offset == null) {
-            // No pagination -> Return all elements
+        Page<PurchaseDto> page = purchaseService.getPurchases(userDto, offset, limit);
 
-            purchases = purchaseService.getPurchases(userDto);
+        List<PurchaseHistoryItem> items = page.stream()
+                .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
+                .collect(Collectors.toList());
 
-            List<PurchaseHistoryItem> purchaseHistoryItems = purchases.stream()
-                    .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
-                    .collect(Collectors.toList());
-
-            purchaseListResponse.setPurchases(purchaseHistoryItems);
-
-        } else {
-            // Paginate
-
-            Page<PurchaseDto> purchasePage = purchaseService.getPurchases(userDto, offset, limit);
-            purchases = purchasePage.getContent();
-
-            List<PurchaseHistoryItem> purchaseHistoryItems = purchases.stream()
-                    .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
-                    .collect(Collectors.toList());
-
+        PurchaseListResponse response = new PurchaseListResponse();
+        response.setPurchases(items);
+        
+        if (page.getPageable().isPaged()) {
             Pagination pagination = new Pagination();
             pagination.setOffset(offset);
             pagination.setLimit(limit);
-            pagination.setTotal(purchasePage.getTotalElements());
-
-            purchaseListResponse.setPurchases(purchaseHistoryItems);
-            purchaseListResponse.setPagination(pagination);
+            pagination.setTotal(page.getTotalElements());
+            response.setPagination(pagination);
         }
+
+        // Calc cumulative price/VAT
 
         float totalCumulativePrice = 0f;
         float totalCumulativeVat = 0f;
-        for (PurchaseDto purchase : purchases) {
+        for (PurchaseDto purchase : page) {
             totalCumulativePrice = StockService.round(totalCumulativePrice + purchase.getTotalPrice(), 2);
             totalCumulativeVat = StockService.round(totalCumulativeVat + purchase.getTotalVat(), 2);
         }
-        purchaseListResponse.setTotalCumulativePrice(totalCumulativePrice);
-        purchaseListResponse.setTotalCumulativeVat(totalCumulativeVat);
+        response.setTotalCumulativePrice(totalCumulativePrice);
+        response.setTotalCumulativeVat(totalCumulativeVat);
 
-        return ResponseEntity.ok(purchaseListResponse);
+        return ResponseEntity.ok(response);
     }
 
     @Override

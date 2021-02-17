@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -174,26 +175,7 @@ public class UserService {
     }
 
     /**
-     * Returns all User
-     * deleteFilter controls how deleted users are treated:
-     * <p>
-     * OMIT: Only users which haven't been deleted will be included
-     * INCLUDE: Deleted and not deleted users will be returned
-     * ONLY: Only return deleted users
-     *
-     * @param deleteFilter How to treat deleted users
-     * @return A list of users
-     */
-    public List<UserDto> getAll(DeleteFilter deleteFilter) {
-        return switch (deleteFilter) {
-            case OMIT -> userRepository.findByIsDeleted(false);
-            case ONLY -> userRepository.findByIsDeleted(true);
-            case INCLUDE -> userRepository.findAll();
-        };
-    }
-
-    /**
-     * Returns a page of users
+     * Returns a page of users. Returns a page with all elements if offset is null.
      * deleteFilter controls how deleted users are treated:
      * <p>
      * OMIT: Only users which haven't been deleted will be included
@@ -206,10 +188,12 @@ public class UserService {
      * @return A list of users
      */
     public Page<UserDto> getAll(DeleteFilter deleteFilter, Integer offset, Integer limit) {
+        Pageable pageable = (offset == null) ? Pageable.unpaged() : PageRequest.of(offset / limit, limit);
+
         return switch (deleteFilter) {
-            case OMIT -> userRepository.findByIsDeleted(false, PageRequest.of(offset / limit, limit));
-            case ONLY -> userRepository.findByIsDeleted(true, PageRequest.of(offset / limit, limit));
-            case INCLUDE -> userRepository.findAll(PageRequest.of(offset / limit, limit));
+            case OMIT -> userRepository.findByIsDeleted(false, pageable);
+            case ONLY -> userRepository.findByIsDeleted(true, pageable);
+            case INCLUDE -> userRepository.findAll(pageable);
         };
     }
 

@@ -13,8 +13,6 @@ import java.util.List;
 @Repository
 public interface PurchaseRepository extends JpaRepository<PurchaseDto, Long> {
 
-    List<PurchaseDto> findAllByUserDto(UserDto userDto);
-
     Page<PurchaseDto> findAllByUserDto(UserDto userDto, Pageable pageable);
 
     PurchaseDto findById(String id);

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -89,17 +90,8 @@ public class PurchaseService {
     }
 
     /**
-     * Find all purchases by name
-     *
-     * @param userDto The user who purchased the items
-     * @return A list of purchases made by the given user
-     */
-    public List<PurchaseDto> getPurchases(UserDto userDto) {
-        return purchaseRepository.findAllByUserDto(userDto);
-    }
-
-    /**
-     * Find a page of purchases by name
+     * Find a page of purchases by name.
+     * Returns a page with all elements if offset is null.
      *
      * @param userDto The user who purchased the items
      * @param offset Pagination offset (first element in returned page)
@@ -107,7 +99,8 @@ public class PurchaseService {
      * @return A list of purchases made by the given user
      */
     public Page<PurchaseDto> getPurchases(UserDto userDto, Integer offset, Integer limit) {
-        return purchaseRepository.findAllByUserDto(userDto, PageRequest.of(offset / limit, limit));
+        Pageable pageable = (offset == null) ? Pageable.unpaged() : PageRequest.of(offset / limit, limit);
+        return purchaseRepository.findAllByUserDto(userDto, pageable);
     }
 
     /**

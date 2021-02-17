@@ -154,34 +154,21 @@ public class ReportsController implements ReportsApi {
     @Override
     @PreAuthorize("hasRole('TREASURER')")
     public ResponseEntity<BalanceOverviewList> balanceOverview(DeleteFilter deleted, Integer offset, Integer limit) {
+
+        Page<UserDto> page = userService.getAll(deleted, offset, limit);
+
+        List<BalanceOverviewItem> items = page.stream()
+                .map(ReportsMapper::userDtoToBalanceOverviewItem)
+                .collect(Collectors.toList());
+
         BalanceOverviewList response = new BalanceOverviewList();
+        response.setUsers(items);
 
-        if (offset == null) {
-            // No pagination -> Return all elements
-
-            List<UserDto> userDtos = userService.getAll(deleted);
-
-            List<BalanceOverviewItem> balanceOverviewItems = userDtos.stream()
-                    .map(ReportsMapper::userDtoToBalanceOverviewItem)
-                    .collect(Collectors.toList());
-
-            response.setUsers(balanceOverviewItems);
-
-        } else {
-            // Paginate
-
-            Page<UserDto> userDtoPage = userService.getAll(deleted, offset, limit);
-
-            List<BalanceOverviewItem> balanceOverviewItems = userDtoPage.getContent().stream()
-                    .map(ReportsMapper::userDtoToBalanceOverviewItem)
-                    .collect(Collectors.toList());
-
+        if (page.getPageable().isPaged()) {
             Pagination pagination = new Pagination();
             pagination.setOffset(offset);
             pagination.setLimit(limit);
-            pagination.setTotal(userDtoPage.getTotalElements());
-
-            response.setUsers(balanceOverviewItems);
+            pagination.setTotal(page.getTotalElements());
             response.setPagination(pagination);
         }
 

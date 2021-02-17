@@ -47,10 +47,6 @@ public class BalanceController implements BalanceApi {
 
         UserDto userDto = userService.getUserById(userId);
 
-        BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
-
-        // Query balance history items from DB and create response
-
         Page<BalanceHistoryItemDto> page = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
                 userDto, fromDate, toDate, offset, limit);
 
@@ -58,19 +54,18 @@ public class BalanceController implements BalanceApi {
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
                 .collect(Collectors.toList());
 
-        balanceHistoryResponse.setBalanceHistoryItems(items);
-
-        // Add pagination information to response
+        BalanceHistoryResponse response = new BalanceHistoryResponse();
+        response.setBalanceHistoryItems(items);
 
         if (page.getPageable().isPaged()) {
             Pagination pagination = new Pagination();
             pagination.setOffset(offset);
             pagination.setLimit(limit);
             pagination.setTotal(page.getTotalElements());
-            balanceHistoryResponse.setPagination(pagination);
+            response.setPagination(pagination);
         }
 
-        return ResponseEntity.ok(balanceHistoryResponse);
+        return ResponseEntity.ok(response);
     }
 
     @Override

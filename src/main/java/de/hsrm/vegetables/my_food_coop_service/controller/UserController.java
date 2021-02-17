@@ -38,30 +38,18 @@ public class UserController implements UserApi {
     @Override
     @PreAuthorize("hasAnyRole('ADMIN','TREASURER')")
     public ResponseEntity<UserListResponse> getUserList(DeleteFilter deleted, Integer offset, Integer limit) {
+
+        Page<UserDto> page = userService.getAll(deleted, offset, limit);
+        List<UserResponse> users = UserMapper.listUserDtoToListUserResponse(page.getContent());
+
         UserListResponse response = new UserListResponse();
+        response.setUsers(users);
 
-        if (offset == null) {
-            // No pagination -> Return all elements
-
-            List<UserDto> userDtos = userService.getAll(deleted);
-
-            List<UserResponse> userResponses = UserMapper.listUserDtoToListUserResponse(userDtos);
-
-            response.setUsers(userResponses);
-
-        } else {
-            // Paginate
-
-            Page<UserDto> userDtoPage = userService.getAll(deleted, offset, limit);
-
-            List<UserResponse> userResponses = UserMapper.listUserDtoToListUserResponse(userDtoPage.getContent());
-
+        if (page.getPageable().isPaged()) {
             Pagination pagination = new Pagination();
             pagination.setOffset(offset);
             pagination.setLimit(limit);
-            pagination.setTotal(userDtoPage.getTotalElements());
-
-            response.setUsers(userResponses);
+            pagination.setTotal(page.getTotalElements());
             response.setPagination(pagination);
         }
 
