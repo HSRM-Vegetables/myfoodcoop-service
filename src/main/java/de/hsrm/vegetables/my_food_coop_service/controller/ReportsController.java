@@ -192,7 +192,7 @@ public class ReportsController implements ReportsApi {
 
         response.setGrossAmount(StockService.round(grossAmount, 2));
         response.setTotalVat(StockService.round(totalVat, 2));
-        response.setVatDetails(disposeService.getVatDetails(disposedItems));
+        response.setVatDetails(DisposeService.getVatDetails(disposedItems));
 
         return ResponseEntity.ok(response);
     }
