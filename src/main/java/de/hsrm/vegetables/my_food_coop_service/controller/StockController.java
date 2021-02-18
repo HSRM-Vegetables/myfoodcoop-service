@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.StockApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
@@ -13,6 +14,7 @@ import de.hsrm.vegetables.my_food_coop_service.services.StockService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +45,9 @@ public class StockController implements StockApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<AllStockResponse> stockGet(DeleteFilter deleted, List<StockStatus> filterByStatus, String sortBy, String sortOrder) {
+    public ResponseEntity<AllStockResponse> stockGet(
+            DeleteFilter deleted, List<StockStatus> filterByStatus, String sortBy, String sortOrder, Integer offset, Integer limit) {
+
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -78,10 +84,20 @@ public class StockController implements StockApi {
 
         allFilters.addAll(filterByStatus);
 
-        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(stockService.getStock(deleted, allFilters, sortBy, sortOrder));
+        // Query stock items from DB and create response
+
+        Page<StockDto> page = stockService.getStock(deleted, allFilters, sortBy, sortOrder, offset, limit);
+
+        List<StockResponse> items = StockMapper.listStockDtoToListStockResponse(page.getContent());
 
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);
+
+        if (page.getPageable().isPaged()) {
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
+            response.setPagination(pagination);
+        }
+
         return ResponseEntity.ok(response);
     }
 

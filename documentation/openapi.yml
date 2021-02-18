@@ -267,6 +267,8 @@ paths:
                         enum:
                             - ASC
                             - DESC
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call, returns the current stock
@@ -415,6 +417,9 @@ paths:
                 - Purchase
             summary: Retrieve all previous purchases
             operationId: purchaseGet
+            parameters:
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call, returns the list of all previous purchases
@@ -490,6 +495,8 @@ paths:
             parameters:
                 -   $ref: '#/components/parameters/fromDate'
                 -   $ref: '#/components/parameters/toDate'
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call
@@ -546,6 +553,8 @@ paths:
                     name: deleted
                     schema:
                         $ref: '#/components/schemas/delete-filter'
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call
@@ -587,6 +596,8 @@ paths:
                     name: deleted
                     schema:
                         $ref: '#/components/schemas/delete-filter'
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call
@@ -1163,6 +1174,8 @@ components:
             description: A list of all users and their balances
             type: object
             properties:
+                pagination:
+                    $ref: '#/components/schemas/pagination'
                 users:
                     type: array
                     items:
@@ -1188,6 +1201,8 @@ components:
         all-stock-response:
             type: object
             properties:
+                pagination:
+                    $ref: '#/components/schemas/pagination'
                 items:
                     type: array
                     items:
@@ -1263,6 +1278,8 @@ components:
             type: object
             description: A list of items sold in a time window
             properties:
+                pagination:
+                    $ref: '#/components/schemas/pagination'
                 items:
                     type: array
                     items:
@@ -1313,6 +1330,8 @@ components:
             description: List of all previous purchases
             type: object
             properties:
+                pagination:
+                    $ref: '#/components/schemas/pagination'
                 totalCumulativePrice:
                     description: Total price of all previous purchases, including VAT.
                     example: 123.0
@@ -1402,6 +1421,8 @@ components:
         user-list-response:
             type: object
             properties:
+                pagination:
+                    $ref: '#/components/schemas/pagination'
                 users:
                     type: array
                     items:
@@ -1854,11 +1875,11 @@ components:
             in: query
             name: offset
             description: |-
-                The number of items to skip before starting to collect the result set
+                The number of items to skip before starting to collect the result set.
+                If no offset is provided, no pagination is performed and the limit parameter is ignored.
             schema:
                 type: integer
                 minimum: 0
-                default: 0
 
         limit:
             in: query

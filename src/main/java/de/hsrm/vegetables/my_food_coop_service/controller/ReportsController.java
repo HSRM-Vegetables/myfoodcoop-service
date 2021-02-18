@@ -1,13 +1,14 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.ReportsApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
-import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
-import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
+import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.my_food_coop_service.mapper.StockMapper;
+import de.hsrm.vegetables.my_food_coop_service.mapper.ReportsMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
@@ -16,6 +17,7 @@ import de.hsrm.vegetables.my_food_coop_service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,30 +38,37 @@ import java.util.stream.Collectors;
 public class ReportsController implements ReportsApi {
 
     @NonNull
-    private PurchaseService purchaseService;
+    private final PurchaseService purchaseService;
 
     @NonNull
     private final StockService stockService;
 
     @NonNull
-    private UserService userService;
+    private final UserService userService;
 
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate) {
-        LocalDate today = LocalDate.now();
-        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
-            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
-        }
+    public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
+        Util.checkDateRange(fromDate, toDate);
 
-        if (fromDate.isAfter(toDate)) {
-            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
-        }
-
-        List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
         QuantitySoldList response = new QuantitySoldList();
-        response.setItems(soldItems);
+        List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+            response.setItems(soldItems);
+
+        } else {
+            // Paginate
+
+            Pagination pagination = Util.createPagination(offset, limit, (long)soldItems.size());
+            response.setPagination(pagination);
+
+            response.setItems(soldItems.subList(offset, offset + limit));
+            response.setPagination(pagination);
+        }
+
         response.setVatDetails(PurchaseMapper.getVatDetails(soldItems));
         Float totalVat = soldItems.stream()
                 .map(QuantitySoldItem::getTotalVat)
@@ -138,22 +147,21 @@ public class ReportsController implements ReportsApi {
 
     @Override
     @PreAuthorize("hasRole('TREASURER')")
-    public ResponseEntity<BalanceOverviewList> balanceOverview(DeleteFilter deleted) {
-        BalanceOverviewList response = new BalanceOverviewList();
+    public ResponseEntity<BalanceOverviewList> balanceOverview(DeleteFilter deleted, Integer offset, Integer limit) {
 
-        response.setUsers(
-                userService.getAll(deleted)
-                        .stream()
-                        .map(user -> {
-                            BalanceOverviewItem item = new BalanceOverviewItem();
-                            item.setId(user.getId());
-                            item.setUsername(user.getUsername());
-                            item.setMemberId(user.getMemberId());
-                            item.setIsDeleted(user.isDeleted());
-                            item.setBalance(user.getBalance());
-                            return item;
-                        })
-                        .collect(Collectors.toList()));
+        Page<UserDto> page = userService.getAll(deleted, offset, limit);
+
+        List<BalanceOverviewItem> items = page.stream()
+                .map(ReportsMapper::userDtoToBalanceOverviewItem)
+                .collect(Collectors.toList());
+
+        BalanceOverviewList response = new BalanceOverviewList();
+        response.setUsers(items);
+
+        if (page.getPageable().isPaged()) {
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
+            response.setPagination(pagination);
+        }
 
         return ResponseEntity.ok(response);
     }
