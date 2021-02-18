@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.services;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
@@ -22,6 +23,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +44,7 @@ public class StockService {
     /**
      * Find a page of items currently in stock.
      * Returns a page with all elements if offset is null.
-     *
+     * <p>
      * deleteFilter controls how deleted entries are treated:
      * <p>
      * OMIT: Only elements which haven't been deleted will be included
@@ -48,8 +52,8 @@ public class StockService {
      * ONLY: Only return deleted items
      *
      * @param deleteFilter How to treat deleted items
-     * @param offset Pagination offset (first element in returned page)
-     * @param limit Pagination limit (number of elements in returned page)
+     * @param offset       Pagination offset (first element in returned page)
+     * @param limit        Pagination limit (number of elements in returned page)
      * @return A page of stock items
      */
     public Page<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, String sortBy, String sortOder, Integer offset, Integer limit) {
@@ -339,6 +343,56 @@ public class StockService {
         disposedDto.setUserDto(userDto);
 
         return disposedRepository.save(disposedDto);
+    }
+
+    /**
+     * Find multiple disposes between Dates
+     *
+     * @param fromDate time window from offsetDateTime where item was disposed
+     * @param toDate   time window to offsetDateTime where item was disposed
+     * @return All disposes between fromDate and toDate
+     */
+    public List<DisposedDto> getDisposedDtos(LocalDate fromDate, LocalDate toDate) {
+        Util.checkDateRange(fromDate, toDate);
+
+        // Local Dates only contain date information and are missing time information.
+        // Convert the LocalDate to a timestamp with the options specified below.
+        OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
+        OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);
+
+        return disposedRepository.findAllByCreatedOnBetween(fromDateConverted, toDateConverted);
+    }
+
+    public static List<VatDetailItem> getVatDetailsDispose(List<DisposedItem> disposedItems) {
+        // Get all distinct vat rates
+        ArrayList<Float> distinctVatRates = new ArrayList<>();
+
+        disposedItems.forEach(disposedItem -> {
+            if (!distinctVatRates.contains(disposedItem.getVat())) {
+                distinctVatRates.add(disposedItem.getVat());
+            }
+        });
+
+        return distinctVatRates.stream()
+                .map(vat -> {
+                    // Get all purchased items with specific vat
+                    List<DisposedItem> purchasedItemsWithVat = disposedItems
+                            .stream()
+                            .filter(soldItem -> soldItem.getVat()
+                                    .equals(vat))
+                            .collect(Collectors.toList());
+
+                    // Calculate vat amount for these items
+                    Float amount = purchasedItemsWithVat.stream()
+                            .map(DisposedItem::getTotalVat)
+                            .reduce(0f, Float::sum);
+
+                    VatDetailItem vatDetailItem = new VatDetailItem();
+                    vatDetailItem.setVat(vat);
+                    vatDetailItem.setAmount(StockService.round(amount, 2));
+                    return vatDetailItem;
+                })
+                .collect(Collectors.toList());
     }
 
     public static Float calculatePrice(List<StockDto> stockItems, List<CartItem> cartItems) {

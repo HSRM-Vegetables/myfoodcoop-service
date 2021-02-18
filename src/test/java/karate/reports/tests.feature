@@ -43,6 +43,21 @@ Feature: Simple Stock management
     }
     """
 
+    * def findItemWithStockId =
+    """
+    function(arr, id) {
+      if (arr === undefined || arr === null || id === undefined || id === null) {
+        return null;
+      }
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].stockId === id) {
+          return arr[i];
+        }
+      }
+      return null;
+    }
+    """
+
     * def getUserIdFromToken =
     """
     function(token) {
@@ -607,3 +622,167 @@ Feature: Simple Stock management
     Then status 200
     And match response contains { users: '#array'}
     And match response.users[*].username contains username
+
+  Scenario: Generate a disposed item report for items disposed today
+    # Get token of orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create item 1
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request defaultStockBody
+    When method POST
+    Then status 201
+    And def stockId1 = response.id
+
+    # Create item 2
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request defaultStockBody
+    When method POST
+    Then status 201
+    And def stockId2 = response.id
+
+    # Disposed item1
+    Given path 'stock', stockId1, 'dispose'
+    And header Authorization = "Bearer " + oToken
+    And def item1 = { id: #(stockId1), amount: 1}
+    And request item1
+    When method POST
+    Then status 200
+
+    # Disposed item2
+    Given path 'stock', stockId2, 'dispose'
+    And header Authorization = "Bearer " + oToken
+    And def item2 = { id: #(stockId2), amount: 1}
+    And request item2
+    When method POST
+    Then status 200
+
+    # Get token of treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def tToken = response.token
+
+    # Generate report
+    * def today = getToday()
+    Given path '/reports/disposed-items'
+    And header Authorization = "Bearer " + tToken
+    And param fromDate = today
+    And param toDate = today
+    When method GET
+    Then status 200
+    And assert response.items.length >= 2
+    And match response contains { items: '#array', totalVat: '#number', vatDetails: '#array', grossAmount: '#number' }
+    And def firstItem = findItemWithStockId(response.items, stockId1)
+    And def secondItem = findItemWithStockId(response.items, stockId2)
+    And match firstItem contains { stockId: #(stockId1), totalVat: '#number', vat: '#number', grossAmount: '#number'}
+    And match secondItem contains { stockId: #(stockId2), totalVat: '#number', vat: '#number', grossAmount: '#number' }
+
+  Scenario: fromDate cannot be after toDate DisposedItems Report
+    # Get token of treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    * def today = getToday()
+    * def yesterday = getOffsetDate(-1)
+    Given path '/reports/disposed-items'
+    And header Authorization = "Bearer " + token
+    And param fromDate = today
+    And param toDate = yesterday
+    When method GET
+    Then status 400
+    And assert response.errorCode == 400012
+
+  Scenario: toDate cannot be in the future DisposedItems Report
+    # Get token
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    * def today = getToday()
+    * def tomorrow = getOffsetDate(1)
+    Given path '/reports/disposed-items'
+    And header Authorization = "Bearer " + token
+    And param fromDate = today
+    And param toDate = tomorrow
+    When method GET
+    Then status 400
+    And assert response.errorCode == 400013
+
+  Scenario: fromDate cannot be in the future DisposedItems Report
+    # Get token
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    * def today = getToday()
+    * def tomorrow = getOffsetDate(1)
+    Given path '/reports/disposed-items'
+    And header Authorization = "Bearer " + token
+    And param fromDate = tomorrow
+    And param toDate = today
+    When method GET
+    Then status 400
+    And assert response.errorCode == 400013
+
+  Scenario: toDate and fromDate cannot be in the future DisposedItems Report
+    # Get token
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def token = response.token
+
+    # Generate report
+    * def tomorrow = getOffsetDate(1)
+    Given path '/reports/disposed-items'
+    And header Authorization = "Bearer " + token
+    And param fromDate = tomorrow
+    And param toDate = tomorrow
+    When method GET
+    Then status 400
+    And assert response.errorCode == 400013
+
+  Scenario: GET /reports/disposed-items needs authorization
+    * def today = getToday()
+    Given path '/reports/disposed-items'
+    And param fromDate = today
+    And param toDate = today
+    When method GET
+    Then status 401
+    And match response.errorCode == 401005
+
+  Scenario: Report list is empty if no item was disposed on that date
+    # Get token for treasurer
+    Given path 'auth', 'login'
+    And request { username: 'treasurer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def tToken = response.token
+
+    # Generate report
+    * def today = getToday()
+    Given path '/reports/disposed-items'
+    And header Authorization = "Bearer " + tToken
+    And param fromDate = '2020-01-01'
+    And param toDate = '2020-01-01'
+    When method GET
+    Then status 200
+    And assert response.items.length == 0

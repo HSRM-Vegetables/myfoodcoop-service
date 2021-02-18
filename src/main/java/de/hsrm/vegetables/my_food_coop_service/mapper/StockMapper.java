@@ -4,6 +4,7 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.model.DisposedItem;
 import de.hsrm.vegetables.my_food_coop_service.model.StockResponse;
+import de.hsrm.vegetables.my_food_coop_service.services.StockService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,6 +58,19 @@ public class StockMapper {
         disposedItem.setUserId(disposedDto.getUserDto()
                 .getId());
 
+        float totalVat = StockService.round(disposedDto.getPricePerUnit() * disposedDto.getVat() * disposedDto.getAmount(), 2);
+        disposedItem.setTotalVat(totalVat);
+
+        disposedItem.setGrossAmount(StockService.round(totalVat + disposedDto.getPricePerUnit() * disposedDto.getAmount(), 2));
+
         return disposedItem;
     }
+
+    public static List<DisposedItem> listDisposedDtoToListDisposedItem(List<DisposedDto> disposedDtos) {
+        return disposedDtos
+                .stream()
+                .map(StockMapper::disposedDtoToDisposedItem)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -7,6 +7,7 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.my_food_coop_service.mapper.ReportsMapper;
+import de.hsrm.vegetables.my_food_coop_service.mapper.StockMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
@@ -43,6 +44,7 @@ public class ReportsController implements ReportsApi {
     @NonNull
     private final UserService userService;
 
+
     @Override
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
@@ -58,7 +60,7 @@ public class ReportsController implements ReportsApi {
         } else {
             // Paginate
 
-            Pagination pagination = Util.createPagination(offset, limit, (long)soldItems.size());
+            Pagination pagination = Util.createPagination(offset, limit, (long) soldItems.size());
             response.setPagination(pagination);
 
             response.setItems(soldItems.subList(offset, offset + limit));
@@ -154,11 +156,46 @@ public class ReportsController implements ReportsApi {
         BalanceOverviewList response = new BalanceOverviewList();
         response.setUsers(items);
 
-        if (page.getPageable().isPaged()) {
+        if (page.getPageable()
+                .isPaged()) {
             Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
 
         return ResponseEntity.ok(response);
     }
+
+    @Override
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<DisposedItemList> disposedItems(LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
+        List<DisposedItem> disposedItems = StockMapper.listDisposedDtoToListDisposedItem(stockService.getDisposedDtos(fromDate, toDate));
+
+        DisposedItemList response = new DisposedItemList();
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+            response.setItems(disposedItems);
+        } else {
+            // Paginate
+            Pagination pagination = Util.createPagination(offset, limit, (long) disposedItems.size());
+            response.setPagination(pagination);
+
+            response.setItems(disposedItems.subList(offset, offset + limit));
+            response.setPagination(pagination);
+        }
+
+        Float totalVat = disposedItems.stream()
+                .map(DisposedItem::getTotalVat)
+                .reduce(0f, Float::sum);
+        Float grossAmount = disposedItems.stream()
+                .map(DisposedItem::getGrossAmount)
+                .reduce(0f, Float::sum);
+
+        response.setGrossAmount(StockService.round(grossAmount, 2));
+        response.setTotalVat(StockService.round(totalVat, 2));
+        response.setVatDetails(StockService.getVatDetailsDispose(disposedItems));
+
+        return ResponseEntity.ok(response);
+    }
+
 }
