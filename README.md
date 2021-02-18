@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-This project runs on Java version 14 and uses maven as a building and tooling framework. In order to start this project and develop for it, Java 14 and Maven needs to be installed.
+This project runs on Java version 15 and uses maven as a building and tooling framework. In order to start this project and develop for it, Java 15 and Maven needs to be installed.
 
 - Installing Maven https://maven.apache.org/install.html
 - Installing Java https://openjdk.java.net/install/
