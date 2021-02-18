@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.BalanceApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
@@ -47,7 +48,7 @@ public class BalanceController implements BalanceApi {
 
         UserDto userDto = userService.getUserById(userId);
 
-        Page<BalanceHistoryItemDto> page = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
+        Page<BalanceHistoryItemDto> page = balanceHistoryService.getBalanceHistoryBetweenDates(
                 userDto, fromDate, toDate, offset, limit);
 
         List<BalanceHistoryItem> items = page.stream()
@@ -58,10 +59,7 @@ public class BalanceController implements BalanceApi {
         response.setBalanceHistoryItems(items);
 
         if (page.getPageable().isPaged()) {
-            Pagination pagination = new Pagination();
-            pagination.setOffset(offset);
-            pagination.setLimit(limit);
-            pagination.setTotal(page.getTotalElements());
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
 

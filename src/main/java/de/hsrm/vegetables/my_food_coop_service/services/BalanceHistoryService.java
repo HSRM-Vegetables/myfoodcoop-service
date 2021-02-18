@@ -1,10 +1,9 @@
 package de.hsrm.vegetables.my_food_coop_service.services;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
-import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
-import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.model.BalanceChangeType;
 import de.hsrm.vegetables.my_food_coop_service.repositories.BalanceHistoryItemRepository;
 import lombok.NonNull;
@@ -38,18 +37,10 @@ public class BalanceHistoryService {
      * @param limit Pagination limit (number of elements in returned page)
      * @return A page of balance history items created by the given user
      */
-    public Page<BalanceHistoryItemDto> findAllByUserDtoAndCreatedOnBetween(
+    public Page<BalanceHistoryItemDto> getBalanceHistoryBetweenDates(
             UserDto userDto, LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
 
-        LocalDate today = LocalDate.now();
-
-        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
-            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
-        }
-
-        if (fromDate.isAfter(toDate)) {
-            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
-        }
+        Util.checkDateRange(fromDate, toDate);
 
         OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);
         OffsetDateTime toDateConverted = OffsetDateTime.of(toDate, LocalTime.MAX, ZoneOffset.UTC);

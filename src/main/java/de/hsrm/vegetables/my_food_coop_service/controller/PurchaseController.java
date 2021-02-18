@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.PurchaseApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
@@ -93,12 +94,9 @@ public class PurchaseController implements PurchaseApi {
 
         PurchaseListResponse response = new PurchaseListResponse();
         response.setPurchases(items);
-        
+
         if (page.getPageable().isPaged()) {
-            Pagination pagination = new Pagination();
-            pagination.setOffset(offset);
-            pagination.setLimit(limit);
-            pagination.setTotal(page.getTotalElements());
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
 

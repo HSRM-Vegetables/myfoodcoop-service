@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.StockApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
@@ -92,11 +93,8 @@ public class StockController implements StockApi {
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);
 
-        if (offset != null) {
-            Pagination pagination = new Pagination();
-            pagination.setOffset(offset);
-            pagination.setLimit(limit);
-            pagination.setTotal(page.getTotalElements());
+        if (page.getPageable().isPaged()) {
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
 

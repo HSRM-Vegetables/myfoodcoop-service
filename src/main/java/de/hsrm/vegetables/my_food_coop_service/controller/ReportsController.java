@@ -1,11 +1,10 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.ReportsApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
-import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
-import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
 import de.hsrm.vegetables.my_food_coop_service.mapper.ReportsMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
@@ -47,14 +46,7 @@ public class ReportsController implements ReportsApi {
     @Override
     @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<QuantitySoldList> soldItems(LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
-        LocalDate today = LocalDate.now();
-        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
-            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
-        }
-
-        if (fromDate.isAfter(toDate)) {
-            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
-        }
+        Util.checkDateRange(fromDate, toDate);
 
         QuantitySoldList response = new QuantitySoldList();
         List<QuantitySoldItem> soldItems = getSoldItems(fromDate, toDate);
@@ -66,10 +58,8 @@ public class ReportsController implements ReportsApi {
         } else {
             // Paginate
 
-            Pagination pagination = new Pagination();
-            pagination.setOffset(offset);
-            pagination.setLimit(limit);
-            pagination.setTotal((long)soldItems.size());
+            Pagination pagination = Util.createPagination(offset, limit, (long)soldItems.size());
+            response.setPagination(pagination);
 
             response.setItems(soldItems.subList(offset, offset + limit));
             response.setPagination(pagination);
@@ -165,10 +155,7 @@ public class ReportsController implements ReportsApi {
         response.setUsers(items);
 
         if (page.getPageable().isPaged()) {
-            Pagination pagination = new Pagination();
-            pagination.setOffset(offset);
-            pagination.setLimit(limit);
-            pagination.setTotal(page.getTotalElements());
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
 

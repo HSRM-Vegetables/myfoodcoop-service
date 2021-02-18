@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.UserApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.mapper.UserMapper;
@@ -46,10 +47,7 @@ public class UserController implements UserApi {
         response.setUsers(users);
 
         if (page.getPageable().isPaged()) {
-            Pagination pagination = new Pagination();
-            pagination.setOffset(offset);
-            pagination.setLimit(limit);
-            pagination.setTotal(page.getTotalElements());
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
 
