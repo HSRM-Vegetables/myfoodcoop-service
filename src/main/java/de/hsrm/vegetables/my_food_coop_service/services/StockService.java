@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.services;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
@@ -43,7 +44,7 @@ public class StockService {
     /**
      * Find a page of items currently in stock.
      * Returns a page with all elements if offset is null.
-     *
+     * <p>
      * deleteFilter controls how deleted entries are treated:
      * <p>
      * OMIT: Only elements which haven't been deleted will be included
@@ -51,8 +52,8 @@ public class StockService {
      * ONLY: Only return deleted items
      *
      * @param deleteFilter How to treat deleted items
-     * @param offset Pagination offset (first element in returned page)
-     * @param limit Pagination limit (number of elements in returned page)
+     * @param offset       Pagination offset (first element in returned page)
+     * @param limit        Pagination limit (number of elements in returned page)
      * @return A page of stock items
      */
     public Page<StockDto> getStock(DeleteFilter deleteFilter, List<StockStatus> stockFilter, String sortBy, String sortOder, Integer offset, Integer limit) {
@@ -352,14 +353,8 @@ public class StockService {
      * @return All disposes between fromDate and toDate
      */
     public List<DisposedDto> getDisposedDtos(LocalDate fromDate, LocalDate toDate) {
-        LocalDate today = LocalDate.now();
-        if (fromDate.isAfter(today) || toDate.isAfter(today)) {
-            throw new BadRequestError("Report Date cannot be in the future", ErrorCode.REPORT_DATA_IN_FUTURE);
-        }
+        Util.checkDateRange(fromDate, toDate);
 
-        if (fromDate.isAfter(toDate)) {
-            throw new BadRequestError("fromDate cannot be after toDate", ErrorCode.TO_DATE_AFTER_FROM_DATE);
-        }
         // Local Dates only contain date information and are missing time information.
         // Convert the LocalDate to a timestamp with the options specified below.
         OffsetDateTime fromDateConverted = OffsetDateTime.of(fromDate, LocalTime.MIN, ZoneOffset.UTC);

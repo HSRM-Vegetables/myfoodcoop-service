@@ -2,18 +2,16 @@ package de.hsrm.vegetables.my_food_coop_service.controller;
 
 import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.ReportsApi;
-import de.hsrm.vegetables.my_food_coop_service.domain.dto.DisposedDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
-import de.hsrm.vegetables.my_food_coop_service.mapper.StockMapper;
 import de.hsrm.vegetables.my_food_coop_service.mapper.ReportsMapper;
+import de.hsrm.vegetables.my_food_coop_service.mapper.StockMapper;
 import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
 import de.hsrm.vegetables.my_food_coop_service.services.UserService;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +60,7 @@ public class ReportsController implements ReportsApi {
         } else {
             // Paginate
 
-            Pagination pagination = Util.createPagination(offset, limit, (long)soldItems.size());
+            Pagination pagination = Util.createPagination(offset, limit, (long) soldItems.size());
             response.setPagination(pagination);
 
             response.setItems(soldItems.subList(offset, offset + limit));
@@ -158,7 +156,8 @@ public class ReportsController implements ReportsApi {
         BalanceOverviewList response = new BalanceOverviewList();
         response.setUsers(items);
 
-        if (page.getPageable().isPaged()) {
+        if (page.getPageable()
+                .isPaged()) {
             Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
@@ -168,12 +167,22 @@ public class ReportsController implements ReportsApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<DisposedItemList> disposedItems(LocalDate fromDate, LocalDate toDate) {
-
+    public ResponseEntity<DisposedItemList> disposedItems(LocalDate fromDate, LocalDate toDate, Integer offset, Integer limit) {
         List<DisposedItem> disposedItems = StockMapper.listDisposedDtoToListDisposedItem(stockService.getDisposedDtos(fromDate, toDate));
 
         DisposedItemList response = new DisposedItemList();
-        response.setItems(disposedItems);
+
+        if (offset == null) {
+            // No pagination -> Return all elements
+            response.setItems(disposedItems);
+        } else {
+            // Paginate
+            Pagination pagination = Util.createPagination(offset, limit, (long) disposedItems.size());
+            response.setPagination(pagination);
+
+            response.setItems(disposedItems.subList(offset, offset + limit));
+            response.setPagination(pagination);
+        }
 
         Float totalVat = disposedItems.stream()
                 .map(DisposedItem::getTotalVat)
@@ -188,4 +197,5 @@ public class ReportsController implements ReportsApi {
 
         return ResponseEntity.ok(response);
     }
+
 }

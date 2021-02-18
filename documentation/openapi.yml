@@ -166,7 +166,7 @@ paths:
     '/balance/{user-id}/history':
         get:
             security:
-                - bearerAuth: [ ]
+                -   bearerAuth: [ ]
             tags:
                 - Balance
             summary: Retrieve the user's balance history
@@ -521,6 +521,8 @@ paths:
             parameters:
                 -   $ref: '#/components/parameters/fromDate'
                 -   $ref: '#/components/parameters/toDate'
+                -   $ref: '#/components/parameters/offset'
+                -   $ref: '#/components/parameters/limit'
             responses:
                 '200':
                     description: Successful call
@@ -936,6 +938,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/error-detail'
+
         error-detail:
             description: A more precise explaination of an error
             type: object
@@ -1115,6 +1118,7 @@ components:
             properties:
                 amount:
                     $ref: '#/components/schemas/dispose-amount'
+
         #
         # Response Schemas
         #
@@ -1461,7 +1465,8 @@ components:
                     $ref: '#/components/schemas/vatDetails'
                 grossAmount:
                     $ref: '#/components/schemas/grossAmount'
-
+                pagination:
+                    $ref: '#/components/schemas/pagination'
 
         disposed-item:
             type: object
@@ -1557,6 +1562,7 @@ components:
                         Must be an integer if the unitType of the referenced item is PIECE
                     format: float
                     example: 7
+
         username:
             description: The unique name of the user
             type: string
@@ -1827,6 +1833,7 @@ components:
                 Value must be same date as toDate or a earlier date.
                 Value cannot be later than today
 
+
         toDate:
             in: query
             name: toDate
@@ -1839,6 +1846,7 @@ components:
                 End of report. This date is inclusive
                 Value must be same date as fromDate or a later date.
                 Value cannot be later than today
+
 
         purchase-id:
             in: path
