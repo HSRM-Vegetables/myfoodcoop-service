@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.PurchaseApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.PurchaseDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.StockDto;
@@ -7,10 +8,7 @@ import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
 import de.hsrm.vegetables.my_food_coop_service.exception.ErrorCode;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.UnauthorizedError;
 import de.hsrm.vegetables.my_food_coop_service.mapper.PurchaseMapper;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseHistoryItem;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseListResponse;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseRequest;
-import de.hsrm.vegetables.my_food_coop_service.model.PurchaseResponse;
+import de.hsrm.vegetables.my_food_coop_service.model.*;
 import de.hsrm.vegetables.my_food_coop_service.security.UserPrincipal;
 import de.hsrm.vegetables.my_food_coop_service.services.PurchaseService;
 import de.hsrm.vegetables.my_food_coop_service.services.StockService;
@@ -18,6 +16,7 @@ import de.hsrm.vegetables.my_food_coop_service.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -78,31 +77,41 @@ public class PurchaseController implements PurchaseApi {
 
     @Override
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<PurchaseListResponse> purchaseGet() {
+    public ResponseEntity<PurchaseListResponse> purchaseGet(Integer offset, Integer limit) {
         UserPrincipal userPrincipal = getUserPrincipalFromSecurityContext();
 
         // No need to query database for this userDto as we only need the primary key
         UserDto userDto = new UserDto();
         userDto.setId(userPrincipal.getId());
 
-        // Get all purchases from the user
-        List<PurchaseDto> purchases = purchaseService.getPurchases(userDto);
+        // Query purchases from DB and create response
 
-        PurchaseListResponse purchaseListResponse = new PurchaseListResponse();
-        purchaseListResponse.setPurchases(purchases.stream()
+        Page<PurchaseDto> page = purchaseService.getPurchases(userDto, offset, limit);
+
+        List<PurchaseHistoryItem> items = page.stream()
                 .map(PurchaseMapper::purchaseDtoToPurchaseHistoryItem)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        PurchaseListResponse response = new PurchaseListResponse();
+        response.setPurchases(items);
+
+        if (page.getPageable().isPaged()) {
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
+            response.setPagination(pagination);
+        }
+
+        // Calc cumulative price/VAT
 
         float totalCumulativePrice = 0f;
         float totalCumulativeVat = 0f;
-        for (PurchaseDto purchase : purchases) {
+        for (PurchaseDto purchase : page) {
             totalCumulativePrice = StockService.round(totalCumulativePrice + purchase.getTotalPrice(), 2);
             totalCumulativeVat = StockService.round(totalCumulativeVat + purchase.getTotalVat(), 2);
         }
-        purchaseListResponse.setTotalCumulativePrice(totalCumulativePrice);
-        purchaseListResponse.setTotalCumulativeVat(totalCumulativeVat);
+        response.setTotalCumulativePrice(totalCumulativePrice);
+        response.setTotalCumulativeVat(totalCumulativeVat);
 
-        return ResponseEntity.ok(purchaseListResponse);
+        return ResponseEntity.ok(response);
     }
 
     @Override

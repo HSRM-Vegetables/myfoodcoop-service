@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.controller;
 
+import de.hsrm.vegetables.my_food_coop_service.Util;
 import de.hsrm.vegetables.my_food_coop_service.api.BalanceApi;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.BalanceHistoryItemDto;
 import de.hsrm.vegetables.my_food_coop_service.domain.dto.UserDto;
@@ -47,27 +48,22 @@ public class BalanceController implements BalanceApi {
 
         UserDto userDto = userService.getUserById(userId);
 
-        // Query balance history items
-
-        Page<BalanceHistoryItemDto> balanceHistoryItemDtoPage = balanceHistoryService.findAllByUserDtoAndCreatedOnBetween(
+        Page<BalanceHistoryItemDto> page = balanceHistoryService.getBalanceHistoryBetweenDates(
                 userDto, fromDate, toDate, offset, limit);
 
-        List<BalanceHistoryItem> balanceHistoryItems = balanceHistoryItemDtoPage.stream()
+        List<BalanceHistoryItem> items = page.stream()
                 .map(BalanceMapper::balanceHistoryItemDtoToBalanceHistoryItem)
                 .collect(Collectors.toList());
 
-        // Create response
+        BalanceHistoryResponse response = new BalanceHistoryResponse();
+        response.setBalanceHistoryItems(items);
 
-        Pagination pagination = new Pagination();
-        pagination.setOffset(offset);
-        pagination.setLimit(limit);
-        pagination.setTotal(balanceHistoryItemDtoPage.getTotalElements());
+        if (page.getPageable().isPaged()) {
+            Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
+            response.setPagination(pagination);
+        }
 
-        BalanceHistoryResponse balanceHistoryResponse = new BalanceHistoryResponse();
-        balanceHistoryResponse.setBalanceHistoryItems(balanceHistoryItems);
-        balanceHistoryResponse.setPagination(pagination);
-
-        return ResponseEntity.ok(balanceHistoryResponse);
+        return ResponseEntity.ok(response);
     }
 
     @Override

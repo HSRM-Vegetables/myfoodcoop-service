@@ -159,7 +159,7 @@ Feature: Simple Purchases
     And assert response.totalCumulativePrice == 1.3
     And assert response.totalCumulativeVat == 0.21
 
-  Scenario: Purchase multiple items
+  Scenario: Purchase multiple items and check performed purchases using pagination
     # Get token
     Given path 'auth', 'login'
     And request { username: 'orderer',  password: #(password) }
@@ -220,6 +220,14 @@ Feature: Simple Purchases
     When method PATCH
     Then status 200
 
+    # Check number of purchases before
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And param offset = 0
+    When method GET
+    Then status 200
+    And def purchaseCount = response.pagination.total
+
     # Purchase items
     Given path '/purchase'
     And header Authorization = "Bearer " + token
@@ -240,6 +248,22 @@ Feature: Simple Purchases
     And match vatRateTwo == { vat: 0.16, amount: 0.18 }
     And def purchaseId = response.id
 
+    # Second purchase
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item4 = { id: #(stockId3), amount: 1 }
+    And request { items: [#(item4)] }
+    When method POST
+    Then status 200
+
+    # Third purchase
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And def item5 = { id: #(stockId3), amount: 1 }
+    And request { items: [#(item5)] }
+    When method POST
+    Then status 200
+
     # Check stock was reduced on first item
     Given path '/stock/' + stockId1
     And header Authorization = "Bearer " + token
@@ -254,12 +278,12 @@ Feature: Simple Purchases
     Then status 200
     And match response contains { quantity: 139.0 }
 
-    # Check that the balance was reduced
+    # Check that the balance was reduced (check integer cent value)
     Given path 'balance', userId
     And header Authorization = "Bearer " + token
     When method GET
     Then status 200
-    Then assert response.balance == 496.1
+    Then assert ~~(response.balance * 100) == 49350
 
     # Check that purchase exists
     Given path '/purchase', purchaseId
@@ -289,6 +313,18 @@ Feature: Simple Purchases
     And match purchasedItem1 contains { id: #(stockId1) }
     And def purchasedItem2 = findItemWithId(purchase.items, stockId2)
     And match purchasedItem2 contains { id: #(stockId2) }
+
+    # Check purchase list using pagination
+    Given path '/purchase'
+    And header Authorization = "Bearer " + token
+    And param offset = 0
+    And param limit = 2
+    When method GET
+    Then status 200
+    And match response contains { pagination: '#object', purchases: '#array' }
+    And match response.pagination == { offset: 0, limit: 2, total: '#number' }
+    And match response.pagination.total == purchaseCount + 3
+    And assert response.purchases.length == 2
 
   Scenario: Cannot purchase fractional items when unitType is PIECE
     # Login with orderer to create item

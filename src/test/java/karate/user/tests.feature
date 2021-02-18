@@ -428,6 +428,25 @@ Feature: User controller
     And match response == { users: '#array' }
     And match response.users[*].username contains 'admin'
 
+  Scenario: Get some Users as admin using pagination
+    # Login as admin
+    Given path 'auth', 'login'
+    And request { username: 'admin',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    Given path 'user'
+    And header Authorization = "Bearer " + oToken
+    And param offset = 2
+    And param limit = 2
+    When method GET
+    Then status 200
+    And match response == { pagination: '#object', users: '#array' }
+    And match response.pagination == { offset: 2, limit: 2, total: '#number' }
+    And match response.users[0].username == 'admin'
+    And match response.users[1].username == 'treasurer'
+
   Scenario: Get all Users as treasurer
       # Login as treasurer
     Given path 'auth', 'login'
