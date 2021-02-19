@@ -28,7 +28,7 @@
         <auth0.jwt.version>3.13.0</auth0.jwt.version>
         <h2database.version>1.4.200</h2database.version>
         <spring-data-jpa.version>2.4.4</spring-data-jpa.version>
-        <postgres.version>42.2.18</postgres.version>
+        <postgres.version>42.2.19</postgres.version>
     </properties>
 
     <dependencies>
