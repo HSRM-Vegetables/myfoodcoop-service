@@ -1000,11 +1000,9 @@ components:
                 - name
                 - unitType
                 - quantity
-                - pricePerUnit
                 - sustainablyProduced
                 - originCategory
                 - stockStatus
-                - producer
                 - supplier
                 - vat
             properties:
