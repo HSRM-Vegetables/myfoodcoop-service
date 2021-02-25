@@ -63,7 +63,13 @@ public class ReportsController implements ReportsApi {
             Pagination pagination = Util.createPagination(offset, limit, (long) soldItems.size());
             response.setPagination(pagination);
 
-            response.setItems(soldItems.subList(offset, offset + limit));
+            int endIndex = offset + limit;
+            if (endIndex > soldItems.size()) {
+                response.setItems(soldItems.subList(offset, soldItems.size()));
+            } else {
+                response.setItems(soldItems.subList(offset, offset + limit));
+            }
+
             response.setPagination(pagination);
         }
 
@@ -180,7 +186,13 @@ public class ReportsController implements ReportsApi {
             Pagination pagination = Util.createPagination(offset, limit, (long) disposedItems.size());
             response.setPagination(pagination);
 
-            response.setItems(disposedItems.subList(offset, offset + limit));
+            int endIndex = offset + limit;
+            if (endIndex > disposedItems.size()) {
+                response.setItems(disposedItems.subList(offset, disposedItems.size()));
+            } else {
+                response.setItems(disposedItems.subList(offset, offset + limit));
+            }
+
             response.setPagination(pagination);
         }
 
