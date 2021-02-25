@@ -939,7 +939,7 @@ Feature: Simple Purchases
 
     # Purchase item
     Given path '/purchase'
-    And header Authorization = "Bearer " + mtoken
+    And header Authorization = "Bearer " + mToken
     And def item1 = { id: #(stockId), amount: 1 }
     And request { items: [#(item1)] }
     When method POST

@@ -627,7 +627,6 @@ Feature: Simple Stock management
       name: "test",
       unitType: "PIECE",
       quantity: 10.0,
-      pricePerUnit: 5.0,
       sustainablyProduced: true,
       originCategory: "UNKNOWN",
       producer: "producer",
@@ -1605,7 +1604,7 @@ Feature: Simple Stock management
 
     # Dispose of that item
     Given path 'stock', stockId, 'dispose'
-    And header Authorization = "Bearer " + mtoken
+    And header Authorization = "Bearer " + mToken
     And def disposeAmount = 10
     And request { amount: #(disposeAmount) }
     When method POST
