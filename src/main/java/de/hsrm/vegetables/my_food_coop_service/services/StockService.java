@@ -305,6 +305,10 @@ public class StockService {
                         throw new BadRequestError("Cannot purchase ORDERED item with id " + item.getId(), ErrorCode.ITEM_NOT_IN_STOCK_YET);
                     }
 
+                    if (stockDto.getPricePerUnit() == null) {
+                        throw new BadRequestError("Cannot purchase an item with no price. ID: " + item.getId(), ErrorCode.ITEM_NO_PRICE);
+                    }
+
                     stockDto.setQuantity(stockDto.getQuantity() - item.getAmount());
 
                     return stockDto;
@@ -327,6 +331,10 @@ public class StockService {
         if (stockDto.getUnitType()
                 .equals(UnitType.PIECE) && amount % 1 != 0) {
             throw new BadRequestError("Cannot dispose of item with UnitType PIECE and a fractional quantity", ErrorCode.NO_FRACTIONAL_QUANTITY);
+        }
+
+        if (stockDto.getPricePerUnit() == null) {
+            throw new BadRequestError("Cannot dispose of item with no price", ErrorCode.ITEM_NO_PRICE);
         }
 
         // reduce stock amount
