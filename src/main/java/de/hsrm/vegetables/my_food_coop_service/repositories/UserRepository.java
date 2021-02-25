@@ -7,8 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface UserRepository extends JpaRepository<UserDto, Long> {
 
@@ -21,8 +19,6 @@ public interface UserRepository extends JpaRepository<UserDto, Long> {
     UserDto findByUsername(String username);
 
     UserDto findById(String id);
-
-    List<UserDto> findByIsDeleted(boolean isDeleted);
 
     Page<UserDto> findByIsDeleted(boolean isDeleted, Pageable pageable);
 

@@ -27,10 +27,10 @@ public abstract class BaseTest {
     @BeforeEach
     protected void setup() {
         // Create test user for each role
-        addUser("member", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER));
-        addUser("orderer", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER, Role.ORDERER));
-        addUser("admin", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER, Role.ADMIN));
-        addUser("treasurer", TEST_USER_PASSWORD, 500f, List.of(Role.MEMBER, Role.TREASURER));
+        addUser("member", List.of(Role.MEMBER));
+        addUser("orderer", List.of(Role.MEMBER, Role.ORDERER));
+        addUser("admin", List.of(Role.MEMBER, Role.ADMIN));
+        addUser("treasurer", List.of(Role.MEMBER, Role.TREASURER));
 
 
         stockService.addStock("Bananas", UnitType.WEIGHT, 104.3f, 1.3f, "A description",
@@ -68,8 +68,8 @@ public abstract class BaseTest {
                         .minusDays(10), StockStatus.INSTOCK, 0.19f);
     }
 
-    protected void addUser(String username, String password, Float balance, List<Role> roles) {
-        UserDto user = userService.register(username, username + "@mail.com", username + "Id", password);
+    protected void addUser(String username, List<Role> roles) {
+        UserDto user = userService.register(username, username + "@mail.com", username + "Id", BaseTest.TEST_USER_PASSWORD);
         roles.forEach(role -> userService.addRole(user.getId(), role));
     }
 

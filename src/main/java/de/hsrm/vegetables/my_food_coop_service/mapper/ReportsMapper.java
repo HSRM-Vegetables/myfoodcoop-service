@@ -5,6 +5,10 @@ import de.hsrm.vegetables.my_food_coop_service.model.BalanceOverviewItem;
 
 public class ReportsMapper {
 
+    private ReportsMapper() {
+        // hide implicit public constructor
+    }
+
     public static BalanceOverviewItem userDtoToBalanceOverviewItem(UserDto userDto) {
         BalanceOverviewItem item = new BalanceOverviewItem();
 

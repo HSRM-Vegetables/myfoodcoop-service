@@ -9,6 +9,10 @@ import de.hsrm.vegetables.my_food_coop_service.model.PurchaseHistoryItem;
 
 public class BalanceMapper {
 
+    private BalanceMapper() {
+        // hide implicit public constructor
+    }
+
     public static BalanceResponse userDtoToBalanceResponse(UserDto userDto) {
         BalanceResponse result = new BalanceResponse();
 

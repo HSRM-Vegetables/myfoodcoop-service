@@ -16,6 +16,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenDto, L
     boolean existsByRefreshToken(String refreshToken);
 
     // Revoke a single refresh token
-    Integer deleteByRefreshToken(String refreshToken);
+    void deleteByRefreshToken(String refreshToken);
 
 }

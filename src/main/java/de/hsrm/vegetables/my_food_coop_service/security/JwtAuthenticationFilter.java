@@ -1,5 +1,6 @@
 package de.hsrm.vegetables.my_food_coop_service.security;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,8 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
-                                    HttpServletResponse httpServletResponse,
-                                    FilterChain filterChain) throws IOException, ServletException {
+                                    @NonNull HttpServletResponse httpServletResponse,
+                                    @NonNull FilterChain filterChain) throws IOException, ServletException {
         String authorizationHeader = httpServletRequest.getHeader(AUTHORIZATION_HEADER_NAME);
 
         if (authorizationHeaderIsInvalid(authorizationHeader)) {
@@ -50,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private boolean authorizationHeaderIsInvalid(String authorizationHeader) {
+    private static boolean authorizationHeaderIsInvalid(String authorizationHeader) {
         return authorizationHeader == null
                 || !authorizationHeader.startsWith(HEADER_TOKEN_PREFIX);
     }
