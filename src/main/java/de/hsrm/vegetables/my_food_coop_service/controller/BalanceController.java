@@ -58,7 +58,8 @@ public class BalanceController implements BalanceApi {
         BalanceHistoryResponse response = new BalanceHistoryResponse();
         response.setBalanceHistoryItems(items);
 
-        if (page.getPageable().isPaged()) {
+        if (page.getPageable()
+                .isPaged()) {
             Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
@@ -99,7 +100,7 @@ public class BalanceController implements BalanceApi {
         return ResponseEntity.ok(BalanceMapper.userDtoToBalanceResponse(userDto));
     }
 
-    private UserPrincipal getUserPrincipalFromSecurityContext() {
+    private static UserPrincipal getUserPrincipalFromSecurityContext() {
         return (UserPrincipal) SecurityContextHolder
                 .getContext()
                 .getAuthentication()

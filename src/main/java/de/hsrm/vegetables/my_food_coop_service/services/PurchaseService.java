@@ -41,7 +41,7 @@ public class PurchaseService {
     /**
      * Purchase items
      *
-     * @param userDto The user who purchased the items
+     * @param userDto    The user who purchased the items
      * @param stockItems The StockDto that were purchased
      * @param cartItems  The amounts of the items purchased
      * @return The completed purchase
@@ -94,8 +94,8 @@ public class PurchaseService {
      * Returns a page with all elements if offset is null.
      *
      * @param userDto The user who purchased the items
-     * @param offset Pagination offset (first element in returned page)
-     * @param limit Pagination limit (number of elements in returned page)
+     * @param offset  Pagination offset (first element in returned page)
+     * @param limit   Pagination limit (number of elements in returned page)
      * @return A list of purchases made by the given user
      */
     public Page<PurchaseDto> getPurchases(UserDto userDto, Integer offset, Integer limit) {

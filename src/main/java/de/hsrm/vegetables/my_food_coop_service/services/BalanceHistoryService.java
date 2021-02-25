@@ -30,11 +30,11 @@ public class BalanceHistoryService {
      * Find a page of balance history items for a user within the specified date range.
      * Returns a page with all elements if offset is null.
      *
-     * @param userDto The user who created the balance history items
+     * @param userDto  The user who created the balance history items
      * @param fromDate Start of time window of the balance history item list
-     * @param toDate End of time window of the balance history item list
-     * @param offset Pagination offset (first element in returned page)
-     * @param limit Pagination limit (number of elements in returned page)
+     * @param toDate   End of time window of the balance history item list
+     * @param offset   Pagination offset (first element in returned page)
+     * @param limit    Pagination limit (number of elements in returned page)
      * @return A page of balance history items created by the given user
      */
     public Page<BalanceHistoryItemDto> getBalanceHistoryBetweenDates(
@@ -54,11 +54,11 @@ public class BalanceHistoryService {
     /**
      * Create and save a balance history item
      *
-     * @param userDto The changed balance the balance history item refers to
-     * @param createdOn Time of the balance change
-     * @param purchaseDto Associated purchase, if balance change resulted from such a one
+     * @param userDto           The changed balance the balance history item refers to
+     * @param createdOn         Time of the balance change
+     * @param purchaseDto       Associated purchase, if balance change resulted from such a one
      * @param balanceChangeType The type of balance change (TOPUP, WITHDRAW, etc.)
-     * @param amount The amount the balance was changed by or changed to
+     * @param amount            The amount the balance was changed by or changed to
      */
     public void saveBalanceChange(UserDto userDto, OffsetDateTime createdOn, PurchaseDto purchaseDto,
                                   BalanceChangeType balanceChangeType, float amount) {
