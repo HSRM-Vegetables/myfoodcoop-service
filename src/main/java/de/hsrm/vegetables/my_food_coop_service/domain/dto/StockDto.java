@@ -31,8 +31,7 @@ public class StockDto {
     @Column(nullable = false)
     private Float quantity;
 
-    @Column(nullable = false)
-    private Float pricePerUnit;
+    private Float pricePerUnit = null;
 
     @Column(length = 10000)
     private String description;
@@ -49,7 +48,6 @@ public class StockDto {
     @Column(nullable = false)
     private OriginCategory originCategory = OriginCategory.UNKNOWN;
 
-    @Column(nullable = false)
     private String producer;
 
     @Column(nullable = false)

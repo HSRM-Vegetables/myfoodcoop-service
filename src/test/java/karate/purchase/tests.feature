@@ -900,3 +900,48 @@ Feature: Simple Purchases
     And assert response.purchases.length == currentPurchases + 2
     And match response.totalCumulativePrice.toFixed(2) == (currentTotalCumulativePrice + 3.9).toFixed(2)
     And match response.totalCumulativeVat.toFixed(2) == (currentTotalCumulativeVat + 0.63).toFixed(2)
+
+  Scenario: Purchasing an item with no price is not possible
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create item
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 140.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+      vat: 0.19
+    }
+    """
+    When method POST
+    Then status 201
+    And def stockId = response.id
+
+    # Get token of member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # Purchase item
+    Given path '/purchase'
+    And header Authorization = "Bearer " + mToken
+    And def item1 = { id: #(stockId), amount: 1 }
+    And request { items: [#(item1)] }
+    When method POST
+    Then status 400
+    And match response.errorCode == 400025

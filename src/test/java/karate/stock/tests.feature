@@ -627,7 +627,6 @@ Feature: Simple Stock management
       name: "test",
       unitType: "PIECE",
       quantity: 10.0,
-      pricePerUnit: 5.0,
       sustainablyProduced: true,
       originCategory: "UNKNOWN",
       producer: "producer",
@@ -1565,3 +1564,49 @@ Feature: Simple Stock management
     And assert inStock.length > 0
     And assert spoilsSoon.length > 0
     And assert outOfStock.length == 0
+
+
+  Scenario: Cannot dispose an item with no price
+    # Get token for orderer
+    Given path 'auth', 'login'
+    And request { username: 'orderer',  password: #(password) }
+    When method POST
+    Then status 200
+    And def oToken = response.token
+
+    # Create item
+    Given path '/stock'
+    And header Authorization = "Bearer " + oToken
+    And request
+    """
+    {
+      name: "test",
+      unitType: "PIECE",
+      quantity: 140.0,
+      sustainablyProduced: true,
+      originCategory: "UNKNOWN",
+      producer: "producer",
+      supplier: "supplier",
+      stockStatus: "INSTOCK",
+      vat: 0.19
+    }
+    """
+    When method POST
+    Then status 201
+    And def stockId = response.id
+
+    # Get token of member
+    Given path 'auth', 'login'
+    And request { username: 'member',  password: #(password) }
+    When method POST
+    Then status 200
+    And def mToken = response.token
+
+    # Dispose of that item
+    Given path 'stock', stockId, 'dispose'
+    And header Authorization = "Bearer " + mToken
+    And def disposeAmount = 10
+    And request { amount: #(disposeAmount) }
+    When method POST
+    Then status 400
+    And match response.errorCode == 400025
