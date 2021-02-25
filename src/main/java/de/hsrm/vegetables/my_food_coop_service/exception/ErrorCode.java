@@ -42,7 +42,6 @@ public enum ErrorCode {
 
     // 404
     NO_HANDLER_FOUND(404001),
-    NO_BALANCE_FOUND(404002),
     NO_STOCK_ITEM_FOUND(404003),
     NO_PURCHASE_FOUND(404004),
     NO_USER_FOUND(404005),
@@ -62,15 +61,12 @@ public enum ErrorCode {
     MISSING_PATH_VARIABLE(500002),
     CONVERSION_NOT_SUPPORTED(500003),
     MESSAGE_NOT_WRITABLE(500004),
-    EXAMPLE_EXCEPTION(500005),
-    TOO_MANY_RESULTS(500006),
-    NAME_IN_USE(500007),
     STOCK_DTO_NOT_FOUND(500008),
 
     // 503
     ASYNC_REQUEST_TIMEOUT(503001);
 
-    private int code;
+    private final int code;
 
     ErrorCode(int code) {
         this.code = code;

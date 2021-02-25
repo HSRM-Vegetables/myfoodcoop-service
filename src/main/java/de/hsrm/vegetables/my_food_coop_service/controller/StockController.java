@@ -22,8 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +91,8 @@ public class StockController implements StockApi {
         AllStockResponse response = new AllStockResponse();
         response.setItems(items);
 
-        if (page.getPageable().isPaged()) {
+        if (page.getPageable()
+                .isPaged()) {
             Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }

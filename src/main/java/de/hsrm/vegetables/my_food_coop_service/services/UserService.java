@@ -27,6 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class UserService {
 
+    public static final String NO_USER_FOUND_WITH_GIVEN_ID = "No user found with given id ";
+
     @NonNull
     private final UserRepository userRepository;
 
@@ -83,7 +85,7 @@ public class UserService {
         UserDto user = userRepository.findById(id);
 
         if (user == null) {
-            throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+            throw new NotFoundError(NO_USER_FOUND_WITH_GIVEN_ID + id, ErrorCode.NO_USER_FOUND);
         }
 
         return user;
@@ -130,7 +132,7 @@ public class UserService {
     public UserDto addRole(String id, Role role) {
         UserDto user = getUserById(id);
         if (user == null) {
-            throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+            throw new NotFoundError(NO_USER_FOUND_WITH_GIVEN_ID + id, ErrorCode.NO_USER_FOUND);
         }
 
         if (user.isDeleted()) {
@@ -157,7 +159,7 @@ public class UserService {
     public UserDto deleteRole(String id, Role role) {
         UserDto user = getUserById(id);
         if (user == null) {
-            throw new NotFoundError("No user found with given id " + id, ErrorCode.NO_USER_FOUND);
+            throw new NotFoundError(NO_USER_FOUND_WITH_GIVEN_ID + id, ErrorCode.NO_USER_FOUND);
         }
         List<Role> roles = user.getRoles();
 
@@ -183,8 +185,8 @@ public class UserService {
      * ONLY: Only return deleted users
      *
      * @param deleteFilter How to treat deleted users
-     * @param offset Pagination offset (first element in returned page)
-     * @param limit Pagination limit (number of elements in returned page)
+     * @param offset       Pagination offset (first element in returned page)
+     * @param limit        Pagination limit (number of elements in returned page)
      * @return A list of users
      */
     public Page<UserDto> getAll(DeleteFilter deleteFilter, Integer offset, Integer limit) {
@@ -245,10 +247,10 @@ public class UserService {
      * <p>
      * Throws a NotFoundError if the user wasn't found
      *
-     * @param userDto The user to withdraw the money from
-     * @param amount  The amount to withdraw
+     * @param userDto           The user to withdraw the money from
+     * @param amount            The amount to withdraw
      * @param saveBalanceChange Whether to log the withdraw with a balance history item
-     * @return
+     * @return The updated UserDto
      */
     public UserDto withdraw(UserDto userDto, Float amount, boolean saveBalanceChange) {
         userDto.setBalance(userDto.getBalance() - amount);
@@ -268,7 +270,7 @@ public class UserService {
      *
      * @param userDto The user to topuup the money from
      * @param amount  The amount to topup
-     * @return
+     * @return The updated UserDto
      */
     public UserDto topup(UserDto userDto, Float amount) {
         userDto.setBalance(userDto.getBalance() + amount);
@@ -283,9 +285,9 @@ public class UserService {
      * Updates a users balance.
      * If no balance for the given name was found, a new entry in the database will be created, no error will be thrown
      *
-     * @param userDto
-     * @param amount
-     * @return
+     * @param userDto The user to set the balance for
+     * @param amount  The amount to set
+     * @return The updated UserDto
      */
     public UserDto setBalance(UserDto userDto, Float amount) {
         userDto.setBalance(amount);

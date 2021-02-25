@@ -8,6 +8,10 @@ import java.time.LocalDate;
 
 public class Util {
 
+    private Util() {
+        // hide implicit public constructor
+    }
+
     public static Pagination createPagination(Integer offset, Integer limit, Long total) {
         Pagination pagination = new Pagination();
         pagination.setOffset(offset);

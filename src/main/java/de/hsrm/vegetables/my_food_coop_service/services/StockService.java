@@ -490,7 +490,7 @@ public class StockService {
      * @param id    The id to check for
      * @return How often the id exists in the list
      */
-    private int countItemsWithId(List<CartItem> items, String id) {
+    private static int countItemsWithId(List<CartItem> items, String id) {
         return (int) items
                 .stream()
                 .filter(item -> item.getId()
@@ -513,7 +513,7 @@ public class StockService {
         return bd.floatValue();
     }
 
-    private String sortByToFieldname(String sortBy) {
+    private static String sortByToFieldname(String sortBy) {
         return switch (sortBy) {
             case "NAME" -> "name";
             case "ORDERDATE" -> "orderDate";

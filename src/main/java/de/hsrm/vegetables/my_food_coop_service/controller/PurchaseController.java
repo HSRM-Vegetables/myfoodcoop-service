@@ -95,7 +95,8 @@ public class PurchaseController implements PurchaseApi {
         PurchaseListResponse response = new PurchaseListResponse();
         response.setPurchases(items);
 
-        if (page.getPageable().isPaged()) {
+        if (page.getPageable()
+                .isPaged()) {
             Pagination pagination = Util.createPagination(offset, limit, page.getTotalElements());
             response.setPagination(pagination);
         }
@@ -132,7 +133,7 @@ public class PurchaseController implements PurchaseApi {
         return ResponseEntity.ok(purchaseHistoryItem);
     }
 
-    private UserPrincipal getUserPrincipalFromSecurityContext() {
+    private static UserPrincipal getUserPrincipalFromSecurityContext() {
         return (UserPrincipal) SecurityContextHolder
                 .getContext()
                 .getAuthentication()

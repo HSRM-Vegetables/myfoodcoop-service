@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.BaseError;
+import de.hsrm.vegetables.my_food_coop_service.exception.errors.MaskedError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.UnauthorizedError;
@@ -47,32 +48,32 @@ import java.util.stream.Collectors;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    Logger logger = LoggerFactory.getLogger(GlobalResponseEntityExceptionHandler.class);
+    public static final String APPLICATION_PROBLEM_JSON = "application/problem+json";
+
+    final Logger errorLogger = LoggerFactory.getLogger(GlobalResponseEntityExceptionHandler.class);
 
     /*
      Handler for own errors
      */
     @ExceptionHandler(BadRequestError.class)
     public ResponseEntity<Object> handleBadRequestError(BadRequestError error) {
-        return this.createException(error, HttpStatus.BAD_REQUEST);
+        return createException(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundError.class)
     public ResponseEntity<Object> handleNotFoundError(NotFoundError error) {
-        return this.createException(error, HttpStatus.NOT_FOUND);
+        return createException(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UnauthorizedError.class)
     public ResponseEntity<Object> handleUnauthorizedError(UnauthorizedError error) {
-        return this.createException(error, HttpStatus.UNAUTHORIZED);
+        return createException(error, HttpStatus.UNAUTHORIZED);
     }
 
     // Handles all BaseErrors that were not specifically mapped here
     @ExceptionHandler(BaseError.class)
     public ResponseEntity<Object> handleBaseError(BaseError error) {
-        // Mask all BaseErrors that don't have a specific mapping
-        error.setMessage("An Internal Server Error occurred");
-        return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return createException(new MaskedError(error.getErrorCode()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /*
@@ -81,22 +82,22 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     @ExceptionHandler(JWTDecodeException.class)
     public ResponseEntity<Object> handleJwtDecodeException(JWTDecodeException error) {
-        return this.createException("Invalid Authorization token", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_JWT);
+        return createException("Invalid Authorization token", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_JWT);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDenied(AccessDeniedException error) {
-        return this.createException("Access denied", HttpStatus.UNAUTHORIZED, ErrorCode.ACCESS_DENIED);
+        return createException("Access denied", HttpStatus.UNAUTHORIZED, ErrorCode.ACCESS_DENIED);
     }
 
     @ExceptionHandler(SignatureVerificationException.class)
     public ResponseEntity<Object> handleSignatureVerificationException(SignatureVerificationException error) {
-        return this.createException("Signature for token in Authorization header is invalid", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_TOKEN_SIGNATURE);
+        return createException("Signature for token in Authorization header is invalid", HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_TOKEN_SIGNATURE);
     }
 
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException error) {
-        return this.createException("The token is expired", HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED);
+        return createException("The token is expired", HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED);
     }
 
     /*
@@ -107,115 +108,115 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleException(Exception exception) {
         exception.printStackTrace();
-        return this.createException("An Internal Server Error occurred", HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_EXCEPTION);
+        return createException("An Internal Server Error occurred", HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_EXCEPTION);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.METHOD_NOT_ALLOWED);
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.METHOD_NOT_ALLOWED);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.UNSUPPORTED_MEDIA_TYPE);
+    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.NOT_ACCEPTABLE);
+    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.NOT_ACCEPTABLE);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.MISSING_PATH_VARIABLE);
+    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.MISSING_PATH_VARIABLE);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.MISSING_SERVLET_REQUEST_PARAMETER);
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.MISSING_SERVLET_REQUEST_PARAMETER);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.SERVLET_REQUEST_BINDING_EXCEPTION);
+    protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.SERVLET_REQUEST_BINDING_EXCEPTION);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.CONVERSION_NOT_SUPPORTED);
+    protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.CONVERSION_NOT_SUPPORTED);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.TYPE_MISMATCH);
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.TYPE_MISMATCH);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
         Throwable specificException = ex.getMostSpecificCause();
 
         if (specificException instanceof InvalidFormatException) {
-            return this.createException("Invalid JSON: " + specificException.getMessage()
+            return createException("Invalid JSON: " + specificException.getMessage()
                     .split("\n")[0], status, ErrorCode.MESSAGE_NOT_READABLE);
         }
 
         ex.printStackTrace();
 
-        return this.createException("Invalid Body, check Specification", status, ErrorCode.MESSAGE_NOT_READABLE);
+        return createException("Invalid Body, check Specification", status, ErrorCode.MESSAGE_NOT_READABLE);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.MESSAGE_NOT_WRITABLE);
+    protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.MESSAGE_NOT_WRITABLE);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex, status, ErrorCode.METHOD_ARGUMENT_NOT_VALID);
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex, status);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.MISSING_SERVLET_REQUEST_PART);
+    protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.MISSING_SERVLET_REQUEST_PART);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.BIND_EXCEPTION);
+    protected ResponseEntity<Object> handleBindException(BindException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.BIND_EXCEPTION);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return this.createException(ex.getMessage(), status, ErrorCode.NO_HANDLER_FOUND);
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return createException(ex.getMessage(), status, ErrorCode.NO_HANDLER_FOUND);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleAsyncRequestTimeoutException(AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatus status, WebRequest webRequest) {
-        return this.createException(ex.getMessage(), status, ErrorCode.ASYNC_REQUEST_TIMEOUT);
+    protected ResponseEntity<Object> handleAsyncRequestTimeoutException(AsyncRequestTimeoutException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest webRequest) {
+        return createException(ex.getMessage(), status, ErrorCode.ASYNC_REQUEST_TIMEOUT);
     }
 
     @Override
     @NonNull
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
         // print stack trace on internal errors for debugging
         ex.printStackTrace();
         // Do not respond with any message concerning internal errors
-        return this.createException("An Internal Server Error occurred", status, ErrorCode.INTERNAL_EXCEPTION);
+        return createException("An Internal Server Error occurred", status, ErrorCode.INTERNAL_EXCEPTION);
     }
 
 
@@ -237,7 +238,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
             errorMessage = "";
         }
 
-        logger.error(status + " || " + errorCode.getValue() + " || " + errorMessage);
+        errorLogger.error("{} \t\t|| {} \t\t|| {}", status, errorCode.getValue(), errorMessage);
 
         // Create response object
         ErrorResponse errorResponse = new ErrorResponse();
@@ -247,14 +248,14 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
 
         // Set response headers
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/problem+json");
+        httpHeaders.set(HttpHeaders.CONTENT_TYPE, APPLICATION_PROBLEM_JSON);
 
-        return new ResponseEntity<Object>(errorResponse, httpHeaders, status);
+        return new ResponseEntity<>(errorResponse, httpHeaders, status);
     }
 
     private ResponseEntity<Object> createException(BaseError error, HttpStatus status) {
-        logger.error(status + " || " + error.getErrorCode()
-                .getValue() + " || " + error.getMessage());
+        errorLogger.error("{} \t\t|| {} \t\t|| {}", status, error.getErrorCode()
+                .getValue(), error.getMessage());
 
         // Create response object
         ErrorResponse errorResponse = new ErrorResponse();
@@ -265,13 +266,13 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
 
         // Set response headers
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/problem+json");
+        httpHeaders.set(HttpHeaders.CONTENT_TYPE, APPLICATION_PROBLEM_JSON);
 
-        return new ResponseEntity<Object>(errorResponse, httpHeaders, status);
+        return new ResponseEntity<>(errorResponse, httpHeaders, status);
     }
 
-    private ResponseEntity<Object> createException(MethodArgumentNotValidException exception, HttpStatus status, ErrorCode errorCode) {
-        logger.error(status + " || " + errorCode.getValue() + " || Validation failed for: " + exception.getParameter());
+    private ResponseEntity<Object> createException(MethodArgumentNotValidException exception, HttpStatus status) {
+        errorLogger.error("{} \t\t|| {} \t\t|| Validation failed for: {}", status, ErrorCode.METHOD_ARGUMENT_NOT_VALID.getValue(), exception.getParameter());
 
         List<ErrorDetail> details = exception
                 .getBindingResult()
@@ -286,15 +287,15 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
                 .collect(Collectors.toList());
 
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorCode(errorCode.getValue());
+        errorResponse.setErrorCode(ErrorCode.METHOD_ARGUMENT_NOT_VALID.getValue());
         errorResponse.setStatus(status.value());
         errorResponse.setMessage("Validation failed for: " + exception.getParameter());
         errorResponse.setDetails(details);
 
         // Set response headers
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/problem+json");
+        httpHeaders.set(HttpHeaders.CONTENT_TYPE, APPLICATION_PROBLEM_JSON);
 
-        return new ResponseEntity<Object>(errorResponse, httpHeaders, status);
+        return new ResponseEntity<>(errorResponse, httpHeaders, status);
     }
 }
