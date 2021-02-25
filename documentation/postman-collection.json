@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "3150a455-7ce1-4c74-84b3-4f385c9fedb4",
+    "_postman_id": "c665d93c-b9e7-4739-8776-a15ada17abe6",
     "name": "MyFoodCoop-Service",
     "description": "## Environsments\r\n\r\n### LOCAL\r\nBenutzt für die lokale Entwicklung\r\n\r\nURL: localhost:8080\r\n\r\n### PROD\r\nBenutzt um gegen die deployte, produktive Umgebung zu schießen\r\n\r\nURL: https://veg-service.herokuapp.com/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -203,7 +203,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK&sortOrder=ASC&sortBy=ID",
+                      "raw": "{{URL}}/v2/stock?deleted=OMIT&filterByStatus=ORDERED,INSTOCK,SPOILSSOON,OUTOFSTOCK&sortOrder=ASC&sortBy=ID&offset=0&limit=10",
                       "host": [
                         "{{URL}}"
                       ],
@@ -227,6 +227,14 @@
                         {
                           "key": "sortBy",
                           "value": "ID"
+                        },
+                        {
+                          "key": "offset",
+                          "value": "0"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
                         }
                       ]
                     }
@@ -630,7 +638,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/reports/sold-items?fromDate={{today}}&toDate={{today}}",
+                      "raw": "{{URL}}/v2/reports/sold-items?fromDate={{today}}&toDate={{today}}&offset=0&limit=10",
                       "host": [
                         "{{URL}}"
                       ],
@@ -647,6 +655,14 @@
                         {
                           "key": "toDate",
                           "value": "{{today}}"
+                        },
+                        {
+                          "key": "offset",
+                          "value": "0"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
                         }
                       ]
                     }
@@ -665,7 +681,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/reports/balance-overview",
+                      "raw": "{{URL}}/v2/reports/balance-overview?deleted=OMIT&offset=0&limit=10",
                       "host": [
                         "{{URL}}"
                       ],
@@ -673,6 +689,92 @@
                         "v2",
                         "reports",
                         "balance-overview"
+                      ],
+                      "query": [
+                        {
+                          "key": "deleted",
+                          "value": "OMIT"
+                        },
+                        {
+                          "key": "offset",
+                          "value": "0"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "GET /reports/disposed-items",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          ""
+                        ],
+                        "type": "text/javascript"
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "var dt = new Date();\r",
+                          "var month = dt.getMonth() + 1;\r",
+                          "var formattedMonth = (\"0\" + month).slice(-2);\r",
+                          "var formattedDay = (\"0\" + dt.getDate()).slice(-2);\r",
+                          "\r",
+                          "var today = dt.getFullYear() + \"-\" + formattedMonth + \"-\" + formattedDay;\r",
+                          "\r",
+                          "pm.collectionVariables.set(\"today\", today);"
+                        ],
+                        "type": "text/javascript"
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "type": "text",
+                        "value": "{{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{URL}}/v2/reports/disposed-items?fromDate={{today}}&toDate={{today}}",
+                      "host": [
+                        "{{URL}}"
+                      ],
+                      "path": [
+                        "v2",
+                        "reports",
+                        "disposed-items"
+                      ],
+                      "query": [
+                        {
+                          "key": "fromDate",
+                          "value": "{{today}}"
+                        },
+                        {
+                          "key": "toDate",
+                          "value": "{{today}}"
+                        },
+                        {
+                          "key": "offset",
+                          "value": "0",
+                          "disabled": true
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10",
+                          "disabled": true
+                        }
                       ]
                     }
                   },
@@ -706,13 +808,27 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{URL}}/v2/user",
+                      "raw": "{{URL}}/v2/user?deleted=OMIT&offset=0&limit=10",
                       "host": [
                         "{{URL}}"
                       ],
                       "path": [
                         "v2",
                         "user"
+                      ],
+                      "query": [
+                        {
+                          "key": "deleted",
+                          "value": "OMIT"
+                        },
+                        {
+                          "key": "offset",
+                          "value": "0"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        }
                       ]
                     }
                   },
