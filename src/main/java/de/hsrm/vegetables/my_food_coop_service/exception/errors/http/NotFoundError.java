@@ -8,8 +8,7 @@ public class NotFoundError extends BaseError {
     private static final long serialVersionUID = -5589987286818510793L;
 
     public NotFoundError(String message, ErrorCode errorCode) {
-        this.message = message;
-        this.errorCode = errorCode;
+        super(message, errorCode);
     }
 
 }

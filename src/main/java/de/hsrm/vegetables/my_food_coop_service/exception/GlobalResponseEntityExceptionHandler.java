@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.BaseError;
+import de.hsrm.vegetables.my_food_coop_service.exception.errors.MaskedError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.BadRequestError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.NotFoundError;
 import de.hsrm.vegetables.my_food_coop_service.exception.errors.http.UnauthorizedError;
@@ -70,9 +71,7 @@ public class GlobalResponseEntityExceptionHandler extends ResponseEntityExceptio
     // Handles all BaseErrors that were not specifically mapped here
     @ExceptionHandler(BaseError.class)
     public ResponseEntity<Object> handleBaseError(BaseError error) {
-        // Mask all BaseErrors that don't have a specific mapping
-        error.setMessage("An Internal Server Error occurred");
-        return this.createException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return this.createException(new MaskedError(error.getErrorCode()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /*
