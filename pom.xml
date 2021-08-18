@@ -22,7 +22,7 @@
         <java.version>15</java.version>
         <swagger-annotations-version>1.6.2</swagger-annotations-version>
         <karate.version>1.1.0</karate.version>
-        <openapi-generator.version>5.1.0</openapi-generator.version>
+        <openapi-generator.version>5.2.1</openapi-generator.version>
         <openapitools-jackson.version>0.2.1</openapitools-jackson.version>
         <springfox.version>3.0.0</springfox.version>
         <auth0.jwt.version>3.18.1</auth0.jwt.version>
@@ -166,7 +166,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>5.1.0</version>
+                <version>5.2.1</version>
                 <executions>
                     <execution>
                         <goals>
