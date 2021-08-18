@@ -65,9 +65,12 @@ public class StockService {
                 PageRequest.of(0, Integer.MAX_VALUE, sortParameters) :
                 PageRequest.of(offset / limit, limit, sortParameters);
 
+        // Due to a bug in openapi-maven-generator we need to explicitly set the default here
+        DeleteFilter actualDeleteFilter = deleteFilter != null ? deleteFilter : DeleteFilter.OMIT;
+
         // No filtering by status
         if (stockFilter == null || stockFilter.isEmpty()) {
-            return switch (deleteFilter) {
+            return switch (actualDeleteFilter) {
                 case OMIT -> stockRepository.findByIsDeleted(false, pageable);
                 case ONLY -> stockRepository.findByIsDeleted(true, pageable);
                 case INCLUDE -> stockRepository.findAll(pageable);
@@ -75,12 +78,12 @@ public class StockService {
         }
 
         // No filtering by deleted but by status
-        if (deleteFilter.equals(DeleteFilter.INCLUDE)) {
+        if (actualDeleteFilter.equals(DeleteFilter.INCLUDE)) {
             return stockRepository.findByStockStatusIn(stockFilter, pageable);
         }
 
         // filtering by stockStatus and deleted
-        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !deleteFilter.equals(DeleteFilter.OMIT), pageable);
+        return stockRepository.findByStockStatusInAndIsDeleted(stockFilter, !actualDeleteFilter.equals(DeleteFilter.OMIT), pageable);
     }
 
     /**

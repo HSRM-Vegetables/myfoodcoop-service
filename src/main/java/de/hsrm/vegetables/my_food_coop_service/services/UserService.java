@@ -192,7 +192,10 @@ public class UserService {
     public Page<UserDto> getAll(DeleteFilter deleteFilter, Integer offset, Integer limit) {
         Pageable pageable = (offset == null) ? Pageable.unpaged() : PageRequest.of(offset / limit, limit);
 
-        return switch (deleteFilter) {
+        // Due to a bug in openapi-maven-generator we need to explicitly set the default here
+        DeleteFilter actualFilter = deleteFilter != null ? deleteFilter : DeleteFilter.OMIT;
+
+        return switch (actualFilter) {
             case OMIT -> userRepository.findByIsDeleted(false, pageable);
             case ONLY -> userRepository.findByIsDeleted(true, pageable);
             case INCLUDE -> userRepository.findAll(pageable);
