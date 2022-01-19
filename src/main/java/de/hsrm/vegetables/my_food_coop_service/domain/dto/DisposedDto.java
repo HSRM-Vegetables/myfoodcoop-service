@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
 public class DisposedDto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
