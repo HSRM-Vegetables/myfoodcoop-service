@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class RefreshTokenDto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "refreshtoken", length = 10000)

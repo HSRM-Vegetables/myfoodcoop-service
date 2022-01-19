@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class PurchasedItemDto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     // This object needs an id, but that's not a value the user is ever gonna see
     private Long id;
 
