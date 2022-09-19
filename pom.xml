@@ -26,7 +26,7 @@
         <openapitools-jackson.version>0.2.2</openapitools-jackson.version>
         <auth0.jwt.version>3.19.1</auth0.jwt.version>
         <h2database.version>2.1.212</h2database.version>
-        <spring-data-jpa.version>2.6.4</spring-data-jpa.version>
+        <spring-data-jpa.version>2.7.3</spring-data-jpa.version>
         <postgres.version>42.3.4</postgres.version>
         <springdoc.version>1.6.8</springdoc.version>
     </properties>
