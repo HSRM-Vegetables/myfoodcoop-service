@@ -28,7 +28,7 @@
         <h2database.version>2.1.212</h2database.version>
         <spring-data-jpa.version>2.6.4</spring-data-jpa.version>
         <postgres.version>42.5.4</postgres.version>
-        <springdoc.version>1.6.8</springdoc.version>
+        <springdoc.version>1.7.0</springdoc.version>
     </properties>
 
     <dependencies>
